@@ -42,7 +42,7 @@ class DirectoryInformation(prebase.ProtoM21Object):
         self.findWorks()
 
     def _reprInternal(self):
-        return str(self.directoryName)
+        pass
 
     def findWorks(self):
         r'''
@@ -68,58 +68,7 @@ class DirectoryInformation(prebase.ProtoM21Object):
         (The ellipses in the documentation above represent '/' on Mac/Unix systems and
         '\' on Windows.)
         '''
-        self.works.clear()
-        works = self.corpusObject.getComposer(self.directoryName)
-        # TODO: this should be renamed since not all are composers
-        for path in works:
-            # split by the composer dir to get relative path
-            # environLocal.printDebug(['dir composer', composerDirectory, path])
-            try:
-                # only split once in case a composer name appears in the path and filename.
-                junk, fileStub = str(path).split(self.directoryName, 1)
-            except ValueError:  # too many/few values to unpack
-                print('Error in processing path:', path, 'directoryName:', self.directoryName)
-                continue
-
-            if fileStub.startswith(os.sep):
-                fileStub = fileStub[len(os.sep):]
-            # break into file components
-            fileComponents = fileStub.split(os.sep)
-            # the first is either a directory for containing components
-            # or a top-level name
-            m21Format, ext = common.findFormatExtFile(fileComponents[-1])
-            if ext is None:
-                # environLocal.printDebug([
-                #    'file that does not seem to have an extension',
-                #    ext, path])
-                continue
-            # if not a file w/ ext, we will get None for format
-            if m21Format is None:
-                workStub = fileComponents[0]
-            else:  # remove the extension
-                workStub = fileComponents[0].replace(ext, '')
-            # create list location if not already added
-            if workStub not in self.works:
-                title = common.spaceCamelCase(workStub).title()
-                self.works[workStub] = CorpusWork(title=title, files=[], virtual=False)
-            # last component is the name
-            m21Format, ext = common.findFormatExtFile(fileComponents[-1])
-            # all path parts after corpus
-            corpusPath = os.path.join(str(self.directoryName), fileStub)
-            corpusFileName = fileComponents[-1]  # all after
-            title = None
-            # this works but takes a long time!
-            # title = converter.parse(path).metadata.title
-            # TODO: get from RichMetadataBundle!
-            if title is None:
-                title = common.spaceCamelCase(
-                    fileComponents[-1].replace(ext, ''))
-                title = title.title()
-            fileTuple = CorpusFile(path=corpusPath, title=title, filename=corpusFileName,
-                                   format=m21Format, ext=ext)
-            self.works[workStub].files.append(fileTuple)
-            # add this path
-        return self.works
+        pass
 
 # -----------------------------------------------------------------------------
 

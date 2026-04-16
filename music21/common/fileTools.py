@@ -45,13 +45,7 @@ def cd(targetDir):
 
     will switch temporarily, and then switch back when leaving.
     '''
-    cwd = os.getcwd()
-
-    try:
-        os.chdir(targetDir)
-        yield
-    finally:
-        os.chdir(cwd)
+    pass
 
 
 def readPickleGzip(filePath: str|pathlib.Path) -> t.Any:

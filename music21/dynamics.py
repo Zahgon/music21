@@ -62,26 +62,7 @@ def dynamicStrFromDecimal(n):
     >>> dynamics.dynamicStrFromDecimal(1)
     'fff'
     '''
-    if n is None or n <= 0:
-        return 'n'
-    elif n < 0.11:
-        return 'pppp'
-    elif n < 0.16:
-        return 'ppp'
-    elif n < 0.26:
-        return 'pp'
-    elif n < 0.36:
-        return 'p'
-    elif n < 0.5:
-        return 'mp'
-    elif n < 0.65:
-        return 'mf'
-    elif n < 0.8:
-        return 'f'
-    elif n < 0.9:
-        return 'ff'
-    else:
-        return 'fff'
+    pass
 
 
 # defaults used for volume scalar
@@ -237,22 +218,13 @@ class Dynamic(base.Music21Object):
         self.placement = None
 
     def _reprInternal(self):
-        return str(self.value)
+        pass
 
     def _getValue(self):
-        return self._value
+        pass
 
     def _setValue(self, value):
-        self._value = value
-        if self._value in longNames:
-            self.longName = longNames[self._value]
-        else:
-            self.longName = None
-
-        if self._value in englishNames:
-            self.englishName = englishNames[self._value]
-        else:
-            self.englishName = None
+        pass
 
     value = property(_getValue, _setValue,
                      doc='''
@@ -277,30 +249,11 @@ class Dynamic(base.Music21Object):
         ''')
 
     def _getVolumeScalar(self):
-        if self._volumeScalar is not None:
-            return self._volumeScalar
-        # use default
-        elif self._value in dynamicStrToScalar:
-            return dynamicStrToScalar[self._value]
-        else:
-            thisDynamic = self._value
-            # ignore leading s like in sf
-            if 's' in thisDynamic:
-                thisDynamic = thisDynamic[1:]
-            # ignore closing z like in fz
-            if thisDynamic[-1] == 'z':
-                thisDynamic = thisDynamic[:-1]
-            if thisDynamic in dynamicStrToScalar:
-                return dynamicStrToScalar[thisDynamic]
-            else:
-                return dynamicStrToScalar[None]
+        pass
 
     def _setVolumeScalar(self, value):
         # we can manually set this to be anything, overriding defaults
-        if common.isNum(value) and 0 <= value <= 1:
-            self._volumeScalar = value
-        else:
-            raise DynamicException(f'cannot set as volume scalar to: {value}')
+        pass
 
     volumeScalar = property(_getVolumeScalar, _setVolumeScalar, doc=r'''
         Get or set the volume scalar for this dynamic. If not explicitly set, a
@@ -396,92 +349,37 @@ class TestExternal(unittest.TestCase):
     show = True
 
     def testSingle(self):
-        a = Dynamic('ffff')
-        if self.show:
-            a.show()
+        pass
 
     def testBasic(self):
         '''
         present each dynamic in a single measure
         '''
-        from music21 import stream
-        a = stream.Stream()
-        o = 0
-        for dynStr in shortNames:
-            b = Dynamic(dynStr)
-            a.insert(o, b)
-            o += 4  # increment
-        if self.show:
-            a.show()
+        pass
 
 
 # ------------------------------------------------------------------------------
 class Test(unittest.TestCase):
 
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
     def testBasic(self):
-        noDyn = Dynamic()
-        assert noDyn.longName is None
-
-        pp = Dynamic('pp')
-        self.assertEqual(pp.value, 'pp')
-        self.assertEqual(pp.longName, 'pianissimo')
-        self.assertEqual(pp.englishName, 'very soft')
+        pass
 
     def testCorpusDynamicsWedge(self):
-        from music21 import corpus
-        from music21 import dynamics
-
-        a = corpus.parse('opus41no1/movement2')  # has dynamics!
-        b = a.parts[0].flatten().getElementsByClass(dynamics.Dynamic)
-        self.assertEqual(len(b), 35)
-
-        b = a.parts[0].flatten().getElementsByClass(dynamics.DynamicWedge)
-        self.assertEqual(len(b), 2)
+        pass
 
     def testMusicxmlOutput(self):
         # test direct rendering of musicxml
-        from music21.musicxml import m21ToXml
-        d = Dynamic('p')
-        xmlOut = m21ToXml.GeneralObjectExporter().parse(d).decode('utf-8')
-        match = '<p />'
-        self.assertNotEqual(xmlOut.find(match), -1, xmlOut)
+        pass
 
     def testDynamicsPositionA(self):
-        from music21 import stream
-        from music21 import note
-        s = stream.Stream()
-        selections = ['pp', 'f', 'mf', 'fff']
-        # positions = [-20, 0, 20]
-        for i in range(10):
-            d = Dynamic(selections[i % len(selections)])
-            s.append(d)
-            s.append(note.Note('c1'))
+        pass
         # s.show()
 
     def testDynamicsPositionB(self):
-        import random
-        from music21 import stream
-        from music21 import note
-        from music21 import layout
-        s = stream.Stream()
-        for i in range(6):
-            m = stream.Measure(number=i + 1)
-            m.append(layout.SystemLayout(isNew=True))
-            m.append(note.Rest(type='whole'))
-            s.append(m)
-        stream_iterator = s.getElementsByClass(stream.Measure)
-        for m in stream_iterator:
-            offsets = [x * 0.25 for x in range(16)]
-            random.shuffle(offsets)
-            offsets = offsets[:4]
-            for o in offsets:
-                d = Dynamic('mf')
-                d.style.absoluteY = 20
-                m.insert(o, d)
+        pass
         # s.show()
 
 

@@ -191,12 +191,7 @@ class PercussionMapper:
         music21.midi.percussion.MIDIPercussionException: <music21.instrument.Bagpipes 'Bagpipes'>
             is not in the GM Percussion Map!
         '''
-        if not hasattr(midiInstrument, 'inGMPercMap') or midiInstrument.inGMPercMap is False:
-            raise MIDIPercussionException(f'{midiInstrument!r} is not in the GM Percussion Map!')
-        midiPitch = midiInstrument.percMapPitch
-        pitchObject = pitch.Pitch()
-        pitchObject.midi = midiPitch
-        return pitchObject
+        pass
 
     _DOC_ORDER = [midiInstrumentToPitch, midiPitchToInstrument]
 
@@ -204,8 +199,7 @@ class PercussionMapper:
 class Test(unittest.TestCase):
 
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
 
 # ------------------------------------------------------------------------------

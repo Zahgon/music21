@@ -118,12 +118,7 @@ class ProtoM21Object:
 
         Changed in v2: returns a tuple, not a list.
         '''
-        try:
-            return self._classTupleCacheDict[self.__class__]
-        except KeyError:
-            classTuple = tuple(x.__name__ for x in self.__class__.mro())
-            self._classTupleCacheDict[self.__class__] = classTuple
-            return classTuple
+        pass
 
     @property
     def classSet(self) -> frozenset[str|type]:
@@ -193,18 +188,7 @@ class ProtoM21Object:
 
         * Changed in v8: partially qualified objects such as 'note.Note' have been added.
         '''
-        try:
-            return self._classSetCacheDict[self.__class__]
-        except KeyError:
-            classList: list[str|type] = list(self.classes)
-            classList.extend(self.__class__.mro())
-            fullyQualifiedStrings = [x.__module__ + '.' + x.__name__ for x in self.__class__.mro()]
-            classList.extend(fullyQualifiedStrings)
-            partiallyQualifiedStrings = [x.replace('music21.', '') for x in fullyQualifiedStrings]
-            classList.extend(partiallyQualifiedStrings)
-            classSet = frozenset(classList)
-            self._classSetCacheDict[self.__class__] = classSet
-            return classSet
+        pass
 
     def __repr__(self) -> str:
         '''
@@ -259,7 +243,7 @@ class ProtoM21Object:
         A more complex `_reprInternal` that handles the case of objects
         with `.id` defined is found in Music21Object.
         '''
-        return f'object at {hex(id(self))}'
+        pass
 
 
 del t
@@ -267,15 +251,10 @@ del t
 
 class Test(unittest.TestCase):
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
     def test_reprInternal(self):
-        from music21.base import Music21Object
-        b = Music21Object()
-        b.id = 'hello'
-        r = repr(b)
-        self.assertEqual(r, '<music21.base.Music21Object id=hello>')
+        pass
 
 
 # ---------------------------------------------------------

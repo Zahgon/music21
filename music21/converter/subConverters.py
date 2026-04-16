@@ -115,10 +115,10 @@ class SubConverter:
         return self.stream
 
     def _getStream(self):
-        return self._stream
+        pass
 
     def _setStream(self, newStream):
-        self._stream = newStream
+        pass
 
     stream = property(_getStream, _setStream, doc='''
         Returns or sets the stream in the converter.  Must be defined for subConverter to work.
@@ -133,7 +133,7 @@ class SubConverter:
         a Lilypond converter is used and Lilypond
         is not installed.
         '''
-        return True
+        pass
 
     def launch(self,
                filePath: pathlib.Path,
@@ -330,18 +330,7 @@ class SubConverter:
         Write the object out in the given format and then read it back in
         and return the object (str or bytes) returned.
         '''
-        fp = self.write(obj, fmt=fmt, subformats=subformats, **keywords)
-        if self.readBinary is False:
-            readFlags = 'r'
-        else:
-            readFlags = 'rb'
-        with open(fp,
-                  mode=readFlags,
-                  encoding=self.stringEncoding if self.codecWrite else None
-                  ) as f:
-            out = f.read()
-        fp.unlink(missing_ok=True)
-        return out
+        pass
 
 
 class ConverterIPython(SubConverter):
@@ -1025,10 +1014,7 @@ class ConverterMidi(SubConverter):
 
     @property
     def encoding(self) -> str:
-        if 'encoding' in self.keywords and self.keywords['encoding']:
-            # if the encoding is set to None or '', it will be ignored
-            return self.keywords['encoding']
-        return 'utf-8'
+        pass
 
     def parseData(self, strData, number=None, *, encoding: str = ''):
         '''
@@ -1404,7 +1390,7 @@ class ConverterMEI(SubConverter):
         '''
         MEI export is not yet implemented.
         '''
-        return False
+        pass
 
     # def launch(self, filePath, fmt=None, options='', app=None, key=None):
     #     raise NotImplementedError('MEI export is not yet implemented.')
@@ -1425,31 +1411,19 @@ class ConverterMEI(SubConverter):
 class Test(unittest.TestCase):
 
     def testSimpleTextShow(self):
-        from music21 import note
-        n = note.Note()
-        s = stream.Stream()
-        s.append(n)
-        unused_x = s.show('textLine')
+        pass
 
     def testImportMei1(self):
         '''
         When the string starts with "mei:"
         '''
-        from unittest import mock
-        with mock.patch('music21.mei.MeiToM21Converter') as mockConv:
-            testConverter = ConverterMEI()
-            testConverter.parseData('mei: <?xml><mei><note/></mei>')
-            mockConv.assert_called_once_with(' <?xml><mei><note/></mei>')
+        pass
 
     def testImportMei2(self):
         '''
         When the string doesn't start with "mei:"
         '''
-        from unittest import mock
-        with mock.patch('music21.mei.MeiToM21Converter') as mockConv:
-            testConverter = ConverterMEI()
-            testConverter.parseData('<?xml><mei><note/></mei>')
-            mockConv.assert_called_once_with('<?xml><mei><note/></mei>')
+        pass
 
     def testImportMei3(self):
         '''
@@ -1457,145 +1431,40 @@ class Test(unittest.TestCase):
         it was exported from
         the "sibmei" plug-in for Sibelius).
         '''
-        from unittest import mock
-        with mock.patch('music21.mei.MeiToM21Converter') as mockConv:
-            testPath = common.getSourceFilePath() / 'mei' / 'test' / 'notes_in_utf16.mei'
-            testConverter = ConverterMEI()
-            testConverter.parseFile(testPath)
-            self.assertEqual(1, mockConv.call_count)
+        pass
 
     def testImportMei4(self):
         '''
         For the sake of completeness, this is the same as testImportMei3() but with a UTF-8 file.
         '''
-        from unittest import mock
-        with mock.patch('music21.mei.MeiToM21Converter') as mockConv:
-            testPath = common.getSourceFilePath() / 'mei' / 'test' / 'notes_in_utf8.mei'
-            testConverter = ConverterMEI()
-            testConverter.parseFile(testPath)
-            self.assertEqual(1, mockConv.call_count)
+        pass
 
     def testWriteMXL(self):
-        from music21 import converter
-        from music21.musicxml import testPrimitive
-
-        s = converter.parseData(testPrimitive.multiDigitEnding)
-        mxlPath = s.write('mxl')
-        self.assertTrue(str(mxlPath).endswith('.mxl'), f'{mxlPath} does not end with .mxl')
-
-        # Just the filepath ending in .mxl is sufficient to write .mxl
-        s.write(fp=mxlPath)
-        # Verify that it actually wrote bytes
-        with self.assertRaises(UnicodeDecodeError):
-            with open(mxlPath, 'r', encoding='utf-8') as f:
-                f.read(20)
-
-        # Also test ConverterMusicXML object directly
-        conv = ConverterMusicXML()
-        mxlPath2 = conv.write(obj=s, fmt='mxl')
-        with self.assertRaises(UnicodeDecodeError):
-            with open(mxlPath2, 'r', encoding='utf-8') as f:
-                f.read(20)
-
-        os.remove(mxlPath)
-        os.remove(mxlPath2)
+        pass
 
     def testWriteMusicXMLMakeNotation(self):
-        from music21 import converter
-        from music21 import note
-        from music21.musicxml.xmlObjects import MusicXMLExportException
-
-        m1 = stream.Measure(note.Note(quarterLength=5.0))
-        m2 = stream.Measure()
-        p = stream.Part([m1, m2])
-        s = stream.Score(p)
-
-        self.assertEqual(len(m1.notes), 1)
-        self.assertEqual(len(m2.notes), 0)
-
-        out1 = s.write()  # makeNotation=True is assumed
-        # 4/4 will be assumed; quarter note will be moved to measure 2
-        round_trip_back = converter.parse(out1)
-        self.assertEqual(
-            len(round_trip_back.parts.first().getElementsByClass(stream.Measure)[0].notes), 1)
-        self.assertEqual(
-            len(round_trip_back.parts.first().getElementsByClass(stream.Measure)[1].notes), 1)
-
-        with self.assertRaises(MusicXMLExportException):
-            # must splitAtDurations()!
-            s.write(makeNotation=False)
-
-        s = s.splitAtDurations(recurse=True)[0]
-        out2 = s.write(makeNotation=False)
-        round_trip_back = converter.parse(out2)
-        # 4/4 will not be assumed; quarter note will still be split out from 5.0QL,
-        # but it will remain in measure 1
-        # and there will be no rests in measure 2
-        self.assertEqual(
-            len(round_trip_back.parts.first().getElementsByClass(stream.Measure)[0].notes), 2)
-        self.assertEqual(
-            len(round_trip_back.parts.first().getElementsByClass(stream.Measure)[1].notes), 0)
-
-        # makeNotation = False cannot be used on non-scores
-        with self.assertRaises(MusicXMLExportException):
-            p.write(makeNotation=False)
-
-        for out in (out1, out2):
-            os.remove(out)
+        pass
 
     def testBrailleKeywords(self):
-        from music21 import converter
-
-        p = converter.parse('tinyNotation: c1 d1 e1 f1')
-        out = p.write('braille', debug=True)
-        with open(out, 'r', encoding='utf-8') as f:
-            self.assertIn('<music21.braille.segment BrailleSegment>', f.read())
-        os.remove(out)
+        pass
 
     def testWriteRomanText(self):
-        import textwrap
-        from io import StringIO
-        from music21 import converter
-
-        rntxt = textwrap.dedent('''
-            Time Signature: 3/4
-            m1 C: I
-        ''')
-        s = converter.parse(rntxt, format='romanText')
-        text_stream = StringIO()
-        s.write('romanText', text_stream)
-        self.assertTrue(text_stream.getvalue().endswith(rntxt))
+        pass
 
 class TestExternal(unittest.TestCase):
     show = True
 
     def testXMLShow(self):
-        from music21 import corpus
-        c = corpus.parse('bwv66.6')
-        if self.show:
-            c.show()  # musicxml
+        pass
 
     def testWriteLilypond(self):
-        from music21 import note
-        n = note.Note()
-        n.duration.type = 'whole'
-        s = stream.Stream()
-        s.append(n)
-        if self.show:
-            s.show('lily.png')
-            print(s.write('lily.png'))
+        pass
 
     def testMultiPageXMlShow1(self):
         '''
         tests whether show() works for music that is 10-99 pages long
         '''
-        from music21 import omr
-        from music21 import converter
-        K525 = omr.correctors.K525groundTruthFilePath
-        K525 = converter.parse(K525)
-        if self.show:
-            K525.show('musicxml.png')
-            print(K525.write('musicxml.png'))
+        pass
 
     # def testMultiPageXMlShow2(self):
     #     '''

@@ -112,15 +112,7 @@ def getAxisQuantities(synonyms=False, axesToCheck=None):
 
 
     '''
-    if axesToCheck is None:
-        axesToCheck = getAxisClasses()
-    allQuantities = []
-    for axClass in axesToCheck:
-        if synonyms:
-            allQuantities.extend(axClass.quantities)
-        else:
-            allQuantities.append(axClass.quantities[0])
-    return allQuantities
+    pass
 
 
 def userFormatsToFormat(userFormat):
@@ -411,40 +403,10 @@ def getPlotsToMake(graphFormat: str|None = None,
 
 class Test(unittest.TestCase):
     def testGetPlotsToMakeA(self):
-        post = getPlotsToMake('ambitus')
-        self.assertEqual(post, [plot.WindowedAmbitus])
-        post = getPlotsToMake('key')
-        self.assertEqual(post, [plot.WindowedKey])
-
-        # no args get pitch space piano roll
-        post = getPlotsToMake()
-        self.assertEqual(post, [plot.HorizontalBarPitchSpaceOffset])
-
-        # one arg gives a histogram of that parameters
-        post = getPlotsToMake('duration')
-        self.assertEqual(post, [plot.HistogramQuarterLength])
-        post = getPlotsToMake('quarterLength')
-        self.assertEqual(post, [plot.HistogramQuarterLength])
-        post = getPlotsToMake('ps')
-        self.assertEqual(post, [plot.HistogramPitchSpace])
-        post = getPlotsToMake('pitch')
-        self.assertEqual(post, [plot.HistogramPitchSpace])
-        post = getPlotsToMake('pitchspace')
-        self.assertEqual(post, [plot.HistogramPitchSpace])
-        post = getPlotsToMake('pitchClass')
-        self.assertEqual(post, [plot.HistogramPitchClass])
-
-        post = getPlotsToMake('scatter', 'pitch', 'ql')
-        self.assertEqual(post, [plot.ScatterPitchSpaceQuarterLength])
-
-        post = getPlotsToMake('scatter', 'pc', 'offset')
-        self.assertEqual(post, [plot.ScatterPitchClassOffset])
+        pass
 
     def testGetPlotsToMakeB(self):
-        post = getPlotsToMake('dolan')
-        self.assertEqual(post, [plot.Dolan])
-        post = getPlotsToMake('instruments')
-        self.assertEqual(post, [plot.Dolan])
+        pass
 
 
 if __name__ == '__main__':

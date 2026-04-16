@@ -385,7 +385,7 @@ class ChordBase(note.NotRest):
 
     @property
     def notes(self) -> tuple[note.NotRest, ...]:
-        return tuple(self._notes)
+        pass
 
     @property
     def tie(self) -> tie.Tie|None:
@@ -947,14 +947,7 @@ class Chord(ChordBase):
         self._notes[keyIndex] = value
 
     def _reprInternal(self) -> str:
-        if not self.pitches:
-            return super()._reprInternal()
-
-        allPitches = []
-        for thisPitch in self.pitches:
-            allPitches.append(thisPitch.nameWithOctave)
-
-        return ' '.join(allPitches)
+        pass
 
     # STATIC METHOD #
 
@@ -980,12 +973,7 @@ class Chord(ChordBase):
         '<AB35>'
 
         '''
-        msg = ['<']
-        for e in vectorList:  # should be numbers
-            eStr = pitch.convertPitchClassToStr(e)
-            msg.append(eStr)
-        msg.append('>')
-        return ''.join(msg)
+        pass
 
     # PRIVATE METHODS #
     def _findBass(self) -> pitch.Pitch|None:
@@ -1213,39 +1201,7 @@ class Chord(ChordBase):
         >>> [ly.text for ly in c.lyrics]
         ['5', '3']
         '''
-        # make a copy of self for reducing pitches, but attach to self
-        c = copy.deepcopy(self)
-        # this could be an option
-        c.removeRedundantPitches(inPlace=True)
-
-        if sortPitches:
-            c = c.sortAscending()
-        # environLocal.printDebug(['annotateIntervals()', c.pitches])
-        lyricsList = []
-
-        for j in range(len(c.pitches) - 1, 0, -1):  # only go to one; zero never used
-            p = c.pitches[j]
-            i = interval.Interval(c.pitches[0], p)
-            if stripSpecifiers is False:
-                notation = i.semiSimpleName
-            else:
-                notation = str(i.diatonic.generic.semiSimpleUndirected)
-            lyricsList.append(notation)
-
-        if stripSpecifiers and sortPitches:
-            lyricsList.sort(reverse=True)
-
-        if returnList:
-            return lyricsList
-
-        for notation in lyricsList:
-            if inPlace:
-                self.addLyric(notation)
-            else:
-                c.addLyric(notation)
-
-        if not inPlace:
-            return c
+        pass
 
     def areZRelations(self, other: t.Self) -> bool:
         '''
@@ -1266,12 +1222,7 @@ class Chord(ChordBase):
         >>> c4.areZRelations(c3)
         False
         '''
-        zRelationAddress = tables.addressToZAddress(self.chordTablesAddress)
-        if zRelationAddress is None:
-            return False
-        if other.chordTablesAddress[0:3] == zRelationAddress[0:3]:
-            return True
-        return False
+        pass
 
     @overload
     def bass(
@@ -1460,10 +1411,7 @@ class Chord(ChordBase):
         >>> gDim.canBeDominantV()
         False
         '''
-        if self.isMajorTriad() or self.isDominantSeventh():
-            return True
-        else:
-            return False
+        pass
 
     def canBeTonic(self) -> bool:
         '''
@@ -1478,10 +1426,7 @@ class Chord(ChordBase):
         True
 
         '''
-        if self.isMajorTriad() or self.isMinorTriad():
-            return True
-        else:
-            return False
+        pass
 
     @overload
     def closedPosition(
@@ -1672,13 +1617,7 @@ class Chord(ChordBase):
         >>> chord.Chord().containsSeventh()
         False
         '''
-        if not self.containsTriad():
-            return False
-        # no need to cache, since third, fifth, and seventh are cached
-        if self.seventh is None:
-            return False
-
-        return True
+        pass
 
     def containsTriad(self) -> bool:
         '''
@@ -1704,14 +1643,7 @@ class Chord(ChordBase):
         >>> chord.Chord().containsTriad()
         False
         '''
-        # no need to cache, since third and fifth are cached
-        if self.third is None:
-            return False
-
-        if self.fifth is None:
-            return False
-
-        return True
+        pass
 
     def _findRoot(self) -> pitch.Pitch:
         '''
@@ -1832,42 +1764,7 @@ class Chord(ChordBase):
         >>> [(pc - normalOrderFirst) % 12 for pc in normalOrder]
         [0, 4, 7]
         '''
-        # no need to cache, since only DT uses it
-        # Order pitches
-        pitchClassList = []
-        for i in range(len(self.pitches)):
-            pitchClassList.append(self.pitches[i].pitchClass)
-        sortedPitchClassList = sorted(pitchClassList)
-        # Remove duplicates
-        uniquePitchClassList = [sortedPitchClassList[0]]
-        for i in range(1, len(sortedPitchClassList)):
-            if sortedPitchClassList[i] != sortedPitchClassList[i - 1]:
-                uniquePitchClassList.append(sortedPitchClassList[i])
-        intervalList = []
-        for i in range(1, len(uniquePitchClassList)):
-            lPC = (uniquePitchClassList[i] - uniquePitchClassList[i - 1]) % 12
-            intervalList.append(lPC)
-        intervalList.append((uniquePitchClassList[0] - uniquePitchClassList[-1]) % 12)
-        # make list of rotations
-        rotationList = []
-        for i in range(0, len(intervalList)):
-            b = intervalList.pop(0)
-            intervalList.append(b)
-            intervalTuple = tuple(intervalList)
-            rotationList.append(intervalTuple)
-        # Sort list of rotations.
-        # First entry will be the geometric normal form arranged intervals
-        newRotationList = sorted(rotationList)
-        # Take that first entry and assign it as the PCIs that we will want for our chord
-        geomNormChord = newRotationList[0]
-        # Create final form of Geometric Normal Chord by starting at pc 0 and
-        # assigning the notes based on the intervals we just discovered.
-        geomNormChordPitches = []
-        intervalSum = 0
-        for i in range(0, len(geomNormChord)):
-            geomNormChordPitches.append(intervalSum)
-            intervalSum += geomNormChord[i]
-        return geomNormChordPitches
+        pass
 
     def getChordStep(
         self,
@@ -2007,16 +1904,7 @@ class Chord(ChordBase):
         >>> c1.getNotehead(note.Note('G4'))
         'diamond'
         '''
-        if hasattr(p, 'pitch'):
-            p = p.pitch
-
-        for d in self._notes:
-            if d.pitch is p:
-                return d.notehead
-        for d in self._notes:
-            if d.pitch == p:
-                return d.notehead
-        return None
+        pass
 
     def getNoteheadFill(self, p):
         '''
@@ -2046,16 +1934,7 @@ class Chord(ChordBase):
         Returns None if the pitch is not in the Chord:
 
         '''
-        if hasattr(p, 'pitch'):
-            p = p.pitch
-
-        for d in self._notes:
-            if d.pitch is p:
-                return d.noteheadFill
-        for d in self._notes:
-            if d.pitch == p:
-                return d.noteheadFill
-        return None
+        pass
 
     def getStemDirection(self, p):
         '''
@@ -2085,17 +1964,7 @@ class Chord(ChordBase):
         True
 
         '''
-        if hasattr(p, 'pitch'):
-            p = p.pitch
-
-        for d in self._notes:
-            if d.pitch is p:  # compare by obj id first
-                return d.stemDirection
-
-        for d in self._notes:
-            if d.pitch == p:
-                return d.stemDirection
-        return None
+        pass
 
     def getTie(self, p):
         '''
@@ -2119,10 +1988,7 @@ class Chord(ChordBase):
         >>> c1.getTie('B-')
         <music21.tie.Tie start>
         '''
-        try:
-            return self[p].tie
-        except KeyError:
-            return None
+        pass
 
     def getVolume(self, p):
         '''
@@ -2144,12 +2010,7 @@ class Chord(ChordBase):
         Traceback (most recent call last):
         music21.chord.ChordException: the given pitch is not in the Chord: G4
         '''
-        try:
-            n = self[p]
-            # noinspection PyArgumentList
-            return n._getVolume(forceClient=self)
-        except KeyError:
-            raise ChordException(f'the given pitch is not in the Chord: {p}')
+        pass
 
     def getZRelation(self) -> Chord|None:
         '''
@@ -2170,21 +2031,7 @@ class Chord(ChordBase):
         >>> chord.Chord('C E G').getZRelation() is None
         True
         '''
-        if self.hasZRelation:
-            chordTablesAddress = self.chordTablesAddress
-            v = tables.addressToIntervalVector(chordTablesAddress)
-            addresses = tables.intervalVectorToAddress(v)
-            # environLocal.printDebug(['addresses', addresses,
-            #    'chordTablesAddress', chordTablesAddress])
-            # addresses returned here are 2 elements lists
-            other = None
-            for thisAddress in addresses:
-                if thisAddress.forteClass != chordTablesAddress.forteClass:
-                    other = thisAddress
-            # other should always be defined to not None
-            prime = tables.addressToTransposedNormalForm(other)
-            return Chord(prime)
-        return None
+        pass
 
         # c2.getZRelations()  # needs a plural form returning a list in non-ET12 space
         # <music21.chord.ForteSet at 0x234892>
@@ -2231,10 +2078,7 @@ class Chord(ChordBase):
         >>> other.hasAnyRepeatedDiatonicNote()
         False
         '''
-        if len(set(p.step for p in self.pitches)) != len(set(p.name for p in self.pitches)):
-            return True
-        else:
-            return False
+        pass
 
     def hasRepeatedChordStep(self, chordStep, *, testRoot=None):
         '''
@@ -2250,19 +2094,7 @@ class Chord(ChordBase):
         False
 
         '''
-        if testRoot is None:
-            testRoot = self.root()
-            if testRoot is None:
-                raise ChordException('Cannot run hasRepeatedChordStep without a root')
-
-        first = self.intervalFromChordStep(chordStep)
-        for thisPitch in self.pitches:
-            thisInterval = interval.Interval(testRoot, thisPitch)
-            if thisInterval.diatonic.generic.mod7 == chordStep:
-                if thisInterval.chromatic.mod12 - first.chromatic.mod12 != 0:
-                    return True
-
-        return False
+        pass
 
     def intervalFromChordStep(self, chordStep, *, testRoot=None):
         '''
@@ -2550,31 +2382,7 @@ class Chord(ChordBase):
         >>> a.inversionName()
         43
         '''
-        inv: int  # pylint requires this outside of the "try" to avoid "invalid-sequence-index"
-
-        try:
-            inv = self.inversion()
-        except ChordException:
-            return None
-
-        if inv == -1:
-            return None
-
-        seventhMapping = [7, 65, 43, 42]
-        triadMapping = [53, 6, 64]
-
-        if self.isSeventh() or self.seventh is not None:
-            if 0 <= inv <= 3:
-                return seventhMapping[inv]
-            else:
-                raise ChordException(f'Not a normal inversion for a seventh: {inv!r}')
-        elif self.isTriad():
-            if 0 <= inv <= 2:
-                return triadMapping[inv]
-            else:
-                raise ChordException(f'Not a normal inversion for a triad: {inv!r}')
-        else:
-            raise ChordException('Not a triad or Seventh, cannot determine inversion.')
+        pass
 
     def inversionText(self) -> str:
         '''
@@ -2591,21 +2399,7 @@ class Chord(ChordBase):
         >>> chord.Chord().inversionText()
         'Unknown Position'
         '''
-        UNKNOWN = 'Unknown Position'
-        inv: int  # pylint requires this outside of the "try" to avoid "invalid-sequence-index"
-
-        try:
-            inv = self.inversion()
-        except ChordException:
-            return UNKNOWN
-
-        if inv == -1:
-            return UNKNOWN
-
-        if inv == 0:
-            return 'Root Position'
-
-        return common.numberTools.ordinals[inv] + ' Inversion'
+        pass
 
 
 
@@ -2695,7 +2489,7 @@ class Chord(ChordBase):
         >>> chord.Chord().isAugmentedTriad()
         False
         '''
-        return self._checkTriadType((3, 12, 0), 4, 8)
+        pass
 
     @cacheMethod
     def isConsonant(self):
@@ -2879,7 +2673,7 @@ class Chord(ChordBase):
 
         This is in an OMIT section
         '''
-        return self._checkTriadType((3, 10, 0), 3, 6)
+        pass
 
     @cacheMethod
     def isDominantSeventh(self) -> bool:
@@ -2932,7 +2726,7 @@ class Chord(ChordBase):
         >>> chord.Chord('C4 E-4 G-4 B--4').isFalseDiminishedSeventh()
         True
         '''
-        return self.chordTablesAddress[:3] == (4, 28, 0)
+        pass
 
     def isFrenchAugmentedSixth(self, *, permitAnyInversion=False) -> bool:
         '''
@@ -3068,7 +2862,7 @@ class Chord(ChordBase):
         >>> chord.Chord().isHalfDiminishedSeventh()
         False
         '''
-        return self.isSeventhOfType((0, 3, 6, 10))
+        pass
 
     @cacheMethod
     def isIncompleteMajorTriad(self) -> bool:
@@ -3114,19 +2908,7 @@ class Chord(ChordBase):
         >>> c1.isIncompleteMajorTriad()
         False
         '''
-        if self.chordTablesAddress[:2] != (2, 4):
-            return False
-
-        third = self.third
-        if third is None:
-            return False
-
-        for thisPitch in self.pitches:
-            thisInterval = interval.Interval(self.root(), thisPitch)
-            if thisInterval.chromatic.mod12 not in (0, 4):
-                return False
-
-        return True
+        pass
 
     @cacheMethod
     def isIncompleteMinorTriad(self) -> bool:
@@ -3160,19 +2942,7 @@ class Chord(ChordBase):
         >>> chord.Chord().isIncompleteMinorTriad()
         False
         '''
-        if self.chordTablesAddress[:2] != (2, 3):
-            return False
-
-        third = self.third
-        if third is None:
-            return False
-
-        for thisPitch in self.pitches:
-            thisInterval = interval.Interval(self.root(), thisPitch)
-            if thisInterval.chromatic.mod12 not in (0, 3):
-                return False
-
-        return True
+        pass
 
     def isItalianAugmentedSixth(self, *, restrictDoublings=False, permitAnyInversion=False) -> bool:
         '''
@@ -3486,38 +3256,7 @@ class Chord(ChordBase):
         >>> chord.Chord(list(range(11))).isTranspositionallySymmetrical()
         False
         '''
-        if not self._notes:
-            return True
-
-        address = self.chordTablesAddress
-        if address.cardinality == 1:
-            return requireIntervallicEvenness
-
-        lookup = (address.cardinality, address.forteClass)
-        if lookup in (
-            (2,  6),  # 06 -- omitted by Straus  # noqa: E241
-            (3, 12),  # augmented triad
-            (4, 28),  # diminished seventh chord
-            (6, 35),  # whole-tone scale
-            (12, 1),  # total aggregate.
-        ):
-            return True
-
-        if not requireIntervallicEvenness and lookup in (
-            (4,  9),  # 0167  # noqa: E241
-            (4, 25),  # 0268
-            (6,  7),  # 012678  # noqa: E241
-            (6, 20),  # "Hexatonic scale" 014589
-            (6, 30),  # Petrushka chord 013679
-            (8,  9),  # 01236789  # noqa: E241
-            (8, 25),  # 0124678T
-            (8, 28),  # octatonic scale
-            (9, 12),  # complement to augmented triad
-            (10, 6),  # complement to 06
-        ):
-            return True
-        else:
-            return False
+        pass
 
     @cacheMethod
     def isSeventh(self):
@@ -3585,25 +3324,7 @@ class Chord(ChordBase):
         >>> chord.Chord('C E G C- D').isNinth()
         False
         '''
-        uniquePitchNames = set(self.pitchNames)
-        if len(uniquePitchNames) != 5:
-            return False
-
-        if self.third is None:
-            return False
-
-        if self.fifth is None:
-            return False
-
-        if self.seventh is None:
-            return False
-
-        try:
-            return bool(self.getChordStep(2))
-        except ChordException:  # pragma: no cover
-            # probably not reachable, since self.third would have caught the same
-            # exception and returned False
-            return False
+        pass
 
     def isSwissAugmentedSixth(self, *, permitAnyInversion=False):
         '''
@@ -3771,8 +3492,7 @@ class Chord(ChordBase):
 
         * Changed in v6: inPlace defaults to False.
         '''
-        return self._removePitchByRedundantAttribute('pitchClass',
-                                                     inPlace=inPlace)
+        pass
 
     def removeRedundantPitchNames(self, *, inPlace=False):
         '''
@@ -4068,33 +3788,7 @@ class Chord(ChordBase):
         <music21.chord.Chord C2 E-2 G2 C3 E3 C#4 E#4>
 
         '''
-        c2 = self.closedPosition(forceOctave=forceOctave,
-                                 inPlace=inPlace,
-                                 leaveRedundantPitches=leaveRedundantPitches)
-        if inPlace is True:
-            c2 = self
-
-        if t.TYPE_CHECKING:
-            assert isinstance(c2, stream.Stream)
-        # startOctave = c2.bass().octave
-        remainingPitches = copy.copy(c2.pitches)  # no deepcopy needed
-
-        while remainingPitches:
-            usedSteps = []
-            newRemainingPitches = []
-            for i, p in enumerate(remainingPitches):
-                if p.step not in usedSteps:
-                    usedSteps.append(p.step)
-                else:
-                    p.octave += 1
-                    newRemainingPitches.append(p)
-            remainingPitches = newRemainingPitches
-
-        c2.clearCache()
-        c2.sortAscending(inPlace=True)
-
-        if inPlace is False:
-            return c2
+        pass
 
     def semitonesFromChordStep(self, chordStep, testRoot=None):
         '''
@@ -4306,25 +4000,7 @@ class Chord(ChordBase):
         music21.chord.ChordException: the given pitch is not in the Chord: G4
 
         '''
-        # assign to first pitch by default
-        if pitchTarget is None and self._notes:
-            pitchTarget = self._notes[0].pitch
-        elif isinstance(pitchTarget, str):
-            pitchTarget = pitch.Pitch(pitchTarget)
-        match = False
-        for d in self._notes:
-            if d.pitch is pitchTarget:
-                d.notehead = nh
-                match = True
-                break
-        if not match:
-            for d in self._notes:
-                if d.pitch == pitchTarget:
-                    d.notehead = nh
-                    match = True
-                    break
-        if not match:
-            raise ChordException(f'the given pitch is not in the Chord: {pitchTarget}')
+        pass
 
     def setNoteheadFill(self, nh, pitchTarget):
         '''
@@ -4373,25 +4049,7 @@ class Chord(ChordBase):
         music21.chord.ChordException: the given pitch is not in the Chord: G4
 
         '''
-        # assign to first pitch by default
-        if pitchTarget is None and self._notes:
-            pitchTarget = self._notes[0].pitch
-        elif isinstance(pitchTarget, str):
-            pitchTarget = pitch.Pitch(pitchTarget)
-        match = False
-        for d in self._notes:
-            if d.pitch is pitchTarget:
-                d.noteheadFill = nh
-                match = True
-                break
-        if not match:
-            for d in self._notes:
-                if d.pitch == pitchTarget:
-                    d.noteheadFill = nh
-                    match = True
-                    break
-        if not match:
-            raise ChordException(f'the given pitch is not in the Chord: {pitchTarget}')
+        pass
 
     def setStemDirection(self, stem, pitchTarget):
         '''
@@ -4451,25 +4109,7 @@ class Chord(ChordBase):
         music21.chord.ChordException: the given pitch is not in the Chord: G4
 
         '''
-        if pitchTarget is None and self._notes:
-            pitchTarget = self._notes[0].pitch  # first is default
-        elif isinstance(pitchTarget, str):
-            pitchTarget = pitch.Pitch(pitchTarget)
-        match = False
-        for d in self._notes:
-            if d.pitch is pitchTarget:
-                d.stemDirection = stem
-                match = True
-                break
-        if not match:
-            for d in self._notes:
-                if d.pitch == pitchTarget:
-                    d.stemDirection = stem
-                    match = True
-                    break
-        if not match:
-            raise ChordException(
-                f'the given pitch is not in the Chord: {pitchTarget}')
+        pass
 
     def setTie(self, tieObjOrStr: tie.Tie|str, pitchTarget):
         '''
@@ -4551,26 +4191,7 @@ class Chord(ChordBase):
             volume has been removed.  Use `Chord().volume = vol` to change the
             volume for a whole chord.
         '''
-        # assign to first pitch by default
-        if isinstance(target, str):
-            pitchTarget = pitch.Pitch(target)
-        elif isinstance(target, note.Note):
-            pitchTarget = target.pitch
-        elif isinstance(target, pitch.Pitch):
-            pitchTarget = target
-        else:
-            raise ValueError(f'Cannot setVolume on target {target!r}')
-
-        match = False
-        for d in self._notes:
-            if d.pitch is pitchTarget or d.pitch == pitchTarget:
-                vol.client = self
-                # noinspection PyArgumentList
-                d._setVolume(vol, setClient=False)
-                match = True
-                break
-        if not match:
-            raise ChordException(f'the given pitch is not in the Chord: {pitchTarget}')
+        pass
 
     def simplifyEnharmonics(self, *, inPlace=False, keyContext=None):
         '''
@@ -4594,17 +4215,7 @@ class Chord(ChordBase):
         >>> c.pitches
         (<music21.pitch.Pitch D->, <music21.pitch.Pitch F>, <music21.pitch.Pitch A->)
         '''
-        if inPlace:
-            returnObj = self
-        else:
-            returnObj = copy.deepcopy(self)
-
-        pitches = pitch.simplifyMultipleEnharmonics(self.pitches, keyContext=keyContext)
-        for i in range(len(pitches)):
-            returnObj._notes[i].pitch = pitches[i]
-
-        if inPlace is False:
-            return returnObj
+        pass
 
     def sortAscending(self, *, inPlace=False):
         return self.sortDiatonicAscending(inPlace=inPlace)
@@ -4613,10 +4224,7 @@ class Chord(ChordBase):
         '''
         Same as sortAscending but notes are sorted by midi number, so F## sorts above G-.
         '''
-        newChord = copy.deepcopy(self)
-        # tempChordNotes = newChord.pitches
-        newChord._notes.sort(key=lambda x: x.pitch.ps)
-        return newChord
+        pass
 
     def sortDiatonicAscending(self, *, inPlace=False):
         '''
@@ -4664,9 +4272,7 @@ class Chord(ChordBase):
         C# would be below D- in 1/4-comma meantone, equal in equal temperament,
         but below it in (most) just intonation types.
         '''
-        newChord = copy.deepcopy(self)
-        newChord._notes.sort(key=lambda x: x.pitch.frequency)
-        return newChord
+        pass
 
     def transpose(self, value, *, inPlace=False):
         '''
@@ -4754,10 +4360,7 @@ class Chord(ChordBase):
         >>> chord.Chord().chordTablesAddress
         ChordTableAddress(cardinality=0, forteClass=0, inversion=0, pcOriginal=0)
         '''
-        try:
-            return tables.seekChordTablesAddress(self)
-        except tables.ChordTablesException:
-            return tables.ChordTableAddress(0, 0, 0, 0)
+        pass
 
 
     @property    # type: ignore
@@ -4894,140 +4497,7 @@ class Chord(ChordBase):
         >>> chord.Chord('C E G A').commonName
         'minor seventh chord'
         '''
-        if any(not p.isTwelveTone() for p in self.pitches):
-            return 'microtonal chord'
-
-        cta = self.chordTablesAddress
-        if cta.cardinality == 0:
-            return 'empty chord'
-
-        if cta.cardinality == 1:
-            if len(self.pitches) == 1:
-                return 'note'
-            pitchNames = {p.name for p in self.pitches}
-            pitchPSes = {p.ps for p in self.pitches}
-            if len(pitchNames) == 1:
-                if len(pitchPSes) == 1:
-                    return 'unison'
-                if len(pitchPSes) == 2:
-                    return interval.Interval(self.pitches[0], self.pitches[1]).niceName
-                else:
-                    return 'multiple octaves'
-            if len(pitchPSes) == 1:
-                return 'enharmonic unison'
-            else:
-                return 'enharmonic octaves'
-
-        ctn = tables.addressToCommonNames(cta)
-        if cta.cardinality == 2:
-            pitchNames = {p.name for p in self.pitches}
-            pitchPSes = {p.ps for p in self.pitches}
-
-            # find two different pitchClasses
-            p0 = self.pitches[0]
-            p0pitchClass = p0.pitchClass
-            p1: pitch.Pitch
-            for p in self.pitches[1:]:
-                if p.pitchClass != p0pitchClass:
-                    p1 = p
-                    break
-            else:  # pragma: no cover
-                raise ChordException('Will never happen, just for typing.')
-
-            relevantInterval = interval.Interval(p0, p1)
-
-            if len(pitchNames) > 2:
-                # C4 E4 B#4, etc.
-                simpleUn = relevantInterval.chromatic.simpleUndirected
-                plural = 's' if simpleUn != 1 else ''
-                return f'{simpleUn} semitone{plural}'
-
-            if len(pitchPSes) > 2:
-                return relevantInterval.semiSimpleNiceName + ' with octave doublings'
-
-            return interval.Interval(self.pitches[0], self.pitches[1]).niceName
-
-        forteClass = self.forteClass
-        # forteClassTn = self.forteClassTn
-
-        def _isSeventhWithPerfectFifthsAboveRootAndThird(c: Chord) -> bool:
-            '''
-            For testing minor-minor sevenths and major-major sevenths
-            '''
-            if not c.isSeventh():
-                return False
-            hypothetical_fifth = c.root().transpose('P5')
-            if hypothetical_fifth.name not in c.pitchNames:
-                return False
-            third = c.third
-            if not third:
-                return False
-            hypothetical_seventh = third.transpose('P5')
-            if hypothetical_seventh.name not in c.pitchNames:
-                return False
-            return True
-
-        enharmonicTests = {
-            '3-11A': self.isMinorTriad,
-            '3-11B': self.isMajorTriad,
-            '3-10': self.isDiminishedTriad,
-            '3-12': self.isAugmentedTriad,
-            '4-27A': self.isHalfDiminishedSeventh,
-            '4-28': self.isDiminishedSeventh,
-            '5-27A': self.isNinth,  # major-ninth
-            '5-27B': self.isNinth,  # minor-ninth
-            '5-34': self.isNinth,  # dominant-ninth
-        }
-
-        # special cases
-        if forteClass == '4-27B':
-            # dominant seventh OR German Aug 6
-            if self.isDominantSeventh():
-                return ctn[0]
-            elif self.isGermanAugmentedSixth():
-                return ctn[2]
-            elif self.isGermanAugmentedSixth(permitAnyInversion=True):
-                return ctn[2] + ' in ' + self.inversionText().lower()
-            elif self.isSwissAugmentedSixth():
-                return ctn[3]
-            elif self.isSwissAugmentedSixth(permitAnyInversion=True):
-                return ctn[3] + ' in ' + self.inversionText().lower()
-            else:
-                return 'enharmonic to ' + ctn[0]
-        elif forteClass == '4-25':
-            if self.isFrenchAugmentedSixth():
-                return ctn[1]
-            elif self.isFrenchAugmentedSixth(permitAnyInversion=True):
-                return ctn[1] + ' in ' + self.inversionText().lower()
-            else:
-                return ctn[0]
-        elif forteClass == '3-8A':
-            if self.isItalianAugmentedSixth():
-                return ctn[1]
-            elif self.isItalianAugmentedSixth(permitAnyInversion=True):
-                return ctn[1] + ' in ' + self.inversionText().lower()
-            else:
-                return ctn[0]
-        elif forteClass in ('4-20', '4-26'):
-            # minor seventh or major seventh chords,
-            # but cannot just test isSeventh, as
-            # that would permit C E G A## (A## as root)
-            if _isSeventhWithPerfectFifthsAboveRootAndThird(self):
-                return ctn[0]
-            else:
-                return 'enharmonic equivalent to ' + ctn[0]
-
-        elif forteClass in enharmonicTests:
-            out = ctn[0]
-            test = enharmonicTests[forteClass]
-            if not test():
-                out = 'enharmonic equivalent to ' + out
-            return out
-
-        if not ctn:
-            return 'forte class ' + forteClass
-        else:
-            return ctn[0]
+        pass
 
 
     @property
@@ -5096,10 +4566,7 @@ class Chord(ChordBase):
 
         >>> chord.Chord().fifth
         '''
-        try:
-            return self.getChordStep(5)
-        except ChordException:
-            return None
+        pass
 
     @property
     def forteClass(self):
@@ -5128,10 +4595,7 @@ class Chord(ChordBase):
         >>> chord.Chord('c~4 d`4').forteClass
         '2-2'
         '''
-        try:
-            return tables.addressToForteName(self.chordTablesAddress, 'tn')
-        except tables.ChordTablesException:
-            return 'N/A'
+        pass
 
     @property
     def forteClassNumber(self):
@@ -5147,7 +4611,7 @@ class Chord(ChordBase):
         >>> c2.forteClassNumber
         11
         '''
-        return self.chordTablesAddress.forteClass
+        pass
 
     @property
     def forteClassTn(self):
@@ -5165,7 +4629,7 @@ class Chord(ChordBase):
         >>> c2.forteClassTn
         '3-11B'
         '''
-        return self.forteClass
+        pass
 
     @property
     def forteClassTnI(self):
@@ -5192,10 +4656,7 @@ class Chord(ChordBase):
         >>> chord.Chord('c~4 d`4').forteClassTnI
         '2-2'
         '''
-        try:
-            return tables.addressToForteName(self.chordTablesAddress, 'tni')
-        except tables.ChordTablesException:
-            return 'N/A'
+        pass
 
     @property
     def fullName(self):
@@ -5211,14 +4672,7 @@ class Chord(ChordBase):
         'Chord {D in octave 1 | E-flat in octave 4 | B-flat in octave 3} Quarter Triplet (2/3 QL)'
 
         '''
-        msg = []
-        sub = []
-        for p in self.pitches:
-            sub.append(f'{p.fullName}')
-        msg.append('Chord')
-        msg.append(' {' + (' | '.join(sub)) + '} ')
-        msg.append(self.duration.fullName)
-        return ''.join(msg)
+        pass
 
     @property
     def hasZRelation(self):
@@ -5238,15 +4692,7 @@ class Chord(ChordBase):
         >>> chord.Chord().hasZRelation
         False
         '''
-        try:
-            post = tables.addressToZAddress(self.chordTablesAddress)
-        except tables.ChordTablesException:
-            return False  # empty chords have no z-relations
-
-        # environLocal.printDebug(['got post', post])
-        if post is not None:
-            return True
-        return False
+        pass
 
     @property
     def intervalVector(self):
@@ -5270,10 +4716,7 @@ class Chord(ChordBase):
         >>> chord.Chord().intervalVector
         [0, 0, 0, 0, 0, 0]
         '''
-        try:
-            return list(tables.addressToIntervalVector(self.chordTablesAddress))
-        except tables.ChordTablesException:
-            return [0, 0, 0, 0, 0, 0]
+        pass
 
     @property
     def intervalVectorString(self):
@@ -5284,7 +4727,7 @@ class Chord(ChordBase):
         >>> c1.intervalVectorString
         '<001110>'
         '''
-        return Chord.formatVectorString(self.intervalVector)
+        pass
 
     @property
     def isPrimeFormInversion(self):
@@ -5299,10 +4742,7 @@ class Chord(ChordBase):
         >>> c2.isPrimeFormInversion
         True
         '''
-        if self.chordTablesAddress.inversion == -1:
-            return True
-        else:
-            return False
+        pass
 
     @property
     def multisetCardinality(self):
@@ -5314,7 +4754,7 @@ class Chord(ChordBase):
         >>> c1.multisetCardinality
         4
         '''
-        return len(self.pitchClasses)
+        pass
 
     @property
     def notes(self) -> tuple[note.Note, ...]:
@@ -5376,19 +4816,14 @@ class Chord(ChordBase):
 
         * New in v5.7
         '''
-        return tuple(self._notes)
+        pass
 
     @notes.setter
     def notes(self, newNotes: Iterable[note.Note]) -> None:
         '''
         sets notes to an iterable of Note objects
         '''
-        if not common.isIterable(newNotes):
-            raise TypeError('notes must be set with an iterable')
-        if not all(isinstance(n, note.Note) for n in newNotes):
-            raise TypeError('every element of notes must be a note.Note object')
-        self._notes.clear()
-        self.add(newNotes, runSort=False)
+        pass
 
     @property  # type: ignore
     @cacheMethod
@@ -5452,20 +4887,7 @@ class Chord(ChordBase):
         >>> chord.Chord().normalOrder
         []
         '''
-        cta = self.chordTablesAddress
-        try:
-            transposedNormalForm = tables.addressToTransposedNormalForm(cta)
-        except tables.ChordTablesException:
-            return []
-
-        orderedPCs = self.orderedPitchClasses
-        mustBePresentPCs = set(orderedPCs)
-        for transposeAmount in orderedPCs:
-            possibleNormalOrder = [(pc + transposeAmount) % 12 for pc in transposedNormalForm]
-            if set(possibleNormalOrder) == mustBePresentPCs:
-                return possibleNormalOrder
-        raise ChordException('Could not find a normalOrder for chord: '
-                             + str(self.orderedPitchClassesString))
+        pass
 
     @property
     def normalOrderString(self):
@@ -5479,7 +4901,7 @@ class Chord(ChordBase):
         >>> c1.normalOrderString
         '<037>'
         '''
-        return Chord.formatVectorString(self.normalOrder)
+        pass
 
     def _unorderedPitchClasses(self) -> set[int]:
         '''
@@ -5502,7 +4924,7 @@ class Chord(ChordBase):
         >>> c1.orderedPitchClasses
         [2, 6, 9]
         '''
-        return list(sorted(self._unorderedPitchClasses()))
+        pass
 
     @property
     def orderedPitchClassesString(self) -> str:
@@ -5519,7 +4941,7 @@ class Chord(ChordBase):
         >>> c1.orderedPitchClassesString
         '<367>'
         '''
-        return Chord.formatVectorString(self.orderedPitchClasses)
+        pass
 
     @property
     def pitchClassCardinality(self) -> int:
@@ -5531,7 +4953,7 @@ class Chord(ChordBase):
         >>> c1.pitchClassCardinality
         3
         '''
-        return len(self._unorderedPitchClasses())
+        pass
 
     @property
     def pitchClasses(self) -> list[int]:
@@ -5566,21 +4988,11 @@ class Chord(ChordBase):
         >>> c.pitchNames
         ['C', 'G']
         '''
-        return [d.pitch.name for d in self._notes]
+        pass
 
     @pitchNames.setter
     def pitchNames(self, value):
-        if common.isListLike(value):
-            if isinstance(value[0], str):  # only checking first
-                self._notes = []  # clear
-                for name in value:
-                    self._notes.append(note.Note(name))
-            else:
-                raise ChordException(
-                    f'must provide a list containing a Pitch, not: {value}')
-        else:
-            raise ChordException(f'cannot set pitch name with provided object: {value}')
-        self.clearCache()
+        pass
 
     @property
     def pitchedCommonName(self) -> str:
@@ -5670,29 +5082,7 @@ class Chord(ChordBase):
           special tools for enharmonics.
         * Changed in v6.5: special names for 0-, 1-, and 2-pitchClass chords.
         '''
-        nameStr = self.commonName
-        if nameStr == 'empty chord':
-            return nameStr
-
-        if nameStr in ('note', 'unison'):
-            return self.pitches[0].name
-
-
-        if self.pitchClassCardinality <= 2 or (
-                'enharmonic' in nameStr
-                or 'forte class' in nameStr
-                or ' semitone' in nameStr):
-            # root detection gives weird results for pitchedCommonName
-            bass = self.bass()
-            bassName = bass.name.replace('-', 'b')
-            return f'{nameStr} above {bassName}'
-        else:
-            try:
-                root = self.root()
-            except ChordException:  # if a root cannot be found
-                root = self.pitches[0]
-            rootName = root.name.replace('-', 'b')
-            return f'{rootName}-{nameStr}'
+        pass
 
     @property
     def pitches(self) -> tuple[pitch.Pitch, ...]:
@@ -5733,18 +5123,11 @@ class Chord(ChordBase):
         >>> c.root()
         <music21.pitch.Pitch A#4>
         '''
-        # noinspection PyTypeChecker
-        pitches: tuple[pitch.Pitch, ...] = tuple(component.pitch for component in self._notes)
-        return pitches
+        pass
 
     @pitches.setter
     def pitches(self, value: Iterable[pitch.Pitch]) -> None:
-        self._notes = []
-        self.clearCache()
-        # TODO: individual ties are not being retained here
-        for p in value:
-            # assumes value is an iterable of pitches or something to pass to Note __init__
-            self._notes.append(note.Note(p))
+        pass
 
     @property
     def primeForm(self) -> list[int]:
@@ -5765,10 +5148,7 @@ class Chord(ChordBase):
         >>> chord.Chord().primeForm
         []
         '''
-        try:
-            return list(tables.addressToPrimeForm(self.chordTablesAddress))
-        except tables.ChordTablesException:
-            return []
+        pass
 
     @property
     def primeFormString(self) -> str:
@@ -5783,7 +5163,7 @@ class Chord(ChordBase):
         >>> c1.primeFormString
         '<037>'
         '''
-        return Chord.formatVectorString(self.primeForm)
+        pass
 
 
     @property  # type: ignore
@@ -5843,38 +5223,7 @@ class Chord(ChordBase):
         >>> chord.Chord().quality
         'other'
         '''
-        try:
-            third = self.semitonesFromChordStep(3)
-            fifth = self.semitonesFromChordStep(5)
-        except ChordException:
-            return 'other'
-
-        # environLocal.printDebug(['third, fifth', third, fifth])
-        if third is None:
-            return 'other'
-        elif self.hasRepeatedChordStep(1):
-            return 'other'
-        elif self.hasRepeatedChordStep(3):
-            return 'other'
-        elif fifth is None:
-            if third == 4:
-                return 'major'
-            elif third == 3:
-                return 'minor'
-            else:
-                return 'other'
-        elif self.hasRepeatedChordStep(5):
-            return 'other'
-        elif fifth == 7 and third == 4:
-            return 'major'
-        elif fifth == 7 and third == 3:
-            return 'minor'
-        elif fifth == 8 and third == 4:
-            return 'augmented'
-        elif fifth == 6 and third == 3:
-            return 'diminished'
-        else:
-            return 'other'
+        pass
 
 
     @property
@@ -5942,37 +5291,7 @@ class Chord(ChordBase):
 
         * Changed in v6.5: will return `None` if no context can be found:
         '''
-        from music21 import scale
-        # roman numerals have this built in as the key attribute
-        if hasattr(self, 'key') and self.key is not None:  # pylint: disable=no-member
-            # Key is a subclass of scale.DiatonicScale
-            sc = self.key  # pylint: disable=no-member
-        else:
-            sc = self.getContextByClass(scale.Scale, sortByCreationTime=True)
-            if sc is None:
-                return None
-        degrees = []
-        for thisPitch in self.pitches:
-            degree = sc.getScaleDegreeFromPitch(
-                thisPitch,
-                comparisonAttribute='step',
-                direction=scale.Direction.DESCENDING,
-            )
-            if degree is None:
-                degrees.append((None, None))
-            else:
-                actualPitch = sc.pitchFromDegree(
-                    degree,
-                    direction=scale.Direction.DESCENDING
-                )
-                if actualPitch.name == thisPitch.name:
-                    degrees.append((degree, None))
-                else:
-                    actualPitch.octave = thisPitch.octave
-                    tupleKey = (degree,
-                                pitch.Accidental(int(thisPitch.ps - actualPitch.ps)))
-                    degrees.append(tupleKey)
-        return degrees
+        pass
 
     @property  # type: ignore
     @cacheMethod
@@ -5996,10 +5315,7 @@ class Chord(ChordBase):
 
         >>> chord.Chord().seventh
         '''
-        try:
-            return self.getChordStep(7)
-        except ChordException:
-            return None
+        pass
 
     @property  # type: ignore
     @cacheMethod
@@ -6021,10 +5337,7 @@ class Chord(ChordBase):
 
         >>> chord.Chord().third
         '''
-        try:
-            return self.getChordStep(3)
-        except ChordException:
-            return None
+        pass
 
 
 
@@ -6049,38 +5362,7 @@ def fromForteClass(notation: str|Sequence[int]) -> Chord:
     <music21.chord.Chord C D- D E- E F G- G A- A B->
 
     '''
-    card = None
-    num = 1
-    inv = None
-    if isinstance(notation, str):
-        if '-' in notation:
-            notationParts = notation.split('-')
-            card = int(notationParts[0])
-            str_num, chars = common.getNumFromStr(notationParts[1])
-            num = int(str_num)
-            if 'a' in chars.lower():
-                inv = 1
-            elif 'b' in chars.lower():
-                inv = -1
-        else:
-            raise ChordException(
-                f'cannot extract set-class representation from string: {notation}')
-    elif common.isListLike(notation):
-        if len(notation) <= 3:
-            # assume it's a set-class representation
-            if notation:
-                card = notation[0]
-            if len(notation) > 1:
-                num = notation[1]
-            if len(notation) > 2:
-                inv = notation[2]
-        else:
-            raise ChordException(f'cannot handle specified notation: {notation}')
-    else:
-        raise ChordException(f'cannot handle specified notation: {notation}')
-
-    prime = tables.addressToTransposedNormalForm([card, num, inv])
-    return Chord(prime)
+    pass
 
 
 def fromIntervalVector(notation, getZRelation=False):
@@ -6103,26 +5385,7 @@ def fromIntervalVector(notation, getZRelation=False):
     <music21.chord.Chord C D- E- G>
 
     '''
-    addressList = None
-    if common.isListLike(notation):
-        if len(notation) == 6:  # assume it's an interval vector
-            addressList = tables.intervalVectorToAddress(notation)
-    if addressList is None:
-        raise ChordException(f'cannot handle specified notation: {notation}')
-
-    post = []
-    for address in addressList:
-        post.append(Chord(tables.addressToTransposedNormalForm(address)))
-    # for now, return the first chord
-    # z-related chords will have more than one
-    if len(post) == 1:
-        return post[0]
-    elif len(post) == 2 and not getZRelation:
-        return post[0]
-    elif len(post) == 2 and getZRelation:
-        return post[1]
-    else:
-        return None
+    pass
 
 
 
@@ -6132,8 +5395,7 @@ class Test(unittest.TestCase):
     Most tests now in test/test_chord
     '''
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
 
 _DOC_ORDER = [Chord, ChordBase, fromForteClass, fromIntervalVector]

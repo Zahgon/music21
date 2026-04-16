@@ -163,7 +163,7 @@ class TimespanTree(trees.OffsetTree):
     __slots__ = ()
     @staticmethod
     def _insertCorePayloadSortKey(x):
-        return x.endTime
+        pass
         # if hasattr(x, 'element'):
         #     return x.element.sortTuple()[2:]
         # elif isinstance(x, TimespanTree) and x.source is not None:
@@ -227,7 +227,7 @@ class TimespanTree(trees.OffsetTree):
         * Changed in v7: this was always meant to be a property, but was
           incorrectly a method earlier.
         '''
-        return self.lowestPosition()
+        pass
 
     def removeTimespanList(self, elements, offsets=None, runUpdate=True):
         '''
@@ -274,21 +274,7 @@ class TimespanTree(trees.OffsetTree):
         >>> timespan.part
         <music21.stream.Part Soprano>
         '''
-        from music21 import stream
-        if classList is None:
-            classList = (stream.Part,)
-        if not isinstance(pitchedTimespan, spans.PitchedTimespan):
-            message = f'PitchedTimespan {pitchedTimespan!r}, must be an PitchedTimespan'
-            raise TimespanTreeException(message)
-        verticality = self.getVerticalityAt(pitchedTimespan.offset)
-        while verticality is not None:
-            verticality = verticality.nextVerticality
-            if verticality is None:
-                return None
-            for nextPitchedTimespan in verticality.startTimespans:
-                if (nextPitchedTimespan.getParentageByClass(classList) is
-                        pitchedTimespan.getParentageByClass(classList)):
-                    return nextPitchedTimespan
+        pass
 
     def findPreviousPitchedTimespanInSameStreamByClass(
         self,
@@ -354,10 +340,7 @@ class TimespanTree(trees.OffsetTree):
         >>> scoreTree.getVerticalityAtOrBefore(0.0)
         <music21.tree.verticality.Verticality 0.0 {A3 E4 C#5}>
         '''
-        verticality = self.getVerticalityAt(offset)
-        if not verticality.startTimespans:
-            verticality = verticality.previousVerticality
-        return verticality
+        pass
 
     def iterateConsonanceBoundedVerticalities(self):
         # noinspection PyShadowingNames
@@ -427,25 +410,7 @@ class TimespanTree(trees.OffsetTree):
             [9] <music21.tree.verticality.Verticality 34.5 {B2 B3 D4 E#4}>: False
             [9] <music21.tree.verticality.Verticality 35.0 {F#3 A#3 C#4 F#4}>: True
         '''
-        iterator = self.iterateVerticalities()
-        try:
-            startingVerticality = next(iterator)
-        except StopIteration:
-            return
-
-        while not startingVerticality.toChord().isConsonant():
-            try:
-                startingVerticality = next(iterator)
-            except StopIteration:
-                return
-
-        verticalityBuffer = [startingVerticality]
-        for verticality in iterator:
-            verticalityBuffer.append(verticality)
-            if verticality.toChord().isConsonant():
-                if len(verticalityBuffer) > 2:
-                    yield tuple(verticalityBuffer)
-                verticalityBuffer = [verticality]
+        pass
 
     def iterateVerticalities(
         self,
@@ -591,30 +556,7 @@ class TimespanTree(trees.OffsetTree):
         * Changed in v8: added padEnd.  Streams with fewer than n elements
             also return an empty sentinel entry.
         '''
-        from music21.tree.verticality import VerticalitySequence, Verticality
-
-        n = int(n)
-        if n <= 0:
-            message = 'The number of verticalities in the group must be at '
-            message += f'least one. Got {n}'
-            raise TimespanTreeException(message)
-
-        sentinelVerticality = Verticality(self.endTime, timespanTree=self)
-
-        if padEnd:
-            ending = [sentinelVerticality] * (n - 1)
-        else:
-            ending = []
-
-        for verticalities in more_itertools.windowed(
-            itertools.chain(self.iterateVerticalities(reverse=reverse), ending),
-            n,
-            sentinelVerticality
-        ):
-            if not reverse:
-                yield VerticalitySequence(verticalities)
-            else:
-                yield VerticalitySequence(reversed(verticalities))
+        pass
 
 
         # if reverse:
@@ -732,10 +674,7 @@ class TimespanTree(trees.OffsetTree):
             <PitchedTimespan (0.5 to 1.0) <music21.note.Note B>>
             <PitchedTimespan (1.0 to 2.0) <music21.note.Note C#>>
         '''
-        from music21.tree.verticality import VerticalitySequence
-        sequence = VerticalitySequence(verticalities)
-        unwrapped = sequence.unwrap()
-        return unwrapped
+        pass
 
     # PUBLIC PROPERTIES #
 
@@ -758,14 +697,7 @@ class TimespanTree(trees.OffsetTree):
 
         Returns None if there is no verticality here.
         '''
-        overlap = None
-        for v in self.iterateVerticalities():
-            degreeOfOverlap = len(v.startTimespans) + len(v.overlapTimespans)
-            if overlap is None:
-                overlap = degreeOfOverlap
-            elif overlap < degreeOfOverlap:
-                overlap = degreeOfOverlap
-        return overlap
+        pass
 
 #     def minimumOverlap(self):
 #         '''
@@ -799,82 +731,20 @@ class TimespanTree(trees.OffsetTree):
 
         TODO: Look at subclassing or at least deriving from a common base.
         '''
-        return common.unwrapWeakref(self._source)
+        pass
 
     @element.setter
     def element(self, expr):
-        self._source = common.wrapWeakref(expr)
+        pass
 
 
 class Test(unittest.TestCase):
 
     def testGetVerticalityAtWithKey(self):
-        from music21 import key
-        from music21 import note
-        from music21 import stream
-        s = stream.Stream()
-        s.insert(0, key.Key('C'))
-        s.insert(0, note.Note('F#4'))
-        scoreTree = s.asTimespans()
-        v = scoreTree.getVerticalityAt(0.0)
-        ps = v.pitchSet
-        self.assertEqual(len(ps), 1)
+        pass
 
     def testTimespanTree(self):
-        for attempt in range(100):
-            starts = list(range(20))
-            stops = list(range(20))
-            random.shuffle(starts)
-            random.shuffle(stops)
-            tss = []
-            for start, stop in zip(starts, stops):
-                if start <= stop:
-                    tss.append(spans.Timespan(start, stop))
-                else:
-                    tss.append(spans.Timespan(stop, start))
-            tsTree = TimespanTree()
-
-            for i, timespan in enumerate(tss):
-                tsTree.insert(timespan)
-                currentTimespansInList = list(sorted(tss[:i + 1],
-                                                     key=lambda x: (x.offset, x.endTime)))
-                currentTimespansInTree = list(tsTree)
-                currentPosition = min(x.offset for x in currentTimespansInList)
-                currentEndTime = max(x.endTime for x in currentTimespansInList)
-
-                self.assertEqual(currentTimespansInTree,
-                                 currentTimespansInList,
-                                 (attempt, currentTimespansInTree, currentTimespansInList))
-                self.assertEqual(tsTree.rootNode.endTimeLow,
-                                 min(x.endTime for x in currentTimespansInList))
-                self.assertEqual(tsTree.rootNode.endTimeHigh,
-                                 max(x.endTime for x in currentTimespansInList))
-                self.assertEqual(tsTree.lowestPosition(), currentPosition)
-                self.assertEqual(tsTree.endTime, currentEndTime)
-                for inList, inTree in zip(currentTimespansInList, currentTimespansInTree):
-                    self.assertEqual(inList, inTree)
-
-            random.shuffle(tss)
-            while tss:
-                timespan = tss.pop()
-                currentTimespansInList = sorted(tss,
-                                                key=lambda x: (x.offset, x.endTime))
-                tsTree.removeTimespan(timespan)
-                currentTimespansInTree = list(tsTree)
-                self.assertEqual(currentTimespansInTree,
-                                 currentTimespansInList,
-                                 (attempt, currentTimespansInTree, currentTimespansInList))
-                if tsTree.rootNode is not None:
-                    currentPosition = min(x.offset for x in currentTimespansInList)
-                    currentEndTime = max(x.endTime for x in currentTimespansInList)
-                    self.assertEqual(tsTree.rootNode.endTimeLow,
-                                     min(x.endTime for x in currentTimespansInList))
-                    self.assertEqual(tsTree.rootNode.endTimeHigh,
-                                     max(x.endTime for x in currentTimespansInList))
-                    self.assertEqual(tsTree.lowestPosition(), currentPosition)
-                    self.assertEqual(tsTree.endTime, currentEndTime)
-                    for inList, inTree in zip(currentTimespansInList, currentTimespansInTree):
-                        self.assertEqual(inList, inTree)
+        pass
 # -----------------------------------------------------------------------------
 
 

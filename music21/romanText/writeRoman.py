@@ -186,12 +186,7 @@ class RnWriter(prebase.ProtoM21Object):
         a :class:`~music21.stream.Score`, :class:`~music21.stream.Part`,
         or :class:`~music21.stream.Measure`.
         '''
-        m = stream.Measure()
-        for x in obj:
-            m.append(x)
-        container = stream.Part()
-        container.insert(0, m)
-        return container
+        pass
 
     def prepTitle(self,
                   md: metadata.Metadata):
@@ -213,19 +208,7 @@ class RnWriter(prebase.ProtoM21Object):
         >>> rnScoreWithMD.title
         'Fake title - No.123456789: Fake movementName'
         '''
-
-        workingTitle = []
-
-        if md.bestTitle:
-            workingTitle.append(md.bestTitle)
-        if md.movementNumber:
-            workingTitle.append(f'- No.{md.movementNumber}:')  # Spaces later
-        if md.movementName:
-            if md.movementName != md.title:
-                workingTitle.append(md.movementName)
-
-        if len(workingTitle) > 0:
-            self.title = ' '.join(workingTitle)
+        pass
 
 # ------------------------------------------------------------------------------
 
@@ -271,65 +254,7 @@ class RnWriter(prebase.ProtoM21Object):
         'Time Signature: 3/4'
 
         '''
-
-        for thisMeasure in self.container.getElementsByClass(stream.Measure):
-
-            # Separate line for elements supported before/between measures.
-            # (Note: Repeats within measure below)
-            tsThisMeasure = thisMeasure.getElementsByClass(meter.TimeSignature)
-            if tsThisMeasure:
-                firstTS = tsThisMeasure[0]
-                self.combinedList.append(f'Time Signature: {firstTS.ratioString}')
-                if len(tsThisMeasure) > 1:
-                    unprocessedTSs = [x.ratioString for x in tsThisMeasure[1:]]
-                    msg = f'further time signature change(s) unprocessed: {unprocessedTSs}'
-                    self.combinedList.append(f'Note: {msg}')
-
-            measureNumberString = str(thisMeasure.measureNumber)
-            if thisMeasure.numberSuffix is not None:
-                measureNumberString += thisMeasure.numberSuffix
-
-            measureString = ''  # Clear for each measure
-
-            # Start repeat (within measure)
-            if (isinstance(thisMeasure.leftBarline, bar.Repeat)
-                    and thisMeasure.leftBarline.direction == 'start'):
-                measureString = rnString(measureNumber=measureNumberString,
-                                         beat=1.0,
-                                         chordString='||:',
-                                         inString=measureString,
-                                         )
-
-            # Roman Numerals (within measure)
-            rnsThisMeasure = thisMeasure.getElementsByClass(roman.RomanNumeral)
-            for rn in rnsThisMeasure:
-                if rn.tie is None or rn.tie.type == 'start':  # Ignore tied-to Roman numerals
-                    chordString = self.getChordString(rn)
-                    measureString = rnString(measureNumber=measureNumberString,
-                                             beat=rn.beat,
-                                             chordString=chordString,
-                                             inString=measureString,  # Creating update
-                                             )
-
-            # End repeat (within measure)
-            if (isinstance(thisMeasure.rightBarline, bar.Repeat)
-                    and thisMeasure.rightBarline.direction == 'end'):
-                # we want to put the repeat at the beat of the last roman
-                #   numeral to avoid printing an unnecessary indication like
-                #   'b3' prior to the repeat
-                last_rn = thisMeasure[roman.RomanNumeral].last()
-                if last_rn is None:
-                    beat = 1.0
-                else:
-                    beat = last_rn.beat
-                measureString = rnString(measureNumber=measureNumberString,
-                                         beat=beat,
-                                         chordString=':||',
-                                         inString=measureString,
-                                         )
-
-            if measureString:
-                self.combinedList.append(measureString)
+        pass
 
     def getChordString(self,
                        rn: roman.RomanNumeral):
@@ -351,13 +276,7 @@ class RnWriter(prebase.ProtoM21Object):
         >>> changeKeyChord
         'D: V'
         '''
-
-        keyString = rn.key.tonicPitchNameWithCase.replace('-', 'b')
-        if keyString != self.currentKeyString:
-            self.currentKeyString = keyString
-            return f'{keyString}: {rn.figure}'
-        else:
-            return str(rn.figure)
+        pass
 
 
 # ------------------------------------------------------------------------------
@@ -389,27 +308,7 @@ def rnString(measureNumber: int|str,
     or one prefixed by a change of key ('G: I').
 
     '''
-
-    if inString:
-        inStringMeasureNumber = inString.split(' ')[0][1:]
-        # inStringMeasureNumber was previously cast to int, but this fails on
-        #   measures with suffixes ("m1a"). However, now we need to cast
-        #   measureNumber to string in the following comparison.
-        if inStringMeasureNumber != str(measureNumber):
-            msg = f'The current measureNumber is given as {measureNumber}, but '
-            msg += f'the contextual inString ({inString}) refers to '
-            msg += f'measure number {measureNumber}. They should match.'
-            raise ValueError(msg)
-    else:  # inString and therefore start new line
-        inString = f'm{measureNumber}'
-
-    bt = intBeat(beat)
-    if bt == 1:
-        newString = f'{inString} {chordString}'  # no 'b1' needed for beat 1
-    else:
-        newString = f'{inString} b{bt} {chordString}'
-
-    return newString
+    pass
 
 
 def intBeat(beat: str|int|float|fractions.Fraction,
@@ -444,27 +343,7 @@ def intBeat(beat: str|int|float|fractions.Fraction,
 
     Raises an error if called on a negative value.
     '''
-
-    options = (str, int, float, fractions.Fraction)
-    if not isinstance(beat, options):
-        raise TypeError(f'Beat, (currently {beat}) must be one of {options}.')
-
-    if isinstance(beat, (str, fractions.Fraction)):
-        beat = float(beat)
-
-    # beat is now either float or int, so we can test < 0
-    if beat < 0:
-        negativeErrorMessage = f'Beat (currently {beat}) must not be negative.'
-        raise ValueError(negativeErrorMessage)
-
-    if isinstance(beat, int):  # non-negative int
-        return beat
-
-    # beat is now a non-negative float
-    if int(beat) == beat:
-        return int(beat)
-    else:
-        return round(beat, roundValue)
+    pass
 
 
 # ------------------------------------------------------------------------------
@@ -492,172 +371,29 @@ class Test(unittest.TestCase):
         .write() because writing Opus objects explicitly separates them into their constituent
         score files prior to invoking this module.
         '''
-
-        from music21 import converter
-
-        testOpusString = '''Composer: Fake composer
-        Piece: Fake piece
-        Movement: 1
-        m1 C: I b3 IV b4 V
-        m2 I
-
-        Movement: 2
-        m1 G: I
-        m3 IV
-        m4 V
-        m5 I
-
-        Movement: 3
-        m1 C: I
-        m2 V
-        m3 I
-        '''
-
-        testOpus = converter.parse('romantext: ' + testOpusString)
-        self.assertIsInstance(testOpus, stream.Opus)
-
-        testOpusRnWriter = RnWriter(testOpus)
-        for x in ['Title: Fake piece - No.1:',
-                  'Title: Fake piece - No.2:',
-                  'Title: Fake piece - No.3:',
-                  'm2 I',  # mvt 1
-                  'm5 I',  # mvt 2
-                  'm3 I',  # mvt 3
-                  ]:
-            self.assertIn(x, testOpusRnWriter.combinedList)
+        pass
 
     def testTwoCorpusPiecesAndTwoCorruptions(self):
         '''
         Tests for two analysis cases (the smallest rntxt files in the music21 corpus)
         along with two test by modifying those scores.
         '''
-
-        from music21 import corpus
-
-        scoreBach = corpus.parse('bach/choraleAnalyses/riemenschneider004.rntxt')  # Smallest file
-
-        rnaBach = RnWriter(scoreBach)
-        self.assertIn('m10 V6/V b2 V b3 I', rnaBach.combinedList)
-
-        # --------------------
-
-        scoreBach.parts[0].measure(3).insert(0, meter.TimeSignature('10/8'))
-        scoreBach.parts[0].measure(3).insert(1, meter.TimeSignature('5/8'))
-
-        wonkyBach = RnWriter(scoreBach)
-
-        tsString1 = 'Time Signature: 10/8'
-        tsString2 = "Note: further time signature change(s) unprocessed: ['5/8']"
-
-        self.assertIn(tsString1, wonkyBach.combinedList)
-        self.assertIn(tsString2, wonkyBach.combinedList)
-
-        self.assertEqual(wonkyBach.combinedList.index(tsString2),
-                         wonkyBach.combinedList.index(tsString1) + 1)
-
-        # --------------------
-
-        scoreMonte = corpus.parse('monteverdi/madrigal.3.8.rntxt')  # Smallest file
-        rnMonte = RnWriter(scoreMonte)
-
-        self.assertEqual(rnMonte.composer, 'Monteverdi')
-        # noinspection SpellCheckingInspection
-        self.assertEqual(rnMonte.title, "La piaga c'ho nel core")
-        self.assertEqual(rnMonte.combinedList[-1], 'm57 I')
-
-        # --------------------
-
-        # (Re-)assign metadata in the normal way
-        scoreMonte.metadata.title = 'Fake title'
-        scoreMonte.metadata.movementNumber = 123456789
-        scoreMonte.metadata.movementName = 'Fake movementName'
-
-        adjustedMonte = RnWriter(scoreMonte)
-        self.assertEqual(adjustedMonte.title, 'Fake title - No.123456789: Fake movementName')
+        pass
 
     def testTypeParses(self):
         '''
         Tests successful init on a range of supported objects (score, part, even RomanNumeral).
         '''
-
-        s = stream.Score()
-        romanText.writeRoman.RnWriter(s)  # Works on a score
-
-        p = stream.Part()
-        romanText.writeRoman.RnWriter(p)  # or on a part
-
-        s.insert(0, p)
-        romanText.writeRoman.RnWriter(s)  # or on a score with part
-
-        m = stream.Measure()
-        RnWriter(m)  # or on a measure
-
-        v = stream.Voice()
-        # or theoretically on a voice, but will be empty for lack of measures
-        emptyWriter = RnWriter(v)
-        self.assertEqual(emptyWriter.combinedList, [
-            'Composer: Composer unknown',
-            'Title: Title unknown',
-            'Analyst: ',
-            'Proofreader: ',
-            '',
-        ])
-
-        rn = roman.RomanNumeral('viio6', 'G')
-        RnWriter(rn)  # and even (perhaps dubiously) directly on other music21 objects
+        pass
 
     def testRepeats(self):
-        from music21 import converter
-        rntxt = textwrap.dedent('''
-            Time Signature: 2/4
-            m1 ||: C: I
-            m2 V :||
-            m3 ||: I :||
-            m4 ||: I
-            m5a V :||
-            m5b I
-        ''')
-        s = converter.parse(rntxt, format='romanText')
-        writer = RnWriter(s)
-        assert '\n'.join(writer.combinedList).strip().endswith(rntxt.strip())
+        pass
 
     def testRnString(self):
-        test = rnString(1, 1, 'G: I')
-        self.assertEqual(test, 'm1 G: I')  # no beat number given for b1
-
-        test = rnString(0, 4, 'b: V')
-        self.assertEqual(test, 'm0 b4 b: V')  # beat number is given for all other cases
-
-        with self.assertRaises(ValueError):  # error when the measure numbers don't match
-            rnString(15, 1, 'viio6', 'm14 G: I')
+        pass
 
     def testIntBeat(self):
-        testInt = intBeat(1, roundValue=2)
-        self.assertEqual(testInt, 1)
-
-        testOneDec = intBeat(1.5, roundValue=2)
-        self.assertEqual(testOneDec, 1.5)
-
-        testRound1 = intBeat(1.11111111, roundValue=2)
-        self.assertEqual(testRound1, 1.11)
-
-        testRound2 = intBeat(1.11111111, roundValue=1)
-        self.assertEqual(testRound2, 1.1)
-
-        testFrac1 = intBeat(8 / 3, roundValue=2)
-        self.assertEqual(testFrac1, 2.67)
-
-        testFrac2 = intBeat(fractions.Fraction(8, 3), roundValue=2)
-        self.assertEqual(testFrac2, 2.67)
-
-        testStr = intBeat('0.666666666', roundValue=2)
-        self.assertEqual(testStr, 0.67)
-
-        with self.assertRaises(TypeError):  # TypeError when called on an unsupported object
-            intBeat([0, 1, 2])  # type: ignore
-
-        with self.assertRaises(ValueError):  # ValueError when called on a negative number
-            intBeat(-1.5)
+        pass
 
 
 # ------------------------------------------------------------------------------

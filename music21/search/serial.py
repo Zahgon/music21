@@ -83,21 +83,14 @@ class ContiguousSegmentOfNotes(base.Music21Object):
         self.matchedSegment = None
 
     def _reprInternal(self):
-        chordList = []
-        for ch in self.segment:
-            chordPitches = ' '.join(str(p) for p in ch.pitches)
-            chordList.append(chordPitches)
-        return str(chordList)
+        pass
 
     @property
     def startMeasureNumber(self):
         '''
         The measure number on which the contiguous segment begins.
         '''
-        if self.segment:
-            return self.segment[0].measureNumber
-        else:
-            return None
+        pass
 
     @property
     def startOffset(self):
@@ -105,26 +98,14 @@ class ContiguousSegmentOfNotes(base.Music21Object):
         The offset of the beginning of the contiguous segment,
         with respect to the measure containing the first note.
         '''
-        if self.segment:
-            return self.segment[0].offset
-        else:
-            return None
+        pass
 
     def getActiveMatchedRows(self):
         '''
         Returns two ToneRow objects, the activeSegment as ToneRow
         and the matchedSegment as ToneRow
         '''
-        if isinstance(self.activeSegment, ToneRow):
-            activeRow = self.activeSegment
-        else:
-            activeRow = pcToToneRow(self.activeSegment)
-
-        if isinstance(self.matchedSegment, ToneRow):
-            matchedRow = self.matchedSegment
-        else:
-            matchedRow = pcToToneRow(self.matchedSegment)
-        return (activeRow, matchedRow)
+        pass
 
     @property
     def zeroCenteredTransformationsFromMatched(self):
@@ -135,8 +116,7 @@ class ContiguousSegmentOfNotes(base.Music21Object):
         For an explanation of the zero-centered convention for serial transformations,
         see :meth:`music21.search.serial.ToneRow.zeroCenteredTransformation`.
         '''
-        (activeRow, matchedRow) = self.getActiveMatchedRows()
-        return matchedRow.findZeroCenteredTransformations(activeRow)
+        pass
 
     @property
     def originalCenteredTransformationsFromMatched(self):
@@ -148,8 +128,7 @@ class ContiguousSegmentOfNotes(base.Music21Object):
         zero-centered convention for serial transformations, see
         :meth:`music21.search.serial.ToneRow.originalCenteredTransformation`.
         '''
-        (activeRow, matchedRow) = self.getActiveMatchedRows()
-        return matchedRow.findOriginalCenteredTransformations(activeRow)
+        pass
 
     def readPitchClassesFromBottom(self):
         '''
@@ -620,209 +599,34 @@ class ContiguousSegmentSearcher:
         return self.listOfContiguousSegments
 
     def addActiveChords(self, partNumber):
-        csn = ContiguousSegmentOfNotes(self.activeChordList,
-                                       self.stream,
-                                       partNumber)
-        self.listOfContiguousSegments.append(csn)
-        return csn
+        pass
 
     def searchIncludeAllExclude(self, n, partNumber):
-        if len(n.pitches) > 1:
-            self.chordList = []
-            return False
-
-        chordList = self.chordList
-
-        chordList.append(n)
-        self.totalLength = self.totalLength + len(n.pitches)
-
-        if len(chordList) == self.searchLength + 1:
-            chordList.pop(0)
-
-        if len(chordList) == self.searchLength:
-            self.activeChordList = chordList[:]
-            self.addActiveChords(partNumber)
-            return True
-
-        return False
+        pass
 
     def searchIncludeAllInclude(self, n, partNumber):
         '''
         Returns the number added.
         '''
-        numCSNAdded = 0
-
-        chordList = self.chordList
-        chordList.append(n)
-        self.totalLength += len(n.pitches)
-
-        lengthOfActive = self.totalLength
-        numChordsToDelete = 0
-
-        for i in range(len(chordList)):
-            activeChordList = chordList[i:]
-            firstChordNumPitches = len(activeChordList[0].pitches)
-            lastChordNumPitches = len(activeChordList[-1].pitches)
-            if i:
-                lengthOfActive -= len(chordList[i - 1].pitches)
-            numPitchesMinusFirstLast = lengthOfActive - (firstChordNumPitches + lastChordNumPitches)
-            if (lengthOfActive >= self.searchLength
-                    and numPitchesMinusFirstLast <= self.searchLength - 2):
-                self.activeChordList = activeChordList
-                self.addActiveChords(partNumber)
-                numCSNAdded += 1
-            elif lengthOfActive >= self.searchLength:
-                numChordsToDelete += 1
-            else:
-                break
-
-        for unused_counter in range(numChordsToDelete):
-            removedChord = chordList.pop(0)
-            self.totalLength -= len(removedChord.pitches)
-
-        return numCSNAdded
+        pass
 
     def searchSkipConsecutiveExclude(self, n, partNumber):
-        chordList = self.chordList
-        if chordList and chordList[-1].pitches == n.pitches:
-            return False
-
-        return self.searchIncludeAllExclude(n, partNumber)
+        pass
 
     def searchSkipConsecutiveInclude(self, n, partNumber):
-        chordList = self.chordList
-        if chordList and chordList[-1].pitches == n.pitches:
-            return False
-
-        return self.searchIncludeAllInclude(n, partNumber)
+        pass
 
     def searchIgnoreAllExclude(self, n, partNumber):
-        if len(n.pitches) > 1:
-            self.chordList = []
-            return False
-
-        numCSNAdded = 0
-        numChordsToDelete = 0
-
-        chordList = self.chordList
-        chordList.append(n)
-
-        for i in range(len(chordList)):
-            activeChordList = chordList[i:]
-            activePitches = []
-            for thisChord in activeChordList:
-                activePitches.extend(thisChord.pitches[:])
-            uniqueActivePitchClasses = {p.pitchClass for p in activePitches}
-            numUniqueActivePitchClasses = len(uniqueActivePitchClasses)
-            if numUniqueActivePitchClasses == self.searchLength:
-                self.activeChordList = activeChordList
-                self.addActiveChords(partNumber)
-                if self.trimToShortestLengthFast:
-                    numChordsToDelete += 1
-                numCSNAdded += 1
-            elif numUniqueActivePitchClasses > self.searchLength:
-                numChordsToDelete += 1
-
-        for unused_counter in range(numChordsToDelete):
-            removedChord = chordList.pop(0)
-            self.totalLength -= len(removedChord.pitches)
-
-        return numCSNAdded
+        pass
 
     def searchIgnoreAllInclude(self, n, partNumber):
-        numCSNAdded = 0
-        numChordsToDelete = 0
-
-        chordList = self.chordList
-        chordList.append(n)
-        for i in range(len(chordList)):
-            self.activeChordList = activeChordList = chordList[i:]
-            csn = self.addActiveChords(partNumber)
-            rowSuperset = set(csn.readPitchClassesFromBottom())
-            if len(rowSuperset) >= self.searchLength:
-                middleSegment = ContiguousSegmentOfNotes(activeChordList[1:-1], None, None)
-                middlePitchClassSet = set(middleSegment.readPitchClassesFromBottom())
-                setToCheck = middlePitchClassSet.union([activeChordList[0].pitches[-1].pitchClass,
-                                                        activeChordList[-1].pitches[0].pitchClass])
-                if (len(setToCheck)) > self.searchLength:
-                    self.listOfContiguousSegments.pop()
-                    numChordsToDelete += 1
-                elif self.trimToShortestLengthFast:
-                    numChordsToDelete += 1
-
-            else:
-                self.listOfContiguousSegments.pop()
-                break
-
-        for unused_counter in range(numChordsToDelete):
-            removedChord = chordList.pop(0)
-            self.totalLength -= len(removedChord.pitches)
-
-        return numCSNAdded
+        pass
 
     def searchRowsOnlyExclude(self, n, partNumber):
-        if len(n.pitches) > 1:
-            self.chordList = []
-            return False
-
-        chordList = self.chordList
-
-        if len(chordList) == self.searchLength:
-            chordList.pop(0)
-
-        if n.pitch.pitchClass not in [oldN.pitch.pitchClass for oldN in chordList]:
-            chordList.append(n)
-        else:
-            self.chordList = chordList = [n]
-
-        # all unique
-        if len(chordList) == self.searchLength:
-            self.activeChordList = chordList[:]
-            self.addActiveChords(partNumber)
+        pass
 
     def searchRowsOnlyInclude(self, n, partNumber):
-        chordList = self.chordList
-        chordList.append(n)
-        self.totalLength += len(n.pitches)
-        lengthOfActive = self.totalLength
-        numChordsToDelete = 0
-
-        for i in range(len(chordList)):
-            activeChordList = chordList[i:]
-            firstChordNumPitches = len(activeChordList[0].pitches)
-            lastChordNumPitches = len(activeChordList[-1].pitches)
-            if i:
-                lengthOfActive -= len(chordList[i - 1].pitches)
-
-            numPitchesMinusFirstLast = lengthOfActive - (firstChordNumPitches + lastChordNumPitches)
-            if (lengthOfActive >= self.searchLength
-                    and numPitchesMinusFirstLast <= self.searchLength - 2):
-                self.activeChordList = activeChordList
-                csn = self.addActiveChords(partNumber)
-                rowSuperset = csn.readPitchClassesFromBottom()
-                lowerBound = max([0,
-                                  len(rowSuperset)
-                                    - self.searchLength
-                                    - len(self.activeChordList[-1].pitches)
-                                    + 1])
-                upperBound = min([len(self.activeChordList[0].pitches),
-                                  len(rowSuperset) - self.searchLength + 1])
-                for j in range(lowerBound, upperBound):
-                    if len(set(rowSuperset[j:j + self.searchLength])) == self.searchLength:
-                        break
-                else:
-                    # was not a match, should not have been added,
-                    # thus remove from listOfContiguousSegments
-                    self.listOfContiguousSegments.pop()
-
-            elif lengthOfActive >= self.searchLength:
-                numChordsToDelete += 1
-            else:
-                break
-
-        for unused_counter in range(numChordsToDelete):
-            removedChord = chordList.pop(0)
-            self.totalLength -= len(removedChord.pitches)
+        pass
 
 
 class SegmentMatcher:
@@ -1014,12 +818,11 @@ class SegmentMatcher:
 
     @property
     def reps(self):
-        return self._reps
+        pass
 
     @reps.setter
     def reps(self, newReps):
-        self._reps = newReps
-        self._contiguousSegmentsByLength = {}
+        pass
 
     @property
     def includeChords(self):
@@ -1028,12 +831,11 @@ class SegmentMatcher:
 
         Clears the segment cache when it is changed.
         '''
-        return self._includeChords
+        pass
 
     @includeChords.setter
     def includeChords(self, newChords):
-        self._includeChords = newChords
-        self._contiguousSegmentsByLength = {}
+        pass
 
     def getContiguousSegmentsByLength(self, searchSegmentLength):
         '''
@@ -1942,58 +1744,7 @@ def _labelGeneral(segmentsToLabel, inputStream, segmentDict, reps, includeChords
     Private because this should only be called
     in conjunction with one of the find(type of set of pitch classes) functions.
     '''
-    parts = {}
-    if not inputStream.getElementsByClass(stream.Score):
-        bigContainer = inputStream
-    else:
-        bigContainer = inputStream.getElementsByClass(stream.Score)
-    if not bigContainer.getElementsByClass(stream.Part):
-        hasParts = False
-    else:
-        parts = bigContainer.getElementsByClass(stream.Part)
-        hasParts = True
-
-    segmentList = [segmentDict[label] for label in segmentDict]
-    labelList = list(segmentDict)  # dicts are ordered as officially in 3.7
-    numSearchSegments = len(segmentList)
-    numSegmentsToLabel = len(segmentsToLabel)
-    reorderedSegmentsToLabel = sorted(segmentsToLabel, key=attrgetter(
-        'partNumber', 'startMeasureNumber', 'startOffset'))
-
-    for k in range(numSegmentsToLabel):
-        foundSegment = reorderedSegmentsToLabel[k]
-        lineLabel = spanner.Line(foundSegment.segment[0], foundSegment.segment[-1])
-        if hasParts:
-            parts[foundSegment.partNumber].insert(0, lineLabel)
-        else:
-            bigContainer.insert(0, lineLabel)
-
-        rowToMatch = foundSegment.matchedSegment
-        for searchSegmentIndex in range(numSearchSegments):
-            if segmentList[searchSegmentIndex] != rowToMatch:
-                continue
-
-            label = labelList[searchSegmentIndex]
-            firstNote = foundSegment.segment[0]
-
-            # for labelTransformedSegments
-            if labelTransformations is False:
-                transformations = []
-            elif labelTransformations == 'original':
-                transformations = foundSegment.originalCenteredTransformationsFromMatched
-            elif labelTransformations == 'zero':
-                transformations = foundSegment.zeroCenteredTransformationsFromMatched
-            else:
-                transformations = []
-
-            for trans in transformations:
-                label = label + ' ,' + str(trans[0]) + str(trans[1])
-
-            if label not in [lyr.text for lyr in firstNote.lyrics]:
-                firstNote.addLyric(label)
-            break
-
-    return inputStream
+    pass
 
 
 def labelSegments(inputStream, segmentDict, reps='skipConsecutive', includeChords=True):
@@ -2057,10 +1808,7 @@ def labelSegments(inputStream, segmentDict, reps='skipConsecutive', includeChord
     >>> len(labelGAB.getElementsByClass(spanner.Line))
     1
     '''
-    streamCopy = copy.deepcopy(inputStream)
-    segmentList = [segmentDict[label] for label in segmentDict]
-    segmentsToLabel = SegmentMatcher(streamCopy, reps, includeChords).find(segmentList)
-    return _labelGeneral(segmentsToLabel, streamCopy, segmentDict, reps, includeChords)
+    pass
 
 
 def labelTransposedSegments(inputStream, segmentDict, reps='skipConsecutive', includeChords=True):
@@ -2141,10 +1889,7 @@ def labelTransposedSegments(inputStream, segmentDict, reps='skipConsecutive', in
     >>> len(labeledSC.parts[0].getElementsByClass(spanner.Line))
     2
     '''
-    streamCopy = inputStream.coreCopyAsDerivation('labelTransposedSegments')
-    segmentList = [segmentDict[label] for label in segmentDict]
-    segmentsToLabel = TransposedSegmentMatcher(streamCopy, reps, includeChords).find(segmentList)
-    return _labelGeneral(segmentsToLabel, streamCopy, segmentDict, reps, includeChords)
+    pass
 
 
 def labelTransformedSegments(inputStream,
@@ -2199,17 +1944,7 @@ def labelTransformedSegments(inputStream,
     >>> [len(n.lyrics) for n in labeledPart.flatten().notes]
     [1, 1, 0]
     '''
-    streamCopy = copy.deepcopy(inputStream)
-    segmentList = [segmentDict[label] for label in segmentDict]
-    segmentsToLabel = TransformedSegmentMatcher(streamCopy, reps, includeChords).find(segmentList)
-    return _labelGeneral(
-        segmentsToLabel,
-        streamCopy,
-        segmentDict,
-        reps,
-        includeChords,
-        labelTransformations=convention
-    )
+    pass
 
 
 def labelMultisets(inputStream, multisetDict, reps='skipConsecutive', includeChords=True):
@@ -2271,10 +2006,7 @@ def labelMultisets(inputStream, multisetDict, reps='skipConsecutive', includeCho
     >>> [len(n.lyrics) for n in labeledPart.flatten().notes]
     [1, 1, 0, 0]
     '''
-    streamCopy = copy.deepcopy(inputStream)
-    segmentList = [multisetDict[label] for label in multisetDict]
-    segmentsToLabel = MultisetSegmentMatcher(streamCopy, reps, includeChords).find(segmentList)
-    return _labelGeneral(segmentsToLabel, streamCopy, multisetDict, reps, includeChords)
+    pass
 
 
 def labelTransposedMultisets(inputStream, multisetDict,
@@ -2331,11 +2063,7 @@ def labelTransposedMultisets(inputStream, multisetDict,
     Note: the spanners above were moved manually so that they can be more
     easily distinguished from one another.
     '''
-    streamCopy = copy.deepcopy(inputStream)
-    segmentList = [multisetDict[label] for label in multisetDict]
-    segmentsToLabel = TransposedMultisetMatcher(streamCopy, reps,
-                                                includeChords).find(segmentList)
-    return _labelGeneral(segmentsToLabel, streamCopy, multisetDict, reps, includeChords)
+    pass
 
 
 def labelTransposedAndInvertedMultisets(inputStream,
@@ -2396,12 +2124,7 @@ def labelTransposedAndInvertedMultisets(inputStream,
     Note: the spanners above were moved manually so that they can be more
     easily distinguished from one another.
     '''
-
-    streamCopy = copy.deepcopy(inputStream)
-    segmentList = [multisetDict[label] for label in multisetDict]
-    segmentsToLabel = TransposedInvertedMultisetMatcher(streamCopy, reps,
-                                                        includeChords).find(segmentList)
-    return _labelGeneral(segmentsToLabel, streamCopy, multisetDict, reps, includeChords)
+    pass
 
 # --------------------------------------------------------------------
 

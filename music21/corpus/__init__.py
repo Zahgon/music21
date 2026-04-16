@@ -111,10 +111,7 @@ def getCorePaths(
     True
 
     '''
-    return corpora.CoreCorpus().getPaths(
-        fileExtensions=fileExtensions,
-        expandExtensions=expandExtensions,
-    )
+    pass
 
 # def getVirtualPaths(*, fileExtensions: Iterable[str] = (), expandExtensions=True):
 #     '''
@@ -145,10 +142,7 @@ def getLocalPaths(
     :func:`~music21.corpus.addPath` function, these paths are also returned
     with this method.
     '''
-    return corpora.LocalCorpus().getPaths(
-        fileExtensions=fileExtensions,
-        expandExtensions=expandExtensions,
-    )
+    pass
 
 
 def addPath(filePath, corpusName=None):
@@ -178,7 +172,7 @@ def addPath(filePath, corpusName=None):
 
     Restart music21 after adding paths.
     '''
-    corpora.LocalCorpus(corpusName).addPath(filePath)
+    pass
 
 
 def getPaths(
@@ -255,10 +249,7 @@ def getComposer(
     >>> len(a) > 10
     True
     '''
-    return corpora.CoreCorpus().getComposer(
-        composerName,
-        fileExtensions=fileExtensions,
-    )
+    pass
 
 
 def noCorpus():
@@ -269,7 +260,7 @@ def noCorpus():
     False
 
     '''
-    return corpora.CoreCorpus().noCorpus
+    pass
 
 
 # -----------------------------------------------------------------------------

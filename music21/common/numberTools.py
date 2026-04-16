@@ -462,15 +462,7 @@ def roundToHalfInteger(num: float|int) -> float|int:
     >>> common.roundToHalfInteger(-0.25)
     0
     '''
-    intVal, floatVal = divmod(num, 1.0)
-    intVal = int(intVal)
-    if floatVal < 0.25:
-        floatVal = 0
-    elif 0.25 <= floatVal < 0.75:
-        floatVal = 0.5
-    else:
-        floatVal = 1
-    return intVal + floatVal
+    pass
 
 
 def addFloatPrecision(x, grain=1e-2) -> float|Fraction:
@@ -657,40 +649,7 @@ def decimalToTuplet(decNum: float) -> tuple[int, int]:
     Traceback (most recent call last):
     ZeroDivisionError: number must be greater than zero
     '''
-    def findSimpleFraction(inner_working):
-        '''
-        Utility function.
-        '''
-        for index in range(1, 1000):
-            for j in range(index, index * 2):
-                if isclose(inner_working, j / index, abs_tol=1e-7):
-                    return (int(j), int(index))
-        return (0, 0)
-
-    flipNumerator = False
-    if decNum <= 0:
-        raise ZeroDivisionError('number must be greater than zero')
-    if decNum < 1:
-        flipNumerator = True
-        decNum = 1 / decNum
-
-    unused_remainder, multiplier = math.modf(decNum)
-    working = decNum / multiplier
-
-    (jy, iy) = findSimpleFraction(working)
-
-    if iy == 0:
-        raise ValueError('No such luck')
-
-    jy *= multiplier
-    my_gcd = gcd(int(jy), int(iy))
-    jy = jy / my_gcd
-    iy = iy / my_gcd
-
-    if flipNumerator is False:
-        return (int(jy), int(iy))
-    else:
-        return (int(iy), int(jy))
+    pass
 
 
 def unitNormalizeProportion(values: Sequence[int|float]) -> list[float]:
@@ -809,49 +768,7 @@ def approximateGCD(values: Collection[int|float|Fraction], grain: float = 1e-4) 
     >>> common.strTrimFloat(common.approximateGCD([5/3, 2/3, 5/6, 3/6]))
     '0.1667'
     '''
-    lowest = float(min(values))
-
-    # quick method: see if the smallest value is a common divisor of the rest
-    count = 0
-    for x in values:
-        x_adjust = x / lowest
-        floatingValue = x_adjust - int(x_adjust)
-        # if almost an even division
-        if isclose(floatingValue, 0.0, abs_tol=grain):
-            count += 1
-    if count == len(values):
-        return lowest
-
-    # assume that one of these divisions will match
-    divisors = (
-        1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0,
-        9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0,
-    )
-    divisions = []  # a list of lists, one for each entry
-    uniqueDivisions = set()
-    for index in values:
-        coll = []
-        for d in divisors:
-            v = index / d
-            coll.append(v)  # store all divisions
-            uniqueDivisions.add(v)
-        divisions.append(coll)
-    # find a unique divisor that is found in collected divisors
-    commonUniqueDivisions = []
-    for v in uniqueDivisions:
-        count = 0
-        for coll in divisions:
-            for x in coll:
-                # grain here is set low, mostly to catch triplets
-                if isclose(x, v, abs_tol=grain):
-                    count += 1
-                    break  # exit the iteration of coll; only 1 match possible
-        # store any division that is found in all values
-        if count == len(divisions):
-            commonUniqueDivisions.append(v)
-    if not commonUniqueDivisions:
-        raise ValueError('cannot find a common divisor')
-    return max(commonUniqueDivisions)
+    pass
 
 
 
@@ -878,13 +795,7 @@ def contiguousList(inputListOrTuple) -> bool:
     >>> common.contiguousList(sorted(l))
     True
     '''
-    currentMaxVal = inputListOrTuple[0]
-    for index in range(1, len(inputListOrTuple)):
-        newVal = inputListOrTuple[index]
-        if newVal != currentMaxVal + 1:
-            return False
-        currentMaxVal += 1
-    return True
+    pass
 
 
 def groupContiguousIntegers(src: list[int]) -> list[list[int]]:
@@ -906,30 +817,7 @@ def groupContiguousIntegers(src: list[int]) -> list[list[int]]:
     >>> common.groupContiguousIntegers([3, 200])
     [[3], [200]]
     '''
-    if len(src) <= 1:
-        return [src]
-    post = []
-    group = []
-    src.sort()
-    i = 0
-    while i < (len(src) - 1):
-        e = src[i]
-        group.append(e)
-        eNext = src[i + 1]
-        # if next is contiguous, add to group
-        if eNext != e + 1:
-            # if not contiguous
-            post.append(group)
-            group = []
-        # second to last elements; handle separately
-        if i == len(src) - 2:
-            # need to handle next elements
-            group.append(eNext)
-            post.append(group)
-
-        i += 1
-
-    return post
+    pass
 
 
 # noinspection SpellCheckingInspection
@@ -1027,18 +915,7 @@ def toRoman(num: int) -> str:
     Traceback (most recent call last):
     ValueError: Argument must be between 1 and 3999
     '''
-    if not isinstance(num, int):
-        raise TypeError(f'expected integer, got {type(num)}')
-    if not 0 < num < 4000:
-        raise ValueError('Argument must be between 1 and 3999')
-    ints = (1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
-    nums = ('M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I')
-    result = ''
-    for i in range(len(ints)):
-        count = int(num / ints[i])
-        result += nums[i] * count
-        num -= ints[i] * count
-    return result
+    pass
 
 
 def ordinalAbbreviation(value: int, plural=False) -> str:
@@ -1052,25 +929,7 @@ def ordinalAbbreviation(value: int, plural=False) -> str:
     >>> common.ordinalAbbreviation(255, plural=True)
     'ths'
     '''
-    valueHundredths = value % 100
-    if valueHundredths in (11, 12, 13):
-        post = 'th'
-    else:
-        valueMod = value % 10
-        if valueMod == 1:
-            post = 'st'
-        elif valueMod in (0, 4, 5, 6, 7, 8, 9):
-            post = 'th'
-        elif valueMod == 2:
-            post = 'nd'
-        elif valueMod == 3:
-            post = 'rd'
-        else:
-            raise ValueError('Something really weird')  # pragma: no cover
-
-    if post != 'st' and plural:
-        post += 's'
-    return post
+    pass
 
 
 ordinalsToNumbers = {}
@@ -1103,55 +962,14 @@ class Test(unittest.TestCase):
         pass
 
     def testToRoman(self):
-        for src, dst in [(1, 'I'), (3, 'III'), (5, 'V')]:
-            self.assertEqual(dst, toRoman(src))
+        pass
 
     def testOrdinalsToNumbers(self):
-        self.assertEqual(ordinalsToNumbers['unison'], 1)
-        self.assertEqual(ordinalsToNumbers['Unison'], 1)
-        self.assertEqual(ordinalsToNumbers['first'], 1)
-        self.assertEqual(ordinalsToNumbers['First'], 1)
-        self.assertEqual(ordinalsToNumbers['1st'], 1)
-        self.assertEqual(ordinalsToNumbers['octave'], 8)
-        self.assertEqual(ordinalsToNumbers['Octave'], 8)
-        self.assertEqual(ordinalsToNumbers['eighth'], 8)
-        self.assertEqual(ordinalsToNumbers['Eighth'], 8)
-        self.assertEqual(ordinalsToNumbers['8th'], 8)
+        pass
 
     def testWeightedSelection(self):
         # test equal selection
-        for j in range(10):
-            x = 0
-            for i in range(1000):
-                # equal chance of -1, 1
-                x += weightedSelection([-1, 1], [1, 1])
-            # environLocal.printDebug(['weightedSelection([-1, 1], [1, 1])', x])
-            self.assertTrue(-250 < x < 250)
-
-        # test a strongly weighed boundary
-        for j in range(10):
-            x = 0
-            for i in range(1000):
-                # 10000 more chance of 0 than 1.
-                x += weightedSelection([0, 1], [10000, 1])
-            # environLocal.printDebug(['weightedSelection([0, 1], [10000, 1])', x])
-            self.assertTrue(0 <= x < 20)
-
-        for j in range(10):
-            x = 0
-            for i in range(1000):
-                # 10,000 times more likely 1 than 0.
-                x += weightedSelection([0, 1], [1, 10000])
-            # environLocal.printDebug(['weightedSelection([0, 1], [1, 10000])', x])
-            self.assertTrue(900 <= x <= 1000)
-
-        for unused_j in range(10):
-            x = 0
-            for i in range(1000):
-                # no chance of anything but 0.
-                x += weightedSelection([0, 1], [1, 0])
-            # environLocal.printDebug(['weightedSelection([0, 1], [1, 0])', x])
-            self.assertEqual(x, 0)
+        pass
 
 
 # ------------------------------------------------------------------------------

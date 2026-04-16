@@ -105,32 +105,13 @@ class SiteRef(common.SlottedObjectMixin, prebase.ProtoM21Object):
         self.siteWeakref = None
 
     def _reprInternal(self):
-        if self is _NoneSiteRef:
-            return 'Global None Index'
-
-        siteRepr = repr(self.site)
-        if self.isDead:
-            siteRepr = 'dead site'
-
-        return f'{self.siteIndex}/{self.globalSiteIndex} to {siteRepr}'
+        pass
 
     def _getAndUnwrapSite(self):
-        if WEAKREF_ACTIVE:
-            ret = common.unwrapWeakref(self.siteWeakref)
-        else:
-            ret = self.siteWeakref
-
-        if ret is None and self is not _NoneSiteRef:
-            self.isDead = True
-
-        return ret
+        pass
 
     def _setAndWrapSite(self, site):
-        if WEAKREF_ACTIVE:
-            self.siteWeakref = common.wrapWeakref(site)
-        else:
-            self.siteWeakref = site
-        self.isDead = False
+        pass
 
     site = property(_getAndUnwrapSite, _setAndWrapSite)
 
@@ -587,15 +568,7 @@ class Sites(common.SlottedObjectMixin):
         True
 
         '''
-        post = None
-        for obj in self.yieldSites(sortByCreationTime='reverse'):
-            if obj is None:
-                continue  # in case the reference is dead
-            try:
-                post = getattr(obj, attrName)
-                return post
-            except AttributeError:
-                pass
+        pass
 
     def getObjByClass(
         self,
@@ -646,73 +619,7 @@ class Sites(common.SlottedObjectMixin):
         OMIT_FROM_DOCS
         TODO: not sure if memo is properly working: need a test case
         '''
-        # in general, this should not be the first caller, as this method
-        # is called from a Music21Object, not directly on the Sites
-        # instance. Nonetheless, if this is the first caller, it is the first
-        # caller.
-        if callerFirst is None:  # this is the first caller
-            callerFirst = self  # set Sites as caller first
-        if memo is None:
-            memo = {}  # initialize
-        post = None
-        # count = 0
-
-        # search any defined contexts first
-        # need to sort: look at most-recently added objs are first
-        objs = self.yieldSites(
-            sortByCreationTime=sortByCreationTime,
-            priorityTarget=priorityTarget,
-            excludeNone=True,
-        )  # objs is a generator
-        # printMemo(
-        #     memo,
-        #     'getObjByClass() called: looking at '
-        #     + f'{len(objs)} sites'
-        # )
-        classNameIsStr = isinstance(className, str)
-        for obj in objs:
-            # environLocal.printDebug(['memo', memo])
-            if classNameIsStr:
-                if className in obj.classes:
-                    post = obj
-                    break
-            elif isinstance(obj, className):
-                post = obj
-                break
-        if post is not None:
-            return post
-
-        # all objs here are containers, as they are all locations
-        # if we could be sure that these objs do not have their own locations
-        # and do not have the target class, we can skip
-        for obj in objs:
-            # if DEBUG_CONTEXT: print('\tY: getObjByClass: iterating objs:', id(obj), obj)
-            if classNameIsStr and obj.isFlat:
-                # if DEBUG_CONTEXT:
-                #    print('\tY: skipping flat stream that does not contain object:',
-                #                  id(obj), obj)
-                # environLocal.printDebug(
-                #    ['\tY: skipping flat stream that does not contain object:'])
-                if obj.sites.getSiteCount() == 0:  # is top level; no more to search
-                    if not obj.hasElementOfClass(className, forceFlat=True):
-                        continue  # skip, not in this stream
-
-            # if after trying to match name, look in the defined contexts'
-            # defined contexts [sic!]
-            # if post is None:  # no match yet
-            # access public method to recurse
-            if id(obj) not in memo:
-                # if the object is a Music21Object
-                #    if hasattr(obj, 'getContextByClass'):
-                # store this object as having been searched
-                memo[id(obj)] = obj
-                post = obj.getContextByClass(
-                    className,
-                    sortByCreationTime=sortByCreationTime,
-                    getElementMethod=getElementMethod)
-                if post is not None:
-                    break
-        return post
+        pass
 
     def getById(self, siteId):
         '''
@@ -725,8 +632,7 @@ class Sites(common.SlottedObjectMixin):
         >>> a.sites.getById(id(s)) is s
         True
         '''
-        siteRef = self.siteDict[siteId]
-        return siteRef.site
+        pass
 
     def getSiteCount(self):
         '''
@@ -744,14 +650,7 @@ class Sites(common.SlottedObjectMixin):
         >>> a.sites.getSiteCount()
         2
         '''
-        count = 0
-        for siteRef in self.siteDict.values():
-            if siteRef.isDead is True:
-                continue
-            if siteRef.siteWeakref is None:
-                continue
-            count += 1
-        return count
+        pass
 
     def getSiteIds(self):
         '''
@@ -765,8 +664,7 @@ class Sites(common.SlottedObjectMixin):
         >>> dc.getSiteIds() == {None, id(aSite)}
         True
         '''
-        # may want to convert to tuple to avoid user editing?
-        return set(self.siteDict.keys())
+        pass
 
     def getSitesByClass(self, className):
         '''
@@ -847,12 +745,7 @@ class Sites(common.SlottedObjectMixin):
         Return True if this object is found in any Variant. This is determined
         by looking for a VariantStorage Stream class as a Site.
         '''
-        for siteRef in self.siteDict.values():
-            if siteRef.isDead:
-                continue
-            if siteRef.classString == 'VariantStorage':
-                return True
-        return False
+        pass
 
     def purgeLocations(self, rescanIsDead=False):
         '''
@@ -1004,50 +897,12 @@ class Sites(common.SlottedObjectMixin):
         >>> aSites.getAttrByName('attr1') == 'test'
         True
         '''
-        # post = None
-        for obj in self.get():
-            if obj is None:
-                continue  # in case the reference is dead
-            try:
-                junk = getattr(obj, attrName)  # if attr already exists
-                setattr(obj, attrName, value)  # if attr already exists
-            except AttributeError:
-                pass
+        pass
 
 
 class Test(unittest.TestCase):
     def testSites(self):
-        from music21 import note
-        from music21 import stream
-        from music21 import corpus
-        from music21 import clef
-
-        m = stream.Measure()
-        m.number = 34
-        n = note.Note()
-        m.append(n)
-
-        n2 = note.Note()
-        n2.sites.add(m)
-
-        c = clef.Clef()
-        c.sites.add(n)
-
-        self.assertEqual(n2.sites.getAttrByName('number'), 34)
-        c.sites.setAttrByName('lyric', str(n2.sites.getAttrByName('number')))
-        self.assertEqual(n.lyric, '34')
-        c.sites.setAttrByName('lyric', n2.sites.getAttrByName('number'))
-        # converted to a string now
-        self.assertEqual(n.lyric, '34')
-
-        violin1 = corpus.parse(
-            'beethoven/opus18no1',
-            3,
-            fileExtensions=('xml',),
-        ).getElementById('Violin I')
-        lastNote = violin1.flatten().notes[-1]
-        lastNoteClef = lastNote.getContextByClass(clef.Clef)
-        self.assertIsInstance(lastNoteClef, clef.TrebleClef)
+        pass
 
 
 # ----------------------------------------------------------------------------

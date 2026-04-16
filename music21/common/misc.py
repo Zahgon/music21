@@ -119,19 +119,7 @@ def getMissingImportStr(modNameList):
     if you run into errors, install them by following the instructions at
     https://www.music21.org/music21docs/installing/installAdditional.html
     '''
-    if not modNameList:
-        return None
-    elif len(modNameList) == 1:
-        m = modNameList[0]
-        return textwrap.dedent(f'''Certain music21 functions might need the optional package {m};
-                  if you run into errors, install it by following the instructions at
-                  https://www.music21.org/music21docs/installing/installAdditional.html''')
-    else:
-        m = ', '.join(modNameList)
-        return textwrap.dedent(
-            f'''Certain music21 functions might need these optional packages: {m};
-                   if you run into errors, install them by following the instructions at
-                   https://www.music21.org/music21docs/installing/installAdditional.html''')
+    pass
 
 
 def getPlatform() -> str:
@@ -206,7 +194,7 @@ def pitchList(pitchL):
 
     May be moved in v8 or later to a common.testing or test.X module.
     '''
-    return '[' + ', '.join([x.nameWithOctave for x in pitchL]) + ']'
+    pass
 
 
 def runningInNotebook() -> bool:

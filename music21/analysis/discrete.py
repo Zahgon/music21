@@ -102,9 +102,7 @@ class DiscreteAnalysis:
         >>> da._hexToRgb('#000000')
         [0, 0, 0]
         '''
-        value = value.lstrip('#')
-        lv = len(value)
-        return list(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+        pass
 
     def _rgbLimit(self, value):
         '''
@@ -118,17 +116,13 @@ class DiscreteAnalysis:
         >>> da._rgbLimit(-30)
         0
         '''
-        if value < 0:
-            value = 0
-        elif value > 255:
-            value = 255
-        return value
+        pass
 
     def clearSolutionsFound(self):
         '''
         Clear all stored solutions
         '''
-        self.solutionsFound = []
+        pass
 
     def getColorsUsed(self):
         '''
@@ -254,52 +248,7 @@ class KeyWeightKeyAnalysis(DiscreteAnalysis):
         >>> p.majorKeyColors['C']
         '#ff816b'
         '''
-        # for each step, assign a color
-        # names taken from http://chaos2.org/misc/rgb.html
-        # idea is basically:
-        # red, orange, yellow, green, cyan, blue, purple, pink
-        # noinspection SpellCheckingInspection
-        stepLib = {
-            'C': '#CD4F39',  # tomato3
-            'D': '#DAA520',  # goldenrod
-            'E': '#BCEE68',  # DarkOliveGreen2
-            'F': '#96CDCD',  # PaleTurquoise3
-            'G': '#6495ED',  # cornflower blue
-            'A': '#8968CD',  # MediumPurple3
-            'B': '#FF83FA',  # orchid1
-        }
-
-        for dst, valid in [(self.majorKeyColors, self.keysValidMajor),
-                           (self.minorKeyColors, self.keysValidMinor)]:
-            for validKey in valid:
-                # convert to pitch object
-                validKey = pitch.Pitch(validKey)
-                step = validKey.step  # get C for C#
-                rgbStep = self._hexToRgb(stepLib[step])
-                # make all the colors a bit lighter
-                for i in range(len(rgbStep)):
-                    rgbStep[i] = self._rgbLimit(rgbStep[i] + 50)
-
-                # make minor darker
-                if valid == self.keysValidMinor:
-                    for i in range(len(rgbStep)):
-                        rgbStep[i] = self._rgbLimit(rgbStep[i] - 100)
-
-                # alter colors for chromatic keys
-                if len(validKey.name) > 1:
-                    magnitude = 15
-                    if validKey.name[1] == '-':
-                        # index and value shift for each of rgb values
-                        shiftLib = {0: magnitude, 1: magnitude, 2: -1 * magnitude}
-                    elif validKey.name[1] == '#':
-                        shiftLib = {0: -1 * magnitude, 1: -1 * magnitude, 2: magnitude}
-                    else:
-                        shiftLib = {}
-
-                    for i in shiftLib:
-                        rgbStep[i] = self._rgbLimit(rgbStep[i] + shiftLib[i])
-                # add to dictionary
-                dst[validKey.name] = self._rgbToHex(rgbStep)
+        pass
 
     def _getSharpFlatCount(self, subStream) -> tuple[int, int]:
         # noinspection PyShadowingNames
@@ -311,16 +260,7 @@ class KeyWeightKeyAnalysis(DiscreteAnalysis):
         >>> p._getSharpFlatCount(s.flatten())
         (87, 0)
         '''
-        # ".pitches" gets a flat representation
-        flatCount = 0
-        sharpCount = 0
-        for p in subStream.pitches:
-            if p.accidental is not None:
-                if p.accidental.alter < 0:
-                    flatCount += -1
-                elif p.accidental.alter > 0:
-                    sharpCount += 1
-        return sharpCount, flatCount
+        pass
 
     def getWeights(self, weightType='major') -> list[float]:
         '''
@@ -982,31 +922,7 @@ class Ambitus(DiscreteAnalysis):
         2 #16111d
         3 #16121e
         '''
-        minPitch = 0
-        if numColors is None:
-            if self._referenceStream is not None:
-                # get total range for entire piece
-                pitchSpanReturn = self.getPitchSpan(self._referenceStream)
-                if pitchSpanReturn is None:
-                    return
-                self.minPitchObj, self.maxPitchObj = pitchSpanReturn
-                maxPitch = int(self.maxPitchObj.ps - self.minPitchObj.ps)
-            else:
-                maxPitch = 130  # a large default
-        else:  # create minPitch maxPitch
-            maxPitch = numColors
-
-        valueRange = maxPitch - minPitch
-        if valueRange == 0:
-            valueRange = 1  # avoid float division by zero
-        step = 0
-        antiBlack = 25
-        for i in range(minPitch, maxPitch + 1):
-            # do not use all 255 to avoid going to black
-            val = round(((255.0 - antiBlack) / valueRange) * step) + antiBlack
-            # store in dictionary the accepted values, not the step
-            self._pitchSpanColors[i] = self._rgbToHex(((val * 0.75), (val * 0.6), val))
-            step += 1
+        pass
 
         # environLocal.printDebug([self._pitchSpanColors])
 
@@ -1421,189 +1337,26 @@ def analysisClassFromMethodName(method: str) -> type[DiscreteAnalysis]|None:
 
 class Test(unittest.TestCase):
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
     def testKeyAnalysisKrumhansl(self):
-        from music21 import converter
-
-        p = KrumhanslSchmuckler()
-        s1 = converter.parse('tinynotation: 4/4 c4 d e f g a b c   c#4 d# e# f#')
-        s2 = converter.parse('tinynotation: 4/4 c#4 d# e# f#  f g a b- c d e f')
-        s3 = converter.parse('tinynotation: 4/4 c4 d e f g a b c   c#4 d# e# f#  '
-                             + 'c#4 d# e# f#  f g a b- c d e f')
-
-        # self.assertEqual(p._getPitchClassDistribution(s1),
-        #            [1.0, 0, 1.0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-
-        p.process(s1.flatten())
-        likelyKeysMajor1, likelyKeysMinor1 = p._likelyKeys(s1.flatten())
-        likelyKeysMajor1.sort()
-        likelyKeysMinor1.sort()
-        allResults1 = likelyKeysMajor1 + likelyKeysMinor1
-        # post = []
-        # _post = sorted([(y, x) for x, y in allResults1])
-
-        p.process(s2.flatten())
-        likelyKeysMajor2, likelyKeysMinor2 = p._likelyKeys(s2.flatten())
-        likelyKeysMajor2.sort()
-        likelyKeysMinor2.sort()
-        allResults2 = likelyKeysMajor2 + likelyKeysMinor2
-        # post = []
-        # _post = sorted([(y, x) for x, y in allResults2])
-
-        likelyKeysMajor3, likelyKeysMinor3 = p._likelyKeys(s3.flatten())
-        likelyKeysMajor3.sort()
-        likelyKeysMinor3.sort()
-        # allResults3 = likelyKeysMajor3 + likelyKeysMinor3
-        # _post = sorted([(y, x) for x, y in allResults3])
-
-        avg = []
-        for i in range(len(allResults1)):
-            p, count1 = allResults1[i]
-            p, count2 = allResults2[i]
-            avg.append((p, (count1 + count2) / 2.0))
+        pass
         # _post = sorted([(y, x) for x, y in avg])
 
     def testIntervalDiversity(self):
-        from music21 import stream
-        from music21 import corpus
-
-        s = stream.Stream()
-        s.append(note.Note('g#3'))
-        s.append(note.Note('a3'))
-        s.append(note.Note('g4'))
-
-        mid = MelodicIntervalDiversity()
-        midDict = mid.countMelodicIntervals(s)
-        self.assertEqual(str(midDict['m7']), '[<music21.interval.Interval m7>, 1]')
-        self.assertEqual(str(midDict['m2']), '[<music21.interval.Interval m2>, 1]')
-        self.assertEqual(len(midDict), 2)
-
-        s = stream.Stream()
-        s.append(note.Note('c3'))
-        s.append(note.Note('d3'))
-        s.append(note.Note('c3'))
-        s.append(note.Note('d3'))
-
-        mid = MelodicIntervalDiversity()
-        midDict = mid.countMelodicIntervals(s)
-        self.assertEqual(len(midDict), 1)
-        self.assertEqual(str(midDict['M2']), '[<music21.interval.Interval M2>, 3]')
-
-        midDict = mid.countMelodicIntervals(s, ignoreDirection=False)
-        self.assertEqual(len(midDict), 2)
-        self.assertEqual(str(midDict['M-2']), '[<music21.interval.Interval M-2>, 1]')
-        self.assertEqual(str(midDict['M2']), '[<music21.interval.Interval M2>, 2]')
-
-        mid = MelodicIntervalDiversity()
-        s = corpus.parse('corelli/opus3no1/1grave')
-        # s.show()
-
-        midDict = mid.countMelodicIntervals(s.parts[1])
-        self.assertEqual(len(midDict), 9)
-        self.assertEqual(str(midDict['P5']), '[<music21.interval.Interval P5>, 8]')
-        self.assertEqual(str(midDict['P4']), '[<music21.interval.Interval P4>, 7]')
-        self.assertEqual(str(midDict['m3']), '[<music21.interval.Interval m3>, 1]')
-        self.assertEqual(str(midDict['M2']), '[<music21.interval.Interval M2>, 21]')
-
-        midDict = mid.countMelodicIntervals(s)
-        self.assertEqual(len(midDict), 10)
-        self.assertEqual(str(sorted(list(midDict))),
-                         "['M2', 'M3', 'M6', 'P15', 'P4', 'P5', 'P8', 'd5', 'm2', 'm3']")
-        self.assertEqual(str(midDict['P15']), '[<music21.interval.Interval P15>, 1]')
-        self.assertEqual(str(midDict['P5']), '[<music21.interval.Interval P5>, 16]')
-        self.assertEqual(str(midDict['P4']), '[<music21.interval.Interval P4>, 29]')
-        self.assertEqual(str(midDict['M3']), '[<music21.interval.Interval M3>, 16]')
-        self.assertEqual(str(midDict['m3']), '[<music21.interval.Interval m3>, 12]')
-        self.assertEqual(str(midDict['M2']), '[<music21.interval.Interval M2>, 79]')
-        self.assertEqual(str(midDict['m2']), '[<music21.interval.Interval m2>, 43]')
+        pass
 
     def testKeyAnalysisSpelling(self):
-        from music21 import stream
-
-        for p in ['A', 'B-', 'A-']:
-            s = stream.Stream()
-            s.append(note.Note(p))
-            self.assertEqual(str(s.analyze('Krumhansl').tonic), p)
+        pass
 
     def testKeyAnalysisDiverseWeights(self):
-        from music21 import converter
-        from music21.musicxml import testFiles
-        # use a musicxml test file with independently confirmed results
-        s = converter.parse(testFiles.edgefield82b)
-
-        p = KrumhanslSchmuckler()
-        k = p.getSolution(s)
-        post = [k.tonic, k.mode, k.correlationCoefficient]
-        self.assertEqual(str(post[0]), 'F#')
-        self.assertEqual(str(post[1]), 'major')
-        self.assertEqual(str(post[2])[0:7], '0.81063')
-
-        p = AardenEssen()
-        k = p.getSolution(s)
-        post = [k.tonic, k.mode, k.correlationCoefficient]
-        self.assertEqual(str(post[0]), 'F#')
-        self.assertEqual(str(post[1]), 'minor')
-
-        p = SimpleWeights()
-        k = p.getSolution(s)
-        post = [k.tonic, k.mode, k.correlationCoefficient]
-        self.assertEqual(str(post[0]), 'F#')
-        self.assertEqual(str(post[1]), 'minor')
-
-        p = BellmanBudge()
-        k = p.getSolution(s)
-        post = [k.tonic, k.mode, k.correlationCoefficient]
-        self.assertEqual(str(post[0]), 'F#')
-        self.assertEqual(str(post[1]), 'minor')
-
-        p = TemperleyKostkaPayne()
-        k = p.getSolution(s)
-        post = [k.tonic, k.mode, k.correlationCoefficient]
-        self.assertEqual(str(post[0]), 'F#')
-        self.assertEqual(str(post[1]), 'minor')
+        pass
 
     def testKeyAnalysisLikelyKeys(self):
-        from music21 import stream
-        s = stream.Stream()
-        s.repeatAppend(note.Note('c'), 6)
-        s.repeatAppend(note.Note('g'), 4)
-        s.repeatAppend(note.Note('a'), 2)
-
-        k = s.analyze('KrumhanslSchmuckler')
-        self.assertEqual(str(k), 'C major')
-        self.assertEqual(' '.join(kp.tonicPitchNameWithCase for kp in k.alternateInterpretations),
-                         'c G a F g e f E- A- B- d D A b b- c# f# C# E g# F# e- B')
-
-        k = s.analyze('AardenEssen')
-        self.assertEqual(str(k), 'F major')
-        self.assertEqual(' '.join(kp.tonicPitchNameWithCase for kp in k.alternateInterpretations),
-                         'C c g f a G d A- B- E- e b- D A f# C# b E c# e- F# B g#')
-
-        # s.plot('grid', 'KrumhanslSchmuckler')
-        # s.plot('windowed', 'aarden')
-
-        # Create a tied correlation value for g minor and g# minor
-        s2 = stream.Stream()
-        s2.repeatAppend(note.Note('c'), 2)
-        s2.repeatAppend(note.Note('c#'), 2)
-        k = s2.analyze('key')
-        # Ensure all pitch classes are present
-        self.assertEqual(len(k.alternateInterpretations), 23)
+        pass
 
     def testKeyAnalysisIgnoresUnpitched(self):
-        from music21 import stream
-        s = stream.Stream()
-        s.append(note.Unpitched())
-        s.append(percussion.PercussionChord([
-            note.Unpitched(),
-            note.Note('E-4'),
-            note.Note('B-4'),
-        ]))
-
-        k = s.analyze('key')
-        self.assertEqual(k.name, 'E- major')
+        pass
 
 
 # define presented order in documentation

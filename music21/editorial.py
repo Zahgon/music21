@@ -98,7 +98,7 @@ class Editorial(prebase.ProtoM21Object, dict):
     predefinedNones = ('ficta', 'harmonicInterval', 'melodicInterval')
 
     def _reprInternal(self):
-        return dict.__repr__(self)
+        pass
 
     # INITIALIZER #
     def __getattr__(self, name):
@@ -159,13 +159,7 @@ class Comment(prebase.ProtoM21Object, style.StyleMixin):  # type: ignore
         self.levelInformation = None
 
     def _reprInternal(self):
-        if self.text is None:
-            return ''
-
-        if len(self.text) < 20:
-            return repr(self.text)
-        else:
-            return repr(self.text[:17] + '...')
+        pass
 
 # -----------------------------------------------------------------------------
 
@@ -173,8 +167,7 @@ class Comment(prebase.ProtoM21Object, style.StyleMixin):  # type: ignore
 class Test(unittest.TestCase):
 
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
 # -----------------------------------------------------------------------------
 

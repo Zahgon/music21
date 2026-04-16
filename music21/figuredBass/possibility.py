@@ -99,16 +99,7 @@ def voiceCrossing(possibA):
     >>> possibility.voiceCrossing(possibA2)
     False
     '''
-    hasVoiceCrossing = False
-    for part1Index in range(len(possibA)):
-        higherPitch = possibA[part1Index]
-        for part2Index in range(part1Index + 1, len(possibA)):
-            lowerPitch = possibA[part2Index]
-            if higherPitch < lowerPitch:
-                hasVoiceCrossing = True
-                return hasVoiceCrossing
-
-    return hasVoiceCrossing
+    pass
 
 
 def isIncomplete(possibA, pitchNamesToContain):
@@ -137,20 +128,7 @@ def isIncomplete(possibA, pitchNamesToContain):
     >>> possibility.isIncomplete(possibA1, pitchNamesA2)
     False
     '''
-    isIncompleteV = False
-    pitchNamesContained = []
-    for givenPitch in possibA:
-        if givenPitch.name not in pitchNamesContained:
-            pitchNamesContained.append(givenPitch.name)
-    for pitchName in pitchNamesToContain:
-        if pitchName not in pitchNamesContained:
-            isIncompleteV = True
-    if not isIncompleteV and (len(pitchNamesContained) > len(pitchNamesToContain)):
-        isIncompleteV = False
-        # raise PossibilityException(str(possibA) + '
-        #        contains pitch names not found in pitchNamesToContain.')
-
-    return isIncompleteV
+    pass
 
 
 def upperPartsWithinLimit(possibA, maxSemitoneSeparation=12):
@@ -183,20 +161,7 @@ def upperPartsWithinLimit(possibA, maxSemitoneSeparation=12):
     >>> possibility.upperPartsWithinLimit(possibA2)
     False
     '''
-    areUpperPartsWithinLimit = True
-    if maxSemitoneSeparation is None:
-        return areUpperPartsWithinLimit
-
-    upperParts = possibA[0:len(possibA) - 1]
-    for part1Index in range(len(upperParts)):
-        higherPitch = upperParts[part1Index]
-        for part2Index in range(part1Index + 1, len(upperParts)):
-            lowerPitch = upperParts[part2Index]
-            if abs(higherPitch.ps - lowerPitch.ps) > maxSemitoneSeparation:
-                areUpperPartsWithinLimit = False
-                return areUpperPartsWithinLimit
-
-    return areUpperPartsWithinLimit
+    pass
 
 
 DEFAULT_MAX_PITCH = pitch.Pitch('B5')
@@ -233,11 +198,7 @@ def pitchesWithinLimit(possibA, maxPitch=DEFAULT_MAX_PITCH):
     >>> possibility.pitchesWithinLimit(resPossib)
     False
     '''
-    for givenPitch in possibA:
-        if givenPitch > maxPitch:
-            return False
-
-    return True
+    pass
 
 
 def limitPartToPitch(possibA, partPitchLimits=None):
@@ -260,13 +221,7 @@ def limitPartToPitch(possibA, partPitchLimits=None):
     >>> possibility.limitPartToPitch(possibA2, {1: sopranoPitch})
     True
     '''
-    if partPitchLimits is None:
-        partPitchLimits = {}
-    for (partNumber, partPitch) in partPitchLimits.items():
-        if not (possibA[partNumber - 1] == partPitch):
-            return False
-
-    return True
+    pass
 
 
 # CONSECUTIVE POSSIBILITY RULE-CHECKING METHODS
@@ -335,31 +290,7 @@ def parallelFifths(possibA, possibB):
     >>> possibility.parallelFifths(possibA2, possibB2)
     False
     '''
-    hasParallelFifths = False
-    pairsList = partPairs(possibA, possibB)
-
-    for pair1Index in range(len(pairsList)):
-        (higherPitchA, higherPitchB) = pairsList[pair1Index]
-        for pair2Index in range(pair1Index + 1, len(pairsList)):
-            (lowerPitchA, lowerPitchB) = pairsList[pair2Index]
-            if not abs(higherPitchA.ps - lowerPitchA.ps) % 12 == 7:
-                continue
-            if not abs(higherPitchB.ps - lowerPitchB.ps) % 12 == 7:
-                continue
-            # Very high probability of ||5, but still not certain.
-            pitchQuartet = (lowerPitchA, lowerPitchB, higherPitchA, higherPitchB)
-            if pitchQuartet in parallelFifthsTable:
-                hasParallelFifths = parallelFifthsTable[pitchQuartet]
-                if hasParallelFifths:
-                    return hasParallelFifths
-            vlq = voiceLeading.VoiceLeadingQuartet(*pitchQuartet)
-            if vlq.parallelFifth():
-                hasParallelFifths = True
-            parallelFifthsTable[pitchQuartet] = hasParallelFifths
-            if hasParallelFifths:
-                return hasParallelFifths
-
-    return hasParallelFifths
+    pass
 
 
 def parallelOctaves(possibA, possibB):
@@ -415,31 +346,7 @@ def parallelOctaves(possibA, possibB):
     >>> possibility.parallelOctaves(possibA2, possibB2)
     False
     '''
-    hasParallelOctaves = False
-    pairsList = partPairs(possibA, possibB)
-
-    for pair1Index in range(len(pairsList)):
-        (higherPitchA, higherPitchB) = pairsList[pair1Index]
-        for pair2Index in range(pair1Index + 1, len(pairsList)):
-            (lowerPitchA, lowerPitchB) = pairsList[pair2Index]
-            if not abs(higherPitchA.ps - lowerPitchA.ps) % 12 == 0:
-                continue
-            if not abs(higherPitchB.ps - lowerPitchB.ps) % 12 == 0:
-                continue
-            # Very high probability of ||8, but still not certain.
-            pitchQuartet = (lowerPitchA, lowerPitchB, higherPitchA, higherPitchB)
-            if pitchQuartet in parallelOctavesTable:
-                hasParallelOctaves = parallelOctavesTable[pitchQuartet]
-                if hasParallelOctaves:
-                    return hasParallelOctaves
-            vlq = voiceLeading.VoiceLeadingQuartet(*pitchQuartet)
-            if vlq.parallelOctave():
-                hasParallelOctaves = True
-            parallelOctavesTable[pitchQuartet] = hasParallelOctaves
-            if hasParallelOctaves:
-                return hasParallelOctaves
-
-    return hasParallelOctaves
+    pass
 
 
 def hiddenFifth(possibA, possibB):
@@ -497,23 +404,7 @@ def hiddenFifth(possibA, possibB):
     >>> possibility.hiddenFifth(possibA3, possibB3)
     False
     '''
-    hasHiddenFifth = False
-    pairsList = partPairs(possibA, possibB)
-    (highestPitchA, highestPitchB) = pairsList[0]
-    (lowestPitchA, lowestPitchB) = pairsList[-1]
-
-    if abs(highestPitchB.ps - lowestPitchB.ps) % 12 == 7:
-        # Very high probability of hidden fifth, but still not certain.
-        pitchQuartet = (lowestPitchA, lowestPitchB, highestPitchA, highestPitchB)
-        if pitchQuartet in hiddenFifthsTable:
-            hasHiddenFifth = hiddenFifthsTable[pitchQuartet]
-            return hasHiddenFifth
-        vlq = voiceLeading.VoiceLeadingQuartet(*pitchQuartet)
-        if vlq.hiddenFifth():
-            hasHiddenFifth = True
-        hiddenFifthsTable[pitchQuartet] = hasHiddenFifth
-
-    return hasHiddenFifth
+    pass
 
 
 def hiddenOctave(possibA, possibB):
@@ -559,23 +450,7 @@ def hiddenOctave(possibA, possibB):
     >>> possibility.hiddenOctave(possibA2, possibB2)
     False
     '''
-    hasHiddenOctave = False
-    pairsList = partPairs(possibA, possibB)
-    (highestPitchA, highestPitchB) = pairsList[0]
-    (lowestPitchA, lowestPitchB) = pairsList[-1]
-
-    if abs(highestPitchB.ps - lowestPitchB.ps) % 12 == 0:
-        # Very high probability of hidden octave, but still not certain.
-        pitchQuartet = (lowestPitchA, lowestPitchB, highestPitchA, highestPitchB)
-        if pitchQuartet in hiddenOctavesTable:
-            hasHiddenOctave = hiddenOctavesTable[pitchQuartet]
-            return hasHiddenOctave
-        vlq = voiceLeading.VoiceLeadingQuartet(*pitchQuartet)
-        if vlq.hiddenOctave():
-            hasHiddenOctave = True
-        hiddenOctavesTable[pitchQuartet] = hasHiddenOctave
-
-    return hasHiddenOctave
+    pass
 
 
 def voiceOverlap(possibA, possibB):
@@ -639,18 +514,7 @@ def voiceOverlap(possibA, possibB):
     >>> possibility.voiceOverlap(possibA2, possibB2)
     False
     '''
-    hasVoiceOverlap = False
-    pairsList = partPairs(possibA, possibB)
-
-    for pair1Index in range(len(pairsList)):
-        (higherPitchA, higherPitchB) = pairsList[pair1Index]
-        for pair2Index in range(pair1Index + 1, len(pairsList)):
-            (lowerPitchA, lowerPitchB) = pairsList[pair2Index]
-            if lowerPitchB > higherPitchA or higherPitchB < lowerPitchA:
-                hasVoiceOverlap = True
-                return hasVoiceOverlap
-
-    return hasVoiceOverlap
+    pass
 
 
 def partMovementsWithinLimits(possibA, possibB, partMovementLimits=None):
@@ -691,17 +555,7 @@ def partMovementsWithinLimits(possibA, possibB, partMovementLimits=None):
     >>> possibility.partMovementsWithinLimits(possibA1, possibB2, partMovementLimits)
     False
     '''
-    if partMovementLimits is None:
-        partMovementLimits = []
-    withinLimits = True
-    for (partNumber, maxSeparation) in partMovementLimits:
-        pitchA = possibA[partNumber - 1]
-        pitchB = possibB[partNumber - 1]
-        if abs(pitchB.ps - pitchA.ps) > maxSeparation:
-            withinLimits = False
-            return withinLimits
-
-    return withinLimits
+    pass
 
 
 def upperPartsSame(possibA, possibB):
@@ -725,13 +579,7 @@ def upperPartsSame(possibA, possibB):
     >>> possibility.upperPartsSame(possibA1, possibB2)
     True
     '''
-    pairsList = partPairs(possibA, possibB)
-
-    for (pitchA, pitchB) in pairsList[0:-1]:
-        if not (pitchA == pitchB):
-            return False
-
-    return True
+    pass
 
 
 def partsSame(possibA, possibB, partsToCheck=None):
@@ -750,17 +598,7 @@ def partsSame(possibA, possibB, partsToCheck=None):
     >>> possibility.partsSame(possibA1, possibB1, [2, 3, 4])
     True
     '''
-    if partsToCheck is None:
-        return True
-
-    pairsList = partPairs(possibA, possibB)
-
-    for partIndex in partsToCheck:
-        (pitchA, pitchB) = pairsList[partIndex - 1]
-        if pitchA != pitchB:
-            return False
-
-    return True
+    pass
 
 
 def couldBeItalianA6Resolution(possibA, possibB, threePartChordInfo=None, restrictDoublings=True):
@@ -833,99 +671,7 @@ def couldBeItalianA6Resolution(possibA, possibB, threePartChordInfo=None, restri
     >>> possibility.couldBeItalianA6Resolution(possibA3, possibB6, restrictDoublings=False)
     True
     '''
-    if threePartChordInfo is None:
-        augSixthChord = chord.Chord(possibA)
-        if not augSixthChord.isItalianAugmentedSixth():
-            raise PossibilityException('possibA does not spell out an It+6 chord.')
-        bass = augSixthChord.bass()
-        root = augSixthChord.root()
-        third = augSixthChord.getChordStep(3)
-        fifth = augSixthChord.getChordStep(5)
-        threePartChordInfo = [bass, root, third, fifth]
-
-    allowedIntervalNames = ['M3', 'm3', 'M2', 'm-2']
-    rootResolved = False
-    [bass, root, third, fifth] = threePartChordInfo
-    for pitchIndex in range(len(possibA)):
-        pitchA = possibA[pitchIndex]
-        pitchB = possibB[pitchIndex]
-        if pitchA.name == fifth.name:
-            if pitchA == pitchB:
-                continue
-            if abs(pitchA.ps - pitchB.ps) > 4.0:
-                return False
-            tt = interval.Interval(pitchA, pitchB)
-            if tt.directedSimpleName not in allowedIntervalNames:
-                return False
-        elif pitchA.name == bass.name and pitchA == bass:
-            if not (pitchA.ps - pitchB.ps) == 1.0:
-                return False
-            i = interval.Interval(pitchA, pitchB)
-            if i.directedName != 'm-2':
-                return False
-        elif pitchA.name == root.name:
-            if rootResolved and restrictDoublings:
-                # there can't be more than one root
-                return False
-            if not (pitchB.ps - pitchA.ps) == 1.0:
-                return False
-            i = interval.Interval(pitchA, pitchB)
-            if i.directedName != 'm2':
-                return False
-            rootResolved = True
-        elif pitchA.name == third.name:
-            if restrictDoublings:
-                # there can't be more than one third, which is in the bass.
-                return False
-            if not (pitchA.ps - pitchB.ps) == 1.0:
-                return False
-            i = interval.Interval(pitchA, pitchB)
-            if i.directedName != 'm-2':
-                return False
-
-#     # Part 1: Check if possibA is A6 chord, and if it is properly formed.
-#     bass = possibA[-1]
-#     root = None
-#     rootIndex = 0
-#     for pitchA in possibA[0:-1]:
-#         if not (pitchA.ps - bass.ps) % 12 == 10:
-#             rootIndex += 1
-#             continue
-#         br = interval.Interval(bass, pitchA)
-#         isAugmentedSixth = (br.directedSimpleName == 'A6')
-#         if isAugmentedSixth:
-#             root = pitchA
-#             break
-#     tonic = bass.transpose('M3')
-#     # Restrict doublings, It+6
-#     for pitchIndex in range(len(possibA) - 1):
-#         if pitchIndex == rootIndex:
-#             continue
-#         pitchA = possibA[pitchIndex]
-#         if not pitchA.name == tonic.name:
-#             return False
-#
-#     # Part 2: If possibA is Italian A6 chord, check that it resolves properly in possibB.
-#     fifth = root.transpose('m2')
-#     pairsList = partPairs(possibA, possibB)
-#     (bassA, bassB) = pairsList[-1]
-#     (rootA, rootB) = pairsList[rootIndex]
-#     if not (bassB.name == fifth.name and rootB.name == fifth.name):
-#         return False
-#     if not (bassB.ps - bassA.ps == -1.0 and rootB.ps - rootA.ps == 1.0):
-#         return False
-#     allowedIntervalNames = ['M3', 'm3', 'M2', 'm-2']
-#     for pitchIndex in range(len(pairsList) - 1):
-#         if pitchIndex == rootIndex:
-#             continue
-#         (tonicA, tonicB) = pairsList[pitchIndex]
-#         if tonicA == tonicB:
-#             continue
-#         tt = interval.Interval(tonicA, tonicB)
-#         if not tt.directedSimpleName in allowedIntervalNames:
-#             return False
-
-    return True
+    pass
 
 # HELPER METHODS
 # --------------
@@ -958,7 +704,7 @@ def partPairs(possibA, possibB):
      (<music21.pitch.Pitch C4>, <music21.pitch.Pitch D4>)]
 
     '''
-    return list(zip(possibA, possibB))
+    pass
 
 # apply a function to one pitch of possibA at a time
 # apply a function to two pitches of possibA at a time

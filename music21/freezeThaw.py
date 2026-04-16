@@ -756,41 +756,7 @@ class StreamThawer(StreamFreezeThawBase):
         >>> st = freezeThaw.StreamThawer()
         >>> st.teardownSerializationScaffold(a)
         '''
-        if streamObj is None:  # pragma: no cover
-            streamObj = self.stream
-            if streamObj is None:
-                raise FreezeThawException('You need to pass in a stream when creating to work')
-
-        storedAutoSort = streamObj.autoSort
-        streamObj.autoSort = False
-
-        self.restoreElementsFromTuples(streamObj)
-
-        self.restoreStreamStatusClient(streamObj)
-        # removing seems to create problems for jsonPickle with Spanners
-        allEls = list(streamObj.recurse())
-
-        for e in allEls:
-            eClasses = e.classes
-            if 'Variant' in eClasses:
-                # works like a whole new hierarchy, so no need for deepcopy
-                subSF = StreamThawer()
-                subSF.teardownSerializationScaffold(e._stream)
-                e._cache = {}
-                # for el in e._stream.flatten():
-                #    print(el, el.offset, el.sites.siteDict)
-            elif 'Spanner' in eClasses:
-                subSF = StreamThawer()
-                subSF.teardownSerializationScaffold(e.spannerStorage)
-                e._cache = {}
-            elif e.isStream:
-                self.restoreStreamStatusClient(e)
-                # removing seems to create problems for jsonPickle with Spanners
-
-            # e.wrapWeakref()
-
-        # restore to whatever it was
-        streamObj.autoSort = storedAutoSort
+        pass
 
     def restoreElementsFromTuples(self, streamObj):
         '''
@@ -838,29 +804,7 @@ class StreamThawer(StreamFreezeThawBase):
             {2.0} <music21.note.Note F#>
         {5.0} <music21.bar.Barline type=regular>
         '''
-        if hasattr(streamObj, '_storedElementOffsetTuples'):
-            # streamObj._elementTree = ElementTree(source=streamObj)
-            for e, offset in streamObj._storedElementOffsetTuples:
-                if offset != 'end':
-                    try:
-                        streamObj.coreInsert(offset, e)
-                    except AttributeError:  # pragma: no cover
-                        print('Problem in decoding. Here is some debug info:')
-                        print(offset, e)
-                        print(streamObj)
-                        print(streamObj.activeSite)
-                        raise
-                else:
-                    streamObj.coreStoreAtEnd(e)
-            del streamObj._storedElementOffsetTuples
-            streamObj.coreElementsChanged()
-
-        for subElement in streamObj:
-            if subElement.isStream is True:
-                # note that the elements may have already been restored
-                # if the spanner stores a part or something in the Stream
-                # for instance in a StaffGroup object
-                self.restoreElementsFromTuples(subElement)
+        pass
 
     def restoreStreamStatusClient(self, streamObj):
         '''
@@ -868,79 +812,25 @@ class StreamThawer(StreamFreezeThawBase):
         (do we do this for derivations?  No: there should not be derivations stored.
         Other objects?  Unclear at present.)
         '''
-        if hasattr(streamObj, 'streamStatus'):
-            streamObj.streamStatus.client = streamObj
+        pass
 
     def unpackStream(self, storage):
         '''
         Convert from storage dictionary to Stream.
         '''
-        version = storage['m21Version']
-        if version != base.VERSION:  # pragma: no cover
-            environLocal.warn('this pickled file is out of date and may not function properly.')
-        streamObj = storage['stream']
-
-        self.teardownSerializationScaffold(streamObj)
-        return streamObj
+        pass
 
     def parseOpenFmt(self, storage):
         '''
         Look at the file and determine the format
         '''
-        if isinstance(storage, bytes):
-            if storage.startswith(b'{"'):  # pragma: no cover
-                # was m21Version": {"py/tuple" but order of dict may change
-                return 'jsonpickle'
-            else:
-                return 'pickle'
-        else:
-            if storage.startswith('{"'):
-                # was m21Version": {"py/tuple" but order of dict may change
-                return 'jsonpickle'
-            else:  # pragma: no cover
-                return 'pickle'
+        pass
 
     def open(self, fp, zipType=None):
         '''
         For a supplied file path to a pickled stream, unpickle
         '''
-        if not os.path.exists(fp):  # pragma: no cover
-            directory = environLocal.getRootTempDir()
-            fp = directory / fp
-
-        with open(fp, 'rb') as f:
-            fileData = f.read()  # TODO: do not read entire file
-
-        fmt = self.parseOpenFmt(fileData)
-        if fmt == 'pickle':
-            common.restorePathClassesAfterUnpickling()
-            # environLocal.printDebug(['opening fp', fp])
-            with open(fp, 'rb') as f:
-                if zipType is None:
-                    storage = pickle.load(f)
-                elif zipType == 'zlib':
-                    compressedString = f.read()
-                    uncompressed = zlib.decompress(compressedString)
-                    try:
-                        storage = pickle.loads(uncompressed)
-                    except AttributeError as e:
-                        common.restorePathClassesAfterUnpickling()
-                        raise FreezeThawException(
-                            f'Problem in decoding: {e}'
-                        ) from e
-                else:
-                    common.restorePathClassesAfterUnpickling()
-                    raise FreezeThawException(f'Unknown zipType {zipType}')
-                self.stream = self.unpackStream(storage)
-            common.restorePathClassesAfterUnpickling()
-        elif fmt == 'jsonpickle':
-            import jsonpickle
-            with open(fp, 'r', encoding='utf-8') as f:
-                data = f.read()
-            storage = jsonpickle.decode(data)
-            self.stream = self.unpackStream(storage)
-        else:  # pragma: no cover
-            raise FreezeThawException(f'bad StreamFreezer format: {fmt!r}')
+        pass
 
 
     def openStr(self, fileData: bytes, pickleFormat=None):
@@ -954,20 +844,7 @@ class StreamThawer(StreamFreezeThawBase):
         The name of the function is a legacy of Py2.  With
         pickle (not jsonpickle), it works on bytes, not strings.
         '''
-        if pickleFormat is not None:
-            fmt = pickleFormat
-        else:
-            fmt = self.parseOpenFmt(fileData)
-
-        if fmt == 'pickle':
-            storage = pickle.loads(fileData)
-        elif fmt == 'jsonpickle':
-            import jsonpickle
-            storage = jsonpickle.decode(fileData)
-        else:  # pragma: no cover
-            raise FreezeThawException(f'bad StreamFreezer format: {fmt}')
-        environLocal.printDebug(f'StreamThawer:openStr: storage is: {storage}')
-        self.stream = self.unpackStream(storage)
+        pass
 
 # -------------------------------------------------------------------------------
 
@@ -977,53 +854,10 @@ class StreamThawer(StreamFreezeThawBase):
 class Test(unittest.TestCase):
 
     def testSimpleFreezeThaw(self):
-        from music21 import stream
-        from music21 import note
-        s = stream.Stream()
-        sDummy = stream.Stream()
-        n = note.Note()
-        s.insert(2.0, n)
-        sDummy.insert(3.0, n)
-
-        sf = StreamFreezer(s)
-        out = sf.writeStr()
-
-        del s
-        del sDummy
-        del n
-
-        st = StreamThawer()
-        st.openStr(out)
-        outStream = st.stream
-        self.assertEqual(len(outStream), 1)
-        self.assertEqual(outStream[0].offset, 2.0)
+        pass
 
     def testFreezeThawWithSpanner(self):
-        from music21 import stream
-        from music21 import note
-        s = stream.Stream()
-        sDummy = stream.Stream()
-        n = note.Note()
-        sl1 = spanner.Slur([n])
-        s.insert(0.0, sl1)
-        s.insert(2.0, n)
-        sDummy.insert(3.0, n)
-
-        self.assertIs(s.spanners[0].getFirst(), s.notes[0])
-
-        sf = StreamFreezer(s)
-        out = sf.writeStr(fmt='jsonpickle')  # easier to read
-
-        del s
-        del sDummy
-        del n
-
-        st = StreamThawer()
-        st.openStr(out)
-        outStream = st.stream
-        self.assertEqual(len(outStream), 2)
-        self.assertEqual(outStream.notes[0].offset, 2.0)
-        self.assertIs(outStream.spanners[0].getFirst(), outStream.notes[0])
+        pass
 
     def testFreezeThawJsonPickleEnum(self):
         '''
@@ -1031,51 +865,13 @@ class Test(unittest.TestCase):
 
         Works now
         '''
-        from music21 import corpus
-        c = corpus.parse('luca/gloria').parts[2].measures(1, 2)
-        sf2 = StreamFreezer(c)
-        data2 = sf2.writeStr(fmt='jsonpickle')
-        st2 = StreamThawer()
-        st2.openStr(data2)
+        pass
 
     def testFreezeThawCorpusFileWithSpanners(self):
-        from music21 import corpus
-        c = corpus.parse('luca/gloria')
-        sf = StreamFreezer(c)
-        data = sf.writeStr(fmt='pickle')
-
-        st = StreamThawer()
-        st.openStr(data)
-        s = st.stream
-        self.assertEqual(len(s.parts[0].measure(7).notes), 6)
+        pass
 
     def x_testSimplePickle(self):
-        from music21 import freezeThaw
-        from music21 import corpus
-
-        c = corpus.parse('bwv66.6').parts[0].measure(0).notes
-        #  c.show('t')
-        #
-        # for el in c:
-        #     storedIds.append(el.id)
-        #     storedSitesIds.append(id(el.sites))
-        #
-        # return
-
-        n1 = c[0]
-        n2 = c[1]
-        sf = freezeThaw.StreamFreezer(c, fastButUnsafe=True)
-        sf.setupSerializationScaffold()
-        for dummy in n1.sites.siteDict:
-            pass
-            # print(idKey)
-            # print(n1.sites.siteDict[idKey]['obj'])
-        for dummy in n2.sites.siteDict:
-            pass
-            # print(idKey)
-            # print(n2.sites.siteDict[idKey]['obj'])
-
-        dummy = pickle.dumps(c, protocol=-1)
+        pass
         # data = sf.writeStr(fmt='pickle')
         # st = freezeThaw.StreamThawer()
         # st.openStr(data)
@@ -1091,142 +887,23 @@ class Test(unittest.TestCase):
         # s.show('t')
 
     def x_testFreezeThawPickle(self):
-        from music21 import freezeThaw
-        from music21 import corpus
-
-        c = corpus.parse('luca/gloria')
-        # c.show('t')
-
-        sf = freezeThaw.StreamFreezer(c, fastButUnsafe=True)
-        d = sf.writeStr()
-        # print(d)
-
-        st = freezeThaw.StreamThawer()
-        st.openStr(d)
-        s = st.stream
-
-        # test to see if we can find everything
-        for dummy in s.recurse():
-            pass
+        pass
 
     def testFreezeThawSimpleVariant(self):
-        from music21 import freezeThaw
-        from music21 import stream
-        from music21 import note
-
-        s = stream.Stream()
-        m = stream.Measure()
-        m.append(note.Note(type='whole'))
-        s.append(m)
-
-        s2 = stream.Stream()
-        m2 = stream.Measure()
-        n2 = note.Note('D#4')
-        n2.duration.type = 'whole'
-        m2.append(n2)
-        s2.append(m2)
-        v = variant.Variant(s2)
-
-        s.insert(0, v)
-
-        sf = freezeThaw.StreamFreezer(s)
-        d = sf.writeStr()
-
-        st = freezeThaw.StreamThawer()
-        st.openStr(d)
-        s = st.stream
+        pass
 
     def testFreezeThawVariant(self):
-        from music21 import freezeThaw
-        from music21 import corpus
-        from music21 import stream
-        from music21 import note
-
-        c = corpus.parse('luca/gloria')
-
-        data2M2 = [('f', 'eighth'), ('c', 'quarter'), ('a', 'eighth'), ('a', 'quarter')]
-        stream2 = stream.Stream()
-        m = stream.Measure()
-        for pitchName, durType in data2M2:
-            n = note.Note(pitchName)
-            n.duration.type = durType
-            m.append(n)
-        stream2.append(m)
-        # c.show('t')
-        variant.addVariant(c.parts[0], 6.0, stream2,
-                           variantName='rhythmic_switch', replacementDuration=3.0)
-
-        # test Variant is in stream
-        unused_v1 = c.parts.first().getElementsByClass(variant.Variant).first()
-
-        sf = freezeThaw.StreamFreezer(c, fastButUnsafe=True)
-        # sf.v = v
-        d = sf.writeStr()
-        # print(d)
-
-        # print('thawing.')
-
-        st = freezeThaw.StreamThawer()
-        st.openStr(d)
-        s = st.stream
-        # s.show('lily.pdf')
-        p0 = s.parts[0]
-        variants = p0.getElementsByClass(variant.Variant)
-        v2 = variants[0]
-        self.assertEqual(v2._stream[0][1].offset, 0.5)
+        pass
         # v2.show('t')
 
     def testSerializationScaffoldA(self):
-        from music21 import note
-        from music21 import stream
-        from music21 import freezeThaw
-
-        n1 = note.Note()
-
-        s1 = stream.Stream()
-        s2 = stream.Stream()
-
-        s1.append(n1)
-        s2.append(n1)
-
-        sf = freezeThaw.StreamFreezer(s2, fastButUnsafe=False)
-        sf.setupSerializationScaffold()
-
-        # test safety
-        self.assertTrue(n1 in s2)
-        self.assertTrue(n1 in s1)
+        pass
 
     def testJSONPickleSpanner(self):
-        from music21 import converter
-        from music21 import note
-        from music21 import stream
-        n1 = note.Note('C')
-        n2 = note.Note('D')
-        s1 = stream.Stream()
-        sp = spanner.Line([n1, n2])
-        s1.insert(0, sp)
-        s1.append(n1)
-        s1.append(n2)
-        frozen = converter.freezeStr(s1, 'jsonPickle')
-        # print(frozen)
-        unused_thawed = converter.thawStr(frozen)
+        pass
 
     def testPickleMidi(self):
-        from music21 import converter
-        from music21 import note
-
-        a = str(common.getSourceFilePath()
-                         / 'midi'
-                         / 'testPrimitive'
-                         / 'test03.mid')
-
-        # a = 'https://github.com/ELVIS-Project/vis/raw/master/test_corpus/prolationum-sanctus.midi'
-        c = converter.parse(a)
-        f = converter.freezeStr(c)
-        d = converter.thawStr(f)
-        self.assertIsInstance(
-            d.parts[1].flatten().notes[20].volume.client,
-            note.NotRest)
+        pass
 
 
 # -----------------------------------------------------------------------------

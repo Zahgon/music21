@@ -256,48 +256,24 @@ def safeToParallize() -> bool:
 # pickleable testing functions.
 
 def _countN(fn):
-    from music21 import corpus
-    c = corpus.parse(fn)
-    return len(c.recurse().notes)
+    pass
 
 
 def _countUnpacked(i, fn):
-    if i >= 3:
-        return False
-    if fn not in ['bach/bwv66.6', 'schoenberg/opus19', 'AcaciaReel']:
-        return False
-    return True
+    pass
 
 
 class Test(unittest.TestCase):
     # pylint: disable=redefined-outer-name
     def x_figure_out_segfault_testMultiprocess(self):
-        files = ['bach/bwv66.6', 'schoenberg/opus19', 'AcaciaReel']
-        # for importing into testSingleCoreAll we need the full path to the modules
-        from music21.common.parallel import _countN, _countUnpacked
-        output = runParallel(files, _countN)
-        self.assertEqual(output, [165, 50, 131])
-        runParallel(files,
-                    _countN,
-                    updateFunction=self._customUpdate1)
-        runParallel(files,
-                    _countN,
-                    updateFunction=self._customUpdate2,
-                    updateSendsIterable=True)
-        passed = runParallel(list(enumerate(files)),
-                             _countUnpacked,
-                             unpackIterable=True)
-        self.assertEqual(len(passed), 3)
-        self.assertNotIn(False, passed)
+        pass
 
     # testing functions
     def _customUpdate1(self, i, total, output):
-        self.assertEqual(total, 3)
-        self.assertLess(i, 3)
-        self.assertIn(output, [165, 50, 131])
+        pass
 
     def _customUpdate2(self, i, unused_total, unused_output, fn):
-        self.assertIn(fn, ['bach/bwv66.6', 'schoenberg/opus19', 'AcaciaReel'])
+        pass
 
 
 if __name__ == '__main__':

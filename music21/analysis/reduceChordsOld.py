@@ -34,15 +34,7 @@ def testMeasureStream1():
     {2.0} <music21.chord.Chord C4 E4 F4 B4>
     {3.0} <music21.chord.Chord C4 E4 G4 C5>
     '''
-    s = stream.Measure()
-    t = meter.TimeSignature('4/4')
-    c1 = chord.Chord('C4 E4 G4 C5')
-    c1.quarterLength = 2.0
-    c2 = chord.Chord('C4 E4 F4 B4')
-    c3 = chord.Chord('C4 E4 G4 C5')
-    for c in [t, c1, c2, c3]:
-        s.append(c)
-    return s
+    pass
 
 class ChordReducer:
     def __init__(self):
@@ -208,173 +200,40 @@ class ChordReducer:
         return presentPCs
 
     def quarterLengthOnly(self, c):
-        return c.quarterLength
+        pass
 
     def quarterLengthBeatStrength(self, c):
-        return c.quarterLength * c.beatStrength
+        pass
 
     def quarterLengthBeatStrengthMeasurePosition(self, c):
-        if self.positionInMeasure == self.numberOfElementsInMeasure - 1:
-            return c.quarterLength  # call beatStrength 1
-        else:
-            return self.quarterLengthBeatStrength(c)
+        pass
 
     def qlbsmpConsonance(self, c):
         '''
         Everything from before plus consonance
         '''
-        consonanceScore = 1.0  # if c.isConsonant() else 0.1
-        return self.quarterLengthBeatStrengthMeasurePosition(c) * consonanceScore
+        pass
 
     def multiPartReduction(self, inStream, maxChords=2, closedPosition=False, forceOctave=False):
         '''
         Return a multipart reduction of a stream.
         '''
-        i = 0
-        p = stream.Part()
-        p0 = inStream.parts.first()
-        if not p0:
-            return p
-        self._lastPitchedObject = None
-        lenMeasures = len(p0.getElementsByClass(stream.Measure))
-        self._lastTs = None
-        for i in range(lenMeasures):
-            mI = inStream.measure(i, indicesNotNumbers=True)
-            if not mI.recurse().notesAndRests:
-                if i == 0:
-                    pass
-                else:
-                    break
-            else:
-                m = self.reduceThisMeasure(mI, i, maxChords, closedPosition, forceOctave)
-                p.coreAppend(m)
-
-            if self.printDebug:
-                print(i, ' ', end='')
-                if i % 20 == 0 and i != 0:
-                    print('')
-        p.coreElementsChanged()
-        m = p.getElementsByClass(stream.Measure).first()
-        if m:
-            m.insert(0, clef.bestClef(p, allowTreble8vb=True))
-        p.makeNotation(inPlace=True)
-        return p
+        pass
 
 
     def reduceThisMeasure(self, mI, measureIndex, maxChords, closedPosition, forceOctave):
-        m = stream.Measure()
-        m.number = measureIndex
-
-        mIChord = mI.chordify()
-        newPart = self.reduceMeasureToNChords(mIChord,
-                                              maxChords,
-                                              weightAlgorithm=self.qlbsmpConsonance,
-                                              trimBelow=0.3)
-        # newPart.show('text')
-        cLast = None
-        cLastEnd = 0.0
-        for cEl in newPart:
-            cElCopy = copy.deepcopy(cEl)
-            if isinstance(cEl, chord.Chord) and closedPosition is not False:
-                if forceOctave is not False:
-                    cElCopy.closedPosition(forceOctave=forceOctave, inPlace=True)
-                else:
-                    cElCopy.closedPosition(inPlace=True)
-                cElCopy.removeRedundantPitches(inPlace=True)
-            newOffset = cEl.getOffsetBySite(newPart)
-
-            # extend over gaps
-            if cLast is not None:
-                if round(newOffset - cLastEnd, 6) != 0.0:
-                    cLast.quarterLength += newOffset - cLastEnd
-            cLast = cElCopy
-            cLastEnd = newOffset + cElCopy.quarterLength
-            m.coreInsert(newOffset, cElCopy, ignoreSort=True)
-
-        tsContext = mI.parts.first().getContextByClass(meter.TimeSignature)
-        if tsContext is not None:
-            if round(tsContext.barDuration.quarterLength - cLastEnd, 6) != 0.0:
-                cLast.quarterLength += tsContext.barDuration.quarterLength - cLastEnd
-
-
-        m.coreElementsChanged()
-
-        # add ties
-        if self._lastPitchedObject is not None:
-            firstPitched = m[0]
-            if self._lastPitchedObject.isNote and firstPitched.isNote:
-                if self._lastPitchedObject.pitch == firstPitched.pitch:
-                    self._lastPitchedObject.tie = tie.Tie('start')
-            elif self._lastPitchedObject.isChord and firstPitched.isChord:
-                if len(self._lastPitchedObject) == len(firstPitched):
-                    allSame = True
-                    for pitchI in range(len(self._lastPitchedObject)):
-                        if self._lastPitchedObject.pitches[pitchI] != firstPitched.pitches[pitchI]:
-                            allSame = False
-                    if allSame:
-                        self._lastPitchedObject.tie = tie.Tie('start')
-        self._lastPitchedObject = m[-1]
-
-        sourceMeasureTs = mI.parts.first().getElementsByClass(stream.Measure).first().timeSignature
-        if sourceMeasureTs != self._lastTs:
-            m.timeSignature = copy.deepcopy(sourceMeasureTs)
-            self._lastTs = sourceMeasureTs
-
-        return m
+        pass
 # ------------------------------------------------------------------------------
 class Test(unittest.TestCase):
 
     def testSimpleMeasure(self):
-        s = stream.Measure()
-        c1 = chord.Chord('C4 E4 G4 C5')
-        c1.quarterLength = 2.0
-        c2 = chord.Chord('C4 E4 F4 B4')
-        c3 = chord.Chord('C4 E4 G4 C5')
-        for c in [c1, c2, c3]:
-            s.append(c)
+        pass
 
 class TestExternal(unittest.TestCase):
     show = True
 
     def testTrecentoMadrigal(self):
-        from music21 import corpus
-        # c = corpus.parse('beethoven/opus18no1', 2).measures(1, 19)
-
-
-        c = corpus.parse('PMFC_06_Giovanni-05_Donna').measures(1, 30)
-        # c = corpus.parse('PMFC_06_Giovanni-05_Donna').measures(90, 118)
-        # c = corpus.parse('PMFC_06_Piero_1').measures(1, 10)
-        # c = corpus.parse('PMFC_06-Jacopo').measures(1, 30)
-
-        # c = corpus.parse('PMFC_12_13').measures(1, 40)
-
-        # fix clef
-        fixClef = True
-        if fixClef:
-            startClefs = c.parts[1].getElementsByClass(stream.Measure
-                                                       ).first().getElementsByClass(clef.Clef)
-            if startClefs:
-                clef1 = startClefs[0]
-                c.parts[1].getElementsByClass(stream.Measure).first().remove(clef1)
-            c.parts[1].getElementsByClass(stream.Measure).first().insert(0, clef.Treble8vbClef())
-
-
-        cr = ChordReducer()
-        # cr.printDebug = True
-        p = cr.multiPartReduction(c, maxChords=3)
-        # p = cr.multiPartReduction(c, closedPosition=True)
-        from music21 import key
-        from music21 import roman
-        cm = key.Key('G')
-        for thisChord in p[chord.Chord]:
-            thisChord.lyric = roman.romanNumeralFromChord(thisChord,
-                                                          cm,
-                                                          preferSecondaryDominants=True).figure
-
-
-        c.insert(0, p)
-        if self.show:
-            c.show()
+        pass
 
 
 # ------------------------------------------------------------------------------

@@ -42,20 +42,7 @@ def nPVI(streamForAnalysis):
     >>> analysis.patel.nPVI(s4)
     12.96296...
     '''
-    s = streamForAnalysis  # shorter
-    totalElements = len(s)
-    summation = 0
-    prevQL = s[0].quarterLength
-    for i in range(1, totalElements):
-        thisQL = s[i].quarterLength
-        if thisQL > 0 and prevQL > 0:
-            summation += abs(thisQL - prevQL) / ((thisQL + prevQL) / 2.0)
-        else:
-            pass
-        prevQL = thisQL
-
-    final = summation * 100 / (totalElements - 1)
-    return final
+    pass
 
 def melodicIntervalVariability(streamForAnalysis, **skipKeywords):
     '''
@@ -89,15 +76,7 @@ def melodicIntervalVariability(streamForAnalysis, **skipKeywords):
 
     * Changed in v9: ValueError rather than a Music21Exception raised.
     '''
-    s = streamForAnalysis  # shorter
-    intervalStream = s.melodicIntervals(**skipKeywords)
-    totalElements = len(intervalStream)
-    if totalElements < 2:  # this is correct.
-        raise ValueError('need at least three notes to have '
-                             + 'a std-deviation of intervals (and thus a MIV)')
-    # summation = 0
-    semitoneList = [myInt.chromatic.undirected for myInt in intervalStream]
-    return 100 * (stdev(semitoneList) / mean(semitoneList))
+    pass
 
 
 class Test(unittest.TestCase):

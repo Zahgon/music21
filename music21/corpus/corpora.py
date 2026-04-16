@@ -62,18 +62,12 @@ class Corpus(prebase.ProtoM21Object):
 
     # SPECIAL METHODS #
     def _reprInternal(self):
-        return ''
+        pass
 
     # PRIVATE METHODS #
 
     def _removeNameFromCache(self, name):
-        keysToRemove = []
-        for key in list(Corpus._pathsCache):
-            if str(key[0]) == name:
-                keysToRemove.append(key)
-
-        for key in keysToRemove:
-            del Corpus._pathsCache[key]
+        pass
 
     def _findPaths(
         self,
@@ -207,13 +201,7 @@ class Corpus(prebase.ProtoM21Object):
 
         Return the rebuilt metadata bundle.
         '''
-        if self.cacheFilePath is None:
-            raise ValueError('Cannot find the metadata bundle')
-        if self.cacheFilePath.exists():
-            self.cacheFilePath.unlink()
-        self.metadataBundle.clear()
-        self.cacheMetadata(useMultiprocessing=useMultiprocessing, verbose=True)
-        return self.metadataBundle
+        pass
 
     def cacheMetadata(self, useMultiprocessing=True, verbose=True, timer=None):
         '''
@@ -425,10 +413,7 @@ class Corpus(prebase.ProtoM21Object):
         >>> diBrief[2].directoryTitle
         'Amy Beach'
         '''
-        dirInfo = []
-        for infoTriple in self._directoryInformation:
-            dirInfo.append(work.DirectoryInformation(*infoTriple, corpusObject=self))
-        return tuple(dirInfo)
+        pass
 
     @property
     @abc.abstractmethod
@@ -452,10 +437,7 @@ class Corpus(prebase.ProtoM21Object):
         to each Corpus object, so long as its cached across instances of the
         class.
         '''
-        from music21.corpus import manager
-        mdb = manager.getMetadataBundleByCorpus(self)
-        mdb.corpus = self
-        return mdb
+        pass
 
     def all(self) -> bundles.MetadataBundle:
         '''
@@ -465,7 +447,7 @@ class Corpus(prebase.ProtoM21Object):
         >>> corpus.corpora.CoreCorpus().all()
         <music21.metadata.bundles.MetadataBundle 'core': {151... entries}>
         '''
-        return self.metadataBundle
+        pass
 
     def getComposer(
         self,
@@ -494,26 +476,7 @@ class Corpus(prebase.ProtoM21Object):
         >>> len(a) > 10
         True
         '''
-        paths = self.getPaths(fileExtensions=fileExtensions)
-        results = []
-        for path in paths:
-            # iterate through path components; cannot match entire string
-            # composer name may be at any level
-            stubs = path.parts
-            for stub in stubs:
-                # need to remove extension if found
-                if composerName.lower() == stub.lower():
-                    results.append(path)
-                    break
-                # get all but the last dot group
-                # this is done for file names that function like composer names
-                elif '.' in stub:
-                    newStub = '.'.join(stub.split('.')[:-1]).lower()
-                    if newStub == composerName.lower():
-                        results.append(path)
-                        break
-        results.sort()
-        return results
+        pass
 
     def getWorkReferences(self):
         '''
@@ -529,7 +492,7 @@ class Corpus(prebase.ProtoM21Object):
         [<music21.corpus.work.DirectoryInformation bach>,
          <music21.corpus.work.DirectoryInformation beach>]
                  '''
-        return list(self.directoryInformation)
+        pass
 
 # -----------------------------------------------------------------------------
 
@@ -590,8 +553,7 @@ class CoreCorpus(Corpus):
 
     @property
     def cacheFilePath(self) -> pathlib.Path:
-        filePath = common.getMetadataCacheFilePath() / 'core.p.gz'
-        return filePath
+        pass
 
     # PUBLIC METHODS #
 
@@ -663,22 +625,11 @@ class CoreCorpus(Corpus):
         True
 
         '''
-        userSettings = environment.UserSettings()
-        if 'manualCoreCorpusPath' in userSettings.keys():
-            return userSettings['manualCoreCorpusPath']
-        return None
+        pass
 
     @manualCoreCorpusPath.setter
     def manualCoreCorpusPath(self, expr):  # pragma: no cover
-        userSettings = environment.UserSettings()
-        if expr is not None:
-            path = common.cleanpath(expr, returnPathlib=True)
-            if not path.is_dir() or not path.exists():
-                raise CorpusException('path needs to be a path to an existing directory')
-            userSettings['manualCoreCorpusPath'] = path
-        else:
-            userSettings['manualCoreCorpusPath'] = None
-        environment.Environment().write()
+        pass
 
     @property
     def noCorpus(self):
@@ -688,20 +639,7 @@ class CoreCorpus(Corpus):
         >>> corpus.corpora.CoreCorpus().noCorpus
         False
         '''
-        if CoreCorpus._noCorpus is not None:
-            return CoreCorpus._noCorpus
-
-        # assume that there will always be at least one dir
-        for the_dir in common.getCorpusFilePath().iterdir():
-            if not the_dir.is_dir():
-                continue
-            if the_dir.name in ('_metadataCache', '__pycache__'):
-                continue
-            CoreCorpus._noCorpus = False
-            return False
-
-        CoreCorpus._noCorpus = True
-        return CoreCorpus._noCorpus
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -747,17 +685,12 @@ class LocalCorpus(Corpus):
     # SPECIAL METHODS #
 
     def _reprInternal(self):
-        if self.name is None:
-            return ''
-        return ': ' + repr(self.name)
+        pass
 
     # PRIVATE METHODS #
 
     def _getSettings(self):
-        userSettings = environment.UserSettings()
-        if self.name == 'local':
-            return userSettings['localCorpusSettings']
-        return userSettings['localCorporaSettings'].get(self.name, None)
+        pass
 
     # PRIVATE PROPERTIES #
 
@@ -768,35 +701,14 @@ class LocalCorpus(Corpus):
 
         returns a pathlib.Path
         '''
-        localCorpusSettings = self._getSettings()
-        if localCorpusSettings is not None and localCorpusSettings.cacheFilePath is not None:
-            return localCorpusSettings.cacheFilePath
-
-        localName = self.name
-        if localName == 'local':
-            localName = ''
-        else:
-            localName = '-' + self.name
-        filePath = environLocal.getRootTempDir() / ('local' + localName + '.p.gz')
-        return filePath
+        pass
 
     @cacheFilePath.setter
     def cacheFilePath(self, value):
         '''
         Set the path to the file path that stores the .json file.
         '''
-        if not self.existsInSettings:
-            raise CorpusException('Save this corpus before changing the cacheFilePath')
-        localCorpusSettings = self._getSettings()
-        localCorpusSettings.cacheFilePath = common.cleanpath(value, returnPathlib=True)
-        en = environment.Environment()
-
-        if self.name == 'local':
-            en['localCorpusSettings'] = localCorpusSettings
-        else:
-            en['localCorporaSettings'][self.name] = localCorpusSettings
-
-        en.write()
+        pass
 
     # PUBLIC METHODS #
 
@@ -810,37 +722,13 @@ class LocalCorpus(Corpus):
         Paths added in this way will not be persisted from session to session
         unless explicitly saved by a call to ``LocalCorpus.save()``.
         '''
-        if not isinstance(directoryPath, (str, pathlib.Path)):
-            raise CorpusException(
-                f'an invalid file path has been provided: {directoryPath!r}')
-
-        directoryPath = common.cleanpath(directoryPath, returnPathlib=True)
-        if (not directoryPath.exists()
-                or not directoryPath.is_dir()):
-            raise CorpusException(
-                f'an invalid file path has been provided: {directoryPath!r}')
-        if self.name not in LocalCorpus._temporaryLocalPaths:
-            LocalCorpus._temporaryLocalPaths[self.name] = set()
-
-        LocalCorpus._temporaryLocalPaths[self.name].add(directoryPath)
-        self._removeNameFromCache(self.name)
+        pass
 
     def delete(self):
         r'''
         Delete a non-default local corpus from the user settings.
         '''
-        if self.name is None or self.name in ('core', 'virtual', 'local'):
-            raise CorpusException('Cannot delete this corpus')
-
-        if not self.existsInSettings:
-            return
-
-        if self.metadataBundle.filePath.exists():
-            self.metadataBundle.filePath.unlink()
-
-        userSettings = environment.UserSettings()
-        del (userSettings['localCorporaSettings'][self.name])
-        environment.Environment().write()
+        pass
 
     def getPaths(
         self,
@@ -897,20 +785,7 @@ class LocalCorpus(Corpus):
         TODO: test for corpus persisted to disk without actually reindexing
         files on user's Desktop.
         '''
-        temporaryPaths: set[pathlib.Path] = LocalCorpus._temporaryLocalPaths.get(
-            self.name, set())
-        directoryPathObj: pathlib.Path = common.cleanpath(directoryPath, returnPathlib=True)
-        if directoryPathObj in temporaryPaths:
-            temporaryPaths.remove(directoryPathObj)
-        # Also need string version because LocalCorpusSettings is a list-like
-        # container of strings (see comments in environment.py)
-        directoryPathStr = str(directoryPathObj)
-        if self.existsInSettings:
-            settings = self._getSettings()
-            if settings is not None and directoryPathStr in settings:
-                settings.remove(directoryPathStr)
-            self.save()
-        self._removeNameFromCache(self.name)
+        pass
 
     def save(self):
         r'''
@@ -937,14 +812,7 @@ class LocalCorpus(Corpus):
         r'''
         The directory paths in use by a given local corpus.
         '''
-        candidatePaths = []
-        if self.existsInSettings:
-            settings = self._getSettings()
-            candidatePaths = [pathlib.Path(p) for p in settings]
-        temporaryPaths = [pathlib.Path(p) for p in LocalCorpus._temporaryLocalPaths.get(
-            self.name, [])]
-        allPaths = tuple(sorted(set(candidatePaths).union(temporaryPaths)))
-        return allPaths
+        pass
 
     @property
     def existsInSettings(self):
@@ -952,10 +820,7 @@ class LocalCorpus(Corpus):
         True if this local corpus has a corresponding entry in music21's user
         settings, otherwise false.
         '''
-        if self.name == 'local':
-            return True
-        userSettings = environment.UserSettings()
-        return self.name in userSettings['localCorporaSettings']
+        pass
 
     @property
     def name(self):
@@ -970,9 +835,7 @@ class LocalCorpus(Corpus):
         'funkCorpus'
 
         '''
-        if self._name is None:
-            return 'local'
-        return self._name
+        pass
 
 
 # -----------------------------------------------------------------------------

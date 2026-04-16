@@ -94,25 +94,7 @@ def histogram(data, bins):
     >>> print([int(b) for b in bins])
     [0, 2, 4, 6, 8]
     '''
-    maxValue = max(data)
-    minValue = min(data)
-    lengthEachBin = (maxValue - minValue) / bins
-
-    container = []
-    for i in range(int(bins)):
-        container.append(0)
-    for i in data:
-        count = 1
-        while i > minValue + count * lengthEachBin:
-            count += 1
-        container[count - 1] += 1
-
-    binsLimits = [minValue]
-    count = 1
-    for i in range(int(bins)):
-        binsLimits.append(minValue + count * lengthEachBin)
-        count += 1
-    return container, binsLimits
+    pass
 
 
 def autocorrelationFunction(recordedSignal, recordSampleRateIn):
@@ -135,39 +117,7 @@ def autocorrelationFunction(recordedSignal, recordSampleRateIn):
     >>> print(finalResult)
     143.6276...
     '''
-    # noinspection PyProtectedMember
-    if 'numpy' in (bmi := base._missingImport):
-        # len(_missingImport) > 0:
-        raise AudioSearchException(
-            'Cannot run autocorrelationFunction without '
-            f'numpy installed (scipy recommended).  Missing {bmi}')
-    import numpy
-    convolve = None
-    try:
-        with warnings.catch_warnings():  # scipy.signal gives ImportWarning
-            warnings.simplefilter('ignore', ImportWarning)
-            # numpy warns scipy that oldnumeric will be dropped soon.
-            warnings.simplefilter('ignore', DeprecationWarning)
-            # noinspection PyPackageRequirements
-            from scipy.signal import fftconvolve as convolve  # type: ignore
-    except ImportError:  # pragma: no cover
-        warnings.warn('Running convolve without scipy -- will be slower', stacklevel=2)
-        convolve = numpy.convolve
-
-    recordedSignal = numpy.array(recordedSignal)
-    correlation = convolve(recordedSignal, recordedSignal[::-1], mode='full')
-    lengthCorrelation = len(correlation) // 2
-    correlation = correlation[lengthCorrelation:]
-    difference = numpy.diff(correlation)  # Calculates the difference between slots
-    positiveDifferences = numpy.where(difference > 0)[0]
-    if len(positiveDifferences) == 0:
-        finalResult = 10  # Rest
-    else:
-        beginning = positiveDifferences[0]
-        peak = numpy.argmax(correlation[beginning:]) + beginning
-        vertex = interpolation(correlation, peak)
-        finalResult = recordSampleRateIn / vertex
-    return finalResult
+    pass
 
 
 def prepareThresholds(useScale=None):
@@ -201,22 +151,7 @@ def prepareThresholds(useScale=None):
     F#4 < 0.61 < G#4
     G#4 < 1.24 < A4
     '''
-    if useScale is None:
-        useScale = scale.ChromaticScale('C4')
-
-    scPitches = useScale.pitches
-    scPitchesRemainder = []
-
-    for p in scPitches:
-        pLog2 = math.log2(p.frequency)
-        scPitchesRemainder.append(math.modf(pLog2)[0])
-    scPitchesRemainder[-1] += 1
-
-    scPitchesThreshold = []
-    for i in range(len(scPitchesRemainder) - 1):
-        scPitchesThreshold.append((scPitchesRemainder[i] + scPitchesRemainder[i + 1]) / 2)
-
-    return scPitchesThreshold, scPitches
+    pass
 
 
 def interpolation(correlation, peak):
@@ -237,13 +172,7 @@ def interpolation(correlation, peak):
     >>> audioSearch.interpolation(f, peak)
     3.21428571...
     '''
-    if peak in (0, len(correlation) - 1):
-        return peak
-
-    vertex = (correlation[peak - 1] - correlation[peak + 1]) / (
-        correlation[peak - 1] - 2.0 * correlation[peak] + correlation[peak + 1])
-    vertex = vertex * 0.5 + peak
-    return vertex
+    pass
 
 
 def normalizeInputFrequency(inputPitchFrequency, thresholds=None, pitches=None):
@@ -270,36 +199,7 @@ def normalizeInputFrequency(inputPitchFrequency, thresholds=None, pitches=None):
     (277.18263..., <music21.pitch.Pitch C#5>)
     (293.66476..., <music21.pitch.Pitch D5>)
     '''
-    if (
-        (thresholds is None and pitches is not None)
-        or (thresholds is not None and pitches is None)
-    ):
-        raise AudioSearchException(
-            'Cannot normalize input frequency if thresholds are given and '
-            + 'pitches are not, or vice versa')
-
-    if thresholds is None:
-        (thresholds, pitches) = prepareThresholds()
-
-    inputPitchLog2 = math.log2(inputPitchFrequency)
-    (remainder, octave) = math.modf(inputPitchLog2)
-    octave = int(octave)
-
-    for i in range(len(thresholds)):
-        threshold = thresholds[i]
-        if remainder < threshold:
-            returnPitch = copy.deepcopy(pitches[i])
-            returnPitch.octave = octave - 4  # PROBLEM
-            # returnPitch.inputFrequency = inputPitchFrequency
-            name_note = pitch.Pitch(str(pitches[i]))
-            return name_note.frequency, returnPitch
-    # else:
-    # above highest threshold
-    returnPitch = copy.deepcopy(pitches[-1])
-    returnPitch.octave = octave - 3
-    returnPitch.inputFrequency = inputPitchFrequency
-    name_note = pitch.Pitch(str(pitches[-1]))
-    return name_note.frequency, returnPitch
+    pass
 
 
 def pitchFrequenciesToObjects(detectedPitchesFreq, useScale=None):
@@ -323,31 +223,7 @@ def pitchFrequenciesToObjects(detectedPitchesFreq, useScale=None):
     >>> [str(p) for p in detectedPitchObjects]
     ['A5', 'A5', 'A6', 'D6', 'D4', 'B4', 'A4', 'F4', 'E-4', 'C#3', 'B3', 'B3', 'B3', 'A3', 'G3',...]
     '''
-    if useScale is None:
-        useScale = scale.MajorScale('C4')
-
-    detectedPitchObjects = []
-    (thresholds, pitches) = prepareThresholds(useScale)
-
-    for i in range(len(detectedPitchesFreq)):
-        inputPitchFrequency = detectedPitchesFreq[i]
-        unused_freq, pitch_name = normalizeInputFrequency(inputPitchFrequency, thresholds, pitches)
-        detectedPitchObjects.append(pitch_name)
-
-    listPlot = []
-    i = 0
-    while i < len(detectedPitchObjects) - 1:
-        name = detectedPitchObjects[i].name
-        hold = i
-        tot_octave = 0
-        while i < len(detectedPitchObjects) - 1 and detectedPitchObjects[i].name == name:
-            tot_octave = tot_octave + detectedPitchObjects[i].octave
-            i = i + 1
-        tot_octave = round(tot_octave / (i - hold))
-        for j in range(i - hold):
-            detectedPitchObjects[hold + j - 1].octave = tot_octave
-            listPlot.append(detectedPitchObjects[hold + j - 1].frequency)
-    return detectedPitchObjects, listPlot
+    pass
 
 
 def getFrequenciesFromMicrophone(length=10.0, storeWaveFilename=None):
@@ -361,24 +237,7 @@ def getFrequenciesFromMicrophone(length=10.0, storeWaveFilename=None):
 
     TODO -- find a way to test or at least demo
     '''
-    # noinspection PyProtectedMember
-    if 'numpy' in base._missingImport:
-        raise AudioSearchException(
-            'Cannot run getFrequenciesFromMicrophone without numpy installed')
-
-    import numpy
-    environLocal.printDebug('* start recording')
-    storedWaveSampleList = recording.samplesFromRecording(seconds=length,
-                                                          storeFile=storeWaveFilename,
-                                                          recordChunkLength=audioChunkLength)
-    environLocal.printDebug('* stop recording')
-
-    freqFromAQList = []
-
-    for data in storedWaveSampleList:
-        samples = numpy.frombuffer(data, dtype=numpy.int16)
-        freqFromAQList.append(autocorrelationFunction(samples, recordSampleRate))
-    return freqFromAQList
+    pass
 
 
 def getFrequenciesFromAudioFile(waveFilename='xmas.wav'):
@@ -395,31 +254,7 @@ def getFrequenciesFromAudioFile(waveFilename='xmas.wav'):
     >>> print(freq)
     [143.627..., 99.083..., 211.004..., 4700.313..., ...]
     '''
-    # noinspection PyProtectedMember
-    if 'numpy' in base._missingImport:
-        raise AudioSearchException(
-            'Cannot run getFrequenciesFromAudioFile without numpy installed')
-    import numpy
-
-    storedWaveSampleList = []
-    environLocal.printDebug('* reading entire file from disk')
-    try:
-        wv = wave.open(str(waveFilename), 'r')
-    except IOError:
-        raise AudioSearchException(f'Cannot open {waveFilename} for reading, does not exist')
-
-    # modify it to read the entire file
-    for i in range(int(wv.getnframes() / audioChunkLength)):
-        data = wv.readframes(audioChunkLength)
-        storedWaveSampleList.append(data)
-
-    freqFromAQList = []
-    for data in storedWaveSampleList:
-        samples = numpy.frombuffer(data, dtype=numpy.int16)
-        freqFromAQList.append(float(autocorrelationFunction(samples, recordSampleRate)))
-    wv.close()
-
-    return freqFromAQList
+    pass
 
 
 def getFrequenciesFromPartialAudioFile(waveFilenameOrHandle='temp', length=10.0, startSample=0):
@@ -461,46 +296,7 @@ def getFrequenciesFromPartialAudioFile(waveFilenameOrHandle='temp', length=10.0,
     >>> print(currentSample)  # should be exactly double the previous
     88064
     '''
-    # noinspection PyProtectedMember
-    if 'numpy' in base._missingImport:
-        raise AudioSearchException(
-            'Cannot run getFrequenciesFromPartialAudioFile without numpy installed')
-    import numpy
-
-    if waveFilenameOrHandle == 'temp':
-        waveFilenameOrHandle = environLocal.getRootTempDir() / 'temp.wav'
-
-    if isinstance(waveFilenameOrHandle, pathlib.Path):
-        waveFilenameOrHandle = str(waveFilenameOrHandle)
-
-    if isinstance(waveFilenameOrHandle, str):
-        # waveFilenameOrHandle is a filename
-        waveFilename = waveFilenameOrHandle
-        try:
-            # noinspection PyUnusedLocal
-            waveHandle = wave.open(waveFilename, 'r')
-        except IOError:
-            raise AudioSearchException(f'Cannot open {waveFilename} for reading, does not exist')
-    else:
-        # waveFilenameOrHandle is a file handle
-        waveHandle = cast(wave.Wave_read, waveFilenameOrHandle)
-
-    storedWaveSampleList = []
-
-    environLocal.printDebug('* reading file from disk a part of the song')
-    for i in range(int(math.floor(length * recordSampleRate / audioChunkLength))):
-        startSample = startSample + audioChunkLength
-        if startSample < waveHandle.getnframes():
-            data = waveHandle.readframes(audioChunkLength)
-            storedWaveSampleList.append(data)
-    freqFromAQList = []
-
-    for data in storedWaveSampleList:
-        samples = numpy.frombuffer(data, dtype=numpy.int16)
-        freqFromAQList.append(autocorrelationFunction(samples, recordSampleRate))
-
-    endSample = startSample
-    return (freqFromAQList, waveHandle, endSample)
+    pass
 
 
 def detectPitchFrequencies(freqFromAQList, useScale=None):
@@ -523,17 +319,7 @@ def detectPitchFrequencies(freqFromAQList, useScale=None):
     4699
     2093
     '''
-    if useScale is None:
-        useScale = scale.MajorScale('C4')
-    (thresholds, pitches) = prepareThresholds(useScale)
-
-    detectedPitchesFreq = []
-
-    for i in range(len(freqFromAQList)):    # to find thresholds and frequencies
-        inputPitchFrequency = freqFromAQList[i]
-        unused_freq, pitch_name = normalizeInputFrequency(inputPitchFrequency, thresholds, pitches)
-        detectedPitchesFreq.append(pitch_name.frequency)
-    return detectedPitchesFreq
+    pass
 
 
 def smoothFrequencies(
@@ -607,51 +393,7 @@ def smoothFrequencies(
       functions) and if done in Place, returns nothing.  smoothLevels and inPlace
       became keyword only.
     '''
-    if smoothLevels < 1:
-        raise ValueError('smoothLevels must be >= 1')
-
-    numFreqs = len(frequencyList)
-    if smoothLevels > numFreqs:
-        raise ValueError(
-            f'There cannot be more smoothLevels ({smoothLevels}) than inputPitches ({numFreqs})'
-        )
-
-    dpf = frequencyList
-    detectedPitchesFreq: list[float]
-    if inPlace:
-        detectedPitchesFreq = [float(f) for f in dpf]
-    else:
-        detectedPitchesFreq = [float(f) for f in copy.copy(dpf)]
-
-    # smoothing
-    beginning = 0.0
-    ends = 0.0
-
-    for i in range(smoothLevels):
-        beginning = beginning + detectedPitchesFreq[i]
-        ends = ends + detectedPitchesFreq[numFreqs - 1 - i]
-    beginning = beginning / smoothLevels
-    ends = ends / smoothLevels
-
-    for i in range(numFreqs):
-        # TODO: replace this O(i*smoothLevels) routine with an O(i) routine
-        if i < int(math.floor(smoothLevels / 2.0)):
-            detectedPitchesFreq[i] = int(beginning)
-        elif i > numFreqs - int(math.ceil(smoothLevels / 2.0)) - 1:
-            detectedPitchesFreq[i] = int(ends)
-        else:
-            change = 0.0
-            for j in range(smoothLevels):
-                change += detectedPitchesFreq[i + j - int(math.floor(smoothLevels / 2.0))]
-            detectedPitchesFreq[i] = change / smoothLevels
-
-    out: list[int] = [int(round(f)) for f in detectedPitchesFreq]
-    if not inPlace:
-        return out
-    else:
-        for i in range(len(frequencyList)):
-            frequencyList[i] = out[i]
-        return None
+    pass
 
 
 # ------------------------------------------------------
@@ -689,54 +431,7 @@ def joinConsecutiveIdenticalPitches(detectedPitchObjects):
     >>> print(durationList)
     [71, 6, 14, 23, 34, 40, 27, 36, 35, 15, 17, 15, 6, 33, 22, 13, 16, 39, 35, 38, 27, 27, 26, 8]
     '''
-    # initialization
-    REST_FREQUENCY = 10
-    detectedPitchObjects[0].frequency = REST_FREQUENCY
-
-    # detecting the length of each note
-    j = 0
-    good = 0
-    bad = 0
-    valid_note = False
-
-    total_notes = 0
-    total_rests = 0
-    notesList = []
-    durationList = []
-
-    while j < len(detectedPitchObjects):
-        fr = detectedPitchObjects[j].frequency
-
-        # detect consecutive instances of the same frequency
-        while j < len(detectedPitchObjects) and fr == detectedPitchObjects[j].frequency:
-            good = good + 1
-
-            # if more than 6 consecutive identical samples, it might be a note
-            if good >= 6:
-                valid_note = True
-
-                # if we've gone 15 or more samples without getting something constant,
-                # assume it's a rest
-                if bad >= 15:
-                    durationList.append(bad)
-                    total_rests = total_rests + 1
-                    notesList.append(note.Rest())
-                bad = 0
-            j = j + 1
-        if valid_note:
-            durationList.append(good)
-            total_notes = total_notes + 1
-            # doesn't this unnecessarily create a note that it doesn't need?
-            # notesList.append(detectedPitchObjects[j - 1].frequency) should work
-            n = note.Note()
-            n.pitch = detectedPitchObjects[j - 1]
-            notesList.append(n)
-        else:
-            bad = bad + good
-        good = 0
-        valid_note = False
-        j = j + 1
-    return notesList, durationList
+    pass
 
 
 def quantizeDuration(length):
@@ -754,18 +449,7 @@ def quantizeDuration(length):
     >>> audioSearch.quantizeDuration(1.70)
     1.5
     '''
-    length = length * 100
-    typicalLengths = [25.00, 50.00, 100.00, 150.00, 200.00, 400.00]
-    thresholds = []
-    for i in range(len(typicalLengths) - 1):
-        thresholds.append((typicalLengths[i] + typicalLengths[i + 1]) / 2)
-
-    finalLength = typicalLengths[0]
-    for i in range(len(thresholds)):
-        threshold = thresholds[i]
-        if length > threshold:
-            finalLength = typicalLengths[i + 1]
-    return finalLength / 100
+    pass
 
 
 def quarterLengthEstimation(durationList, mostRepeatedQuarterLength=1.0):
@@ -792,29 +476,7 @@ def quarterLengthEstimation(durationList, mostRepeatedQuarterLength=1.0):
     >>> audioSearch.quarterLengthEstimation(durationList, mostRepeatedQuarterLength=2.0)
     10.3125
     '''
-    dl = copy.copy(durationList)
-    dl.append(0)
-
-    pdf, bins = histogram(dl, 8.0)
-
-    # environLocal.printDebug(f' HISTOGRAM {pdf} {bins}')
-
-    i = len(pdf) - 1  # backwards! it has more sense
-    while pdf[i] != max(pdf):
-        i = i - 1
-    qle = (bins[i] + bins[i + 1]) / 2.0
-
-    if mostRepeatedQuarterLength == 0:
-        mostRepeatedQuarterLength = 1.0
-
-    binPosition = 0 - math.log2(mostRepeatedQuarterLength)
-    qle = qle * math.pow(2, binPosition)  # it normalizes the length to a quarter note
-
-    # environLocal.printDebug('QUARTER ESTIMATION')
-    # environLocal.printDebug(f' bins {bins} ')
-    # environLocal.printDebug(f' pdf {pdf}')
-    # environLocal.printDebug(f' quarterLengthEstimate {qle}')
-    return qle
+    pass
 
 
 def notesAndDurationsToStream(
@@ -852,35 +514,7 @@ def notesAndDurationsToStream(
         {4.0} <music21.note.Note C>
         {4.25} <music21.note.Rest quarter>
     '''
-    # rounding lengths
-    p2 = stream.Part()
-
-    # If the score is available, the quarter estimation is better:
-    # It could take into account the changes of tempo during the song, but it
-    # would take more processing time
-    if scNotes is not None:
-        fe = features.native.MostCommonNoteQuarterLength(scNotes)
-        mostCommon = fe.extract().vector[0]
-        qle = quarterLengthEstimation(durationList, mostCommon)
-    elif scNotes is None:  # this is for the transcriber
-        qle = quarterLengthEstimation(durationList)
-
-    for i in range(len(durationList)):
-        actualDuration = quantizeDuration(durationList[i] / qle)
-        notesList[i].quarterLength = actualDuration
-        if not (removeRestsAtBeginning and (notesList[i].name == 'rest')):
-            p2.append(notesList[i])
-            removeRestsAtBeginning = False
-
-    sc = stream.Score()
-    sc.metadata = metadata.Metadata()
-    sc.metadata.title = 'Automatic Music21 Transcription'
-    sc.insert(0, p2)
-
-    if scNotes is None:   # Case transcriber
-        return sc, len(p2)
-    else:  # case follower
-        return sc, qle
+    pass
 
 
 def decisionProcess(
@@ -956,52 +590,7 @@ def decisionProcess(
     >>> print(countdown)
     1
     '''
-    i = 0
-    position = 0
-    while i < len(partsList) and beginningData[int(partsList[i].id)] < notePrediction:
-        i = i + 1
-        position = i
-    if len(partsList) == 1:  # it happens when you don't play anything during a recording period
-        position = 0
-
-    dist = math.fabs(beginningData[0] - notePrediction)
-    for i in range(len(partsList)):
-        positionBeginningData = beginningData[int(partsList[i].id)]
-        if ((partsList[i].matchProbability >= 0.9 * partsList[0].matchProbability)
-                and (positionBeginningData > lastNotePosition)):  # let's take a 90%
-            if math.fabs(positionBeginningData - notePrediction) < dist:
-                dist = math.fabs(positionBeginningData - notePrediction)
-                position = i
-
-    positionBeginningData = beginningData[int(partsList[position].id)]
-    # print('ERRORS', position, len(partsList), lastNotePosition,
-    #      partsList[position].matchProbability , positionBeginningData)
-    if position < len(partsList) and positionBeginningData <= lastNotePosition:
-        environLocal.printDebug(f' error ? {positionBeginningData}, {lastNotePosition}')
-    if partsList[position].matchProbability < 0.6 or len(partsList) == 1:
-        # the latter for the all-rest case
-        environLocal.printDebug('Are you sure you are playing the right song?')
-        countdown = countdown + 1
-    elif dist > 20 and countdown == 0:
-        countdown += 1
-        environLocal.printDebug(f'Excessive distance? {dist=}')
-
-    elif dist > 30 and countdown == 1:
-        countdown += 1
-        environLocal.printDebug(f'Excessive distance? {dist=}')
-
-    elif ((firstNotePage is not None and lastNotePage is not None)
-          and ((positionBeginningData < firstNotePage
-                or positionBeginningData > lastNotePage)
-               and countdown < 2)):
-        countdown += 1
-        environLocal.printDebug('playing in a not shown part')
-    else:
-        countdown = 0
-    environLocal.printDebug(['****????**** DECISION PROCESS: dist from expected:', dist,
-                             'beginning data:', positionBeginningData,
-                             'lastNotePos', lastNotePosition])
-    return position, countdown
+    pass
 
 
 class AudioSearchException(exceptions21.Music21Exception):

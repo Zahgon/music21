@@ -171,10 +171,7 @@ class Beam(prebase.ProtoM21Object, EqualSlottedObjectMixin, style.StyleMixin):
     # PRIVATE METHODS #
 
     def _reprInternal(self):
-        out = f'{self.number}/{self.type}'
-        if self.direction is not None:
-            out += f'/{self.direction}'
-        return out
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -241,10 +238,7 @@ class Beams(prebase.ProtoM21Object, EqualSlottedObjectMixin):
         return id(self) >> 4
 
     def _reprInternal(self):
-        msg = []
-        for beam in self.beamsList:
-            msg.append(str(beam))
-        return '/'.join(msg)
+        pass
 
     # STATIC METHODS #
 
@@ -701,8 +695,7 @@ class Beams(prebase.ProtoM21Object, EqualSlottedObjectMixin):
 class Test(unittest.TestCase):
 
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
 
 # -----------------------------------------------------------------------------

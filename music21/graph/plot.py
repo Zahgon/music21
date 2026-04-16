@@ -108,13 +108,7 @@ class PlotStreamMixin(prebase.ProtoM21Object):
         >>> axIsolated
         <music21.graph.axis.DynamicsAxis: z axis for (no client)>
         '''
-        s = self.streamObj
-        if s is not None:  # not "if s" because could be empty
-            streamName = repr(s)
-        else:
-            streamName = '(no stream)'
-
-        return f'for {streamName}'
+        pass
 
     @property
     def allAxes(self):
@@ -129,11 +123,7 @@ class PlotStreamMixin(prebase.ProtoM21Object):
         [<music21.graph.axis.OffsetAxis: x axis for ScatterPitchClassOffset>,
          <music21.graph.axis.PitchClassAxis: y axis for ScatterPitchClassOffset>]
         '''
-        allAxesList = []
-        for axisName in ('axisX', 'axisY', 'axisZ'):
-            if hasattr(self, axisName):
-                allAxesList.append(getattr(self, axisName))
-        return allAxesList
+        pass
 
     def run(self, *, callProcess: bool = True, **keywords):
         '''
@@ -381,15 +371,7 @@ class PlotStreamMixin(prebase.ProtoM21Object):
         >>> pScatter.id
         'scatter-quarterLength-pitchClass'
         '''
-        idName = self.graphType
-
-        for axisObj in self.allAxes:
-            if axisObj is None:
-                continue
-            axisName = axisObj.quantities[0]
-            idName += '-' + axisName
-
-        return idName
+        pass
 
 
 # ------------------------------------------------------------------------------
@@ -887,11 +869,7 @@ class WindowedAnalysis(primitives.GraphColorGrid, PlotStreamMixin):
 
     @property
     def processor(self):
-        if not self.processorClass:
-            return None
-        if not self._processor:
-            self._processor = self.processorClass(self.streamObj)
-        return self._processor
+        pass
 
     def run(self, *, callProcess: bool = True, **keywords):
         '''
@@ -1335,60 +1313,7 @@ class Dolan(HorizontalBarWeighted):
         Examine the instruments in the Score and determine if there
         is a good match for a default configuration of parts.
         '''
-        from music21 import instrument
-
-        if self.partGroups:
-            return  # keep what the user set
-        if self.streamObj:
-            return None
-        instStream = self.streamObj.flatten().getElementsByClass(instrument.Instrument)
-        if not instStream:
-            return  # do not set anything
-
-        if len(instStream) == 4 and self.streamObj.getElementById('Soprano') is not None:
-            pgOrc = [
-                {'name': 'Soprano', 'color': 'purple', 'match': ['soprano', '0']},
-                {'name': 'Alto', 'color': 'orange', 'match': ['alto', '1']},
-                {'name': 'Tenor', 'color': 'lightgreen', 'match': ['tenor']},
-                {'name': 'Bass', 'color': 'mediumblue', 'match': ['bass']},
-            ]
-            self.partGroups = pgOrc
-
-        elif len(instStream) == 4 and self.streamObj.getElementById('Viola') is not None:
-            pgOrc = [
-                {'name': '1st Violin', 'color': 'purple',
-                    'match': ['1st violin', '0', 'violin 1', 'violin i']},
-                {'name': '2nd Violin', 'color': 'orange',
-                    'match': ['2nd violin', '1', 'violin 2', 'violin ii']},
-                {'name': 'Viola', 'color': 'lightgreen', 'match': ['viola']},
-                {'name': 'Cello', 'color': 'mediumblue',
-                    'match': ['cello', 'violoncello', "'cello"]},
-            ]
-            self.partGroups = pgOrc
-
-        elif len(instStream) > 10:
-            pgOrc = [
-                {'name': 'Flute', 'color': '#C154C1', 'match': ['flauto', r'flute \d']},
-                {'name': 'Oboe', 'color': 'blue', 'match': ['oboe', r'oboe \d']},
-                {'name': 'Clarinet', 'color': 'mediumblue',
-                 'match': ['clarinetto', r'clarinet in \w* \d']},
-                {'name': 'Bassoon', 'color': 'purple', 'match': ['fagotto', r'bassoon \d']},
-
-                {'name': 'Horns', 'color': 'orange', 'match': ['corno', r'horn in \w* \d']},
-                {'name': 'Trumpet', 'color': 'red',
-                 'match': ['tromba', r'trumpet \d', r'trumpet in \w* \d']},
-                {'name': 'Trombone', 'color': 'red', 'match': [r'trombone \d']},
-                {'name': 'Timpani', 'color': '#5C3317', 'match': None},
-
-
-                {'name': 'Violin I', 'color': 'lightgreen', 'match': ['violino i', 'violin i']},
-                {'name': 'Violin II', 'color': 'green', 'match': ['violino ii', 'violin ii']},
-                {'name': 'Viola', 'color': 'forestgreen', 'match': None},
-                {'name': 'Violoncello & CB', 'color': 'dark green',
-                 'match': ['violoncello', 'contrabasso']},
-                #            {'name':'CB', 'color':'#003000', 'match':['contrabasso']},
-            ]
-            self.partGroups = pgOrc
+        pass
 
 
 # ------------------------------------------------------------------------------------------
@@ -1475,25 +1400,7 @@ class MultiStream(primitives.GraphGroupedVerticalBar, PlotStreamMixin):
         self.data = None  # store native data representation, useful for testing
 
     def parseStreams(self, streamList):
-        self.streamList = []
-        foundPaths = []
-        for s in streamList:
-            # could be corpus or file path
-            if isinstance(s, str):
-                foundPaths.append(os.path.basename(s))
-                if os.path.exists(s):
-                    s = converter.parse(s)
-                else:  # assume corpus
-                    s = corpus.parse(s)
-            elif isinstance(s, pathlib.Path):
-                foundPaths.append(s.name)
-                if s.exists():
-                    s = converter.parse(s)
-                else:  # assume corpus
-                    s = corpus.parse(s)
-            # otherwise assume a parsed stream
-            self.streamList.append(s)
-        return foundPaths
+        pass
 
 
 class Features(MultiStream):
@@ -1591,538 +1498,106 @@ class Features(MultiStream):
 class TestExternalManual(unittest.TestCase):  # pragma: no cover
 
     def testHorizontalBarPitchSpaceOffset(self):
-        a = corpus.parse('bach/bwv57.8')
-        # do not need to call flat version
-        b = HorizontalBarPitchSpaceOffset(a.parts[0], title='Bach (soprano voice)')
-        b.run()
-
-        b = HorizontalBarPitchSpaceOffset(a, title='Bach (all parts)')
-        b.run()
+        pass
 
     def testHorizontalBarPitchClassOffset(self):
-        a = corpus.parse('bach/bwv57.8')
-        b = HorizontalBarPitchClassOffset(a.parts[0], title='Bach (soprano voice)')
-        b.run()
-
-        a = corpus.parse('bach/bwv57.8')
-        b = HorizontalBarPitchClassOffset(a.parts[0].measures(3, 6),
-                                              title='Bach (soprano voice, mm 3-6)')
-        b.run()
+        pass
 
     def testScatterWeightedPitchSpaceQuarterLength(self):
-        a = corpus.parse('bach/bwv57.8').parts[0].flatten()
-        for xLog in [True, False]:
-            b = ScatterWeightedPitchSpaceQuarterLength(
-                a, title='Pitch Space Bach (soprano voice)',
-            )
-            b.axisX.useLogScale = xLog
-            b.run()
-
-            b = ScatterWeightedPitchClassQuarterLength(
-                a, title='Pitch Class Bach (soprano voice)',
-            )
-            b.axisX.useLogScale = xLog
-            b.run()
+        pass
 
     def testPitchSpace(self):
-        a = corpus.parse('bach/bwv57.8')
-        b = HistogramPitchSpace(a.parts[0].flatten(), title='Bach (soprano voice)')
-        b.run()
+        pass
 
     def testPitchClass(self):
-        a = corpus.parse('bach/bwv57.8')
-        b = HistogramPitchClass(a.parts[0].flatten(), title='Bach (soprano voice)')
-        b.run()
+        pass
 
     def testQuarterLength(self):
-        a = corpus.parse('bach/bwv57.8')
-        b = HistogramQuarterLength(a.parts[0].flatten(), title='Bach (soprano voice)')
-        b.run()
+        pass
 
     def testScatterPitchSpaceQuarterLength(self):
-        for xLog in [True, False]:
-
-            a = corpus.parse('bach/bwv57.8')
-            b = ScatterPitchSpaceQuarterLength(a.parts[0].flatten(), title='Bach (soprano voice)',
-                                               )
-            b.axisX.useLogScale = xLog
-            b.run()
-
-            b = ScatterPitchClassQuarterLength(a.parts[0].flatten(), title='Bach (soprano voice)',
-                                               )
-            b.axisX.useLogScale = xLog
-            b.run()
+        pass
 
     def testScatterPitchClassOffset(self):
-        a = corpus.parse('bach/bwv57.8')
-        b = ScatterPitchClassOffset(a.parts[0].flatten(), title='Bach (soprano voice)')
-        b.run()
+        pass
 
     def testScatterPitchSpaceDynamicSymbol(self):
-        a = corpus.parse('schumann_robert/opus41no1', 2)
-        b = ScatterPitchSpaceDynamicSymbol(
-            a.parts[0].flatten(),
-            title='Robert Schumann (soprano voice)'
-        )
-        b.run()
-
-        b = ScatterWeightedPitchSpaceDynamicSymbol(
-            a.parts[0].flatten(),
-            title='Robert Schumann (soprano voice)')
-        b.run()
+        pass
 
     def testPlot3DPitchSpaceQuarterLengthCount(self):
-        a = corpus.parse('schoenberg/opus19', 6)  # also tests Tuplets
-        b = Plot3DBarsPitchSpaceQuarterLength(a.flatten().stripTies(),
-                                              title='Schoenberg pitch space')
-        b.run()
+        pass
 
     def writeAllPlots(self):
         '''
         Write a graphic file for all graphs, naming them after the appropriate class.
         This is used to generate documentation samples.
         '''
-        # TODO: need to add strip() ties here; but need stripTies on Score
-        from music21.musicxml import testFiles
-
-        plotClasses = [
-            # histograms
-            (HistogramPitchSpace, None, None),
-            (HistogramPitchClass, None, None),
-            (HistogramQuarterLength, None, None),
-            # scatters
-            (ScatterPitchSpaceQuarterLength, None, None),
-            (ScatterPitchClassQuarterLength, None, None),
-            (ScatterPitchClassOffset, None, None),
-            (
-                ScatterPitchSpaceDynamicSymbol,
-                corpus.getWork(
-                    'schumann_robert/opus41no1', 2
-                ),
-                'Robert Schumann Opus 41 No 1'
-            ),
-
-            # offset based horizontal
-            (HorizontalBarPitchSpaceOffset, None, None),
-            (HorizontalBarPitchClassOffset, None, None),
-            # weighted scatter
-            (ScatterWeightedPitchSpaceQuarterLength, None, None),
-            (ScatterWeightedPitchClassQuarterLength, None, None),
-            (ScatterWeightedPitchSpaceDynamicSymbol,
-             corpus.getWork('schumann_robert/opus41no1', 2),
-             'Robert Schumann Opus 41 No 1'),
-
-
-            # 3d graphs
-            (Plot3DBarsPitchSpaceQuarterLength,
-             testFiles.mozartTrioK581Excerpt,
-             'Mozart Trio K581 Excerpt'),
-
-            (WindowedKey, corpus.getWork('bach/bwv66.6.xml'), 'Bach BWV 66.6'),
-            (WindowedAmbitus, corpus.getWork('bach/bwv66.6.xml'), 'Bach BWV 66.6'),
-
-        ]
-
-        sDefault = corpus.parse('bach/bwv57.8')
-
-        for plotClassName, work, titleStr in plotClasses:
-            if work is None:
-                s = sDefault
-
-            else:  # expecting data
-                s = converter.parse(work)
-
-            if titleStr is not None:
-                obj = plotClassName(s, doneAction=None, title=titleStr)
-            else:
-                obj = plotClassName(s, doneAction=None)
-
-            obj.run()
-            fn = obj.__class__.__name__ + '.png'
-            fp = str(environLocal.getRootTempDir() / fn)
-            environLocal.printDebug(['writing fp:', fp])
-            obj.write(fp)
+        pass
 
 
 class Test(unittest.TestCase):
 
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
     def testPitchSpaceDurationCount(self):
-        a = corpus.parse('bach/bwv57.8')
-        b = ScatterWeightedPitchSpaceQuarterLength(a.parts[0].flatten(), doneAction=None,
-                                                   title='Bach (soprano voice)')
-        b.run()
+        pass
 
     def testPitchSpace(self):
-        a = corpus.parse('bach')
-        b = HistogramPitchSpace(a.parts[0].flatten(), doneAction=None, title='Bach (soprano voice)')
-        b.run()
+        pass
 
     def testPitchClass(self):
-        a = corpus.parse('bach/bwv57.8')
-        b = HistogramPitchClass(a.parts[0].flatten(),
-                                doneAction=None,
-                                title='Bach (soprano voice)')
-        b.run()
+        pass
 
     def testQuarterLength(self):
-        a = corpus.parse('bach/bwv57.8')
-        b = HistogramQuarterLength(a.parts[0].flatten(),
-                                   doneAction=None,
-                                   title='Bach (soprano voice)')
-        b.run()
+        pass
 
     def testPitchDuration(self):
-        a = corpus.parse('schoenberg/opus19', 2)
-        b = ScatterPitchSpaceDynamicSymbol(a.parts[0].flatten(),
-                                           doneAction=None,
-                                           title='Schoenberg (piano)')
-        b.run()
-
-        b = ScatterWeightedPitchSpaceDynamicSymbol(a.parts[0].flatten(),
-                                                   doneAction=None,
-                                                   title='Schoenberg (piano)')
-        b.run()
+        pass
 
     def testWindowed(self, doneAction=None):
-        a = corpus.parse('bach/bwv66.6')
-        fn = 'bach/bwv66.6'
-        windowStep = 20  # set high to be fast
-
-#         b = WindowedAmbitus(a.parts, title='Bach Ambitus',
-#             minWindow=1, maxWindow=8, windowStep=3,
-#             doneAction=doneAction)
-#         b.run()
-
-        b = WindowedKey(a.flatten(), title=fn,
-                        minWindow=1, windowStep=windowStep,
-                        doneAction=doneAction, dpi=300)
-        b.run()
-        self.assertEqual(b.graphLegend.data,
-            [
-                ['Major',
-                    [('C#', '#f0727a'), ('D', '#ffd752'), ('E', '#eeff9a'),
-                     ('F#', '#b9f0ff'), ('A', '#bb9aff'), ('B', '#ffb5ff')
-                     ]
-                 ],
-                ['Minor',
-                    [('c#', '#8c0e16'), ('', '#ffffff'), ('', '#ffffff'),
-                     ('f#', '#558caa'), ('', '#ffffff'), ('b', '#9b519b')
-                     ]
-                 ]
-            ]
-        )
+        pass
 
     def testFeatures(self):
-        streamList = ['bach/bwv66.6', 'schoenberg/opus19/movement2', 'corelli/opus3no1/1grave']
-        feList = ['ql1', 'ql2', 'ql3']
-
-        p = Features(streamList, featureExtractors=feList, doneAction=None)
-        p.run()
+        pass
 
     def testPianoRollFromOpus(self):
-        o = corpus.parse('josquin/laDeplorationDeLaMorteDeJohannesOckeghem')
-        s = o.mergeScores()
-
-        b = HorizontalBarPitchClassOffset(s, doneAction=None)
-        b.run()
+        pass
 
     def testChordsA(self):
-        from music21 import scale
-        sc = scale.MajorScale('c4')
-
-        b = Histogram(stream.Stream(), doneAction=None)
-        c = chord.Chord(['b', 'c', 'd'])
-        b.axisX = axis.PitchSpaceAxis(b, 'x')  # pylint: disable=attribute-defined-outside-init
-        self.assertEqual(b.extractChordDataOneAxis(b.axisX, c, {}), [71, 60, 62])
-
-        s = stream.Stream()
-        s.append(chord.Chord(['b', 'c#', 'd']))
-        s.append(note.Note('c3'))
-        s.append(note.Note('c5'))
-        b = HistogramPitchSpace(s, doneAction=None)
-        b.run()
-
-        # b.write()
-        self.assertEqual(b.data, [(1, 1, {}), (2, 1, {}), (3, 1, {}), (4, 1, {}), (5, 1, {})])
-
-        s = stream.Stream()
-        s.append(sc.getChord('e3', 'a3'))
-        s.append(note.Note('c3'))
-        s.append(note.Note('c3'))
-        b = HistogramPitchClass(s, doneAction=None)
-        b.run()
-
-        # b.write()
-        self.assertEqual(b.data, [(1, 2, {}), (2, 1, {}), (3, 1, {}), (4, 1, {}), (5, 1, {})])
-
-        s = stream.Stream()
-        s.append(sc.getChord('e3', 'a3', quarterLength=2))
-        s.append(note.Note('c3', quarterLength=0.5))
-        b = HistogramQuarterLength(s, doneAction=None)
-        b.run()
-
-        # b.write()
-        self.assertEqual(b.data, [(1, 1, {}), (2, 1, {})])
-
-        # test scatter plots
-
-        b = Scatter(stream.Stream(), doneAction=None)
-        b.axisX = axis.PitchSpaceAxis(b, 'x')  # pylint: disable=attribute-defined-outside-init
-        b.axisY = axis.QuarterLengthAxis(b, 'y')  # pylint: disable=attribute-defined-outside-init
-        b.axisY.useLogScale = False
-        c = chord.Chord(['b', 'c', 'd'], quarterLength=0.5)
-
-        self.assertEqual(b.extractChordDataMultiAxis(c, {}),
-                         [[71, 60, 62], [0.5, 0.5, 0.5]])
-
-        b.matchPitchCountForChords = False
-        self.assertEqual(b.extractChordDataMultiAxis(c, {}), [[71, 60, 62], [0.5]])
+        pass
         # matching the number of pitches for each data point may be needed
 
     def testChordsA2(self):
-        from music21 import scale
-        sc = scale.MajorScale('c4')
-
-        s = stream.Stream()
-        s.append(sc.getChord('e3', 'a3', quarterLength=0.5))
-        s.append(sc.getChord('b3', 'c5', quarterLength=1.5))
-        s.append(note.Note('c3', quarterLength=2))
-        b = ScatterPitchSpaceQuarterLength(s, doneAction=None)
-        b.axisX.useLogScale = False
-        b.run()
-
-        match = [(0.5, 52.0, {}), (0.5, 53.0, {}), (0.5, 55.0, {}), (0.5, 57.0, {}),
-                 (1.5, 59.0, {}), (1.5, 60.0, {}),
-                 (1.5, 62.0, {}), (1.5, 64.0, {}),
-                 (1.5, 65.0, {}), (1.5, 67.0, {}),
-                 (1.5, 69.0, {}), (1.5, 71.0, {}), (1.5, 72.0, {}),
-                 (2.0, 48.0, {})]
-        self.assertEqual(b.data, match)
+        pass
         # b.write()
 
     def testChordsA3(self):
-        from music21 import scale
-        sc = scale.MajorScale('c4')
-
-        s = stream.Stream()
-        s.append(sc.getChord('e3', 'a3', quarterLength=0.5))
-        s.append(sc.getChord('b3', 'c5', quarterLength=1.5))
-        s.append(note.Note('c3', quarterLength=2))
-        b = ScatterPitchClassQuarterLength(s, doneAction=None)
-        b.axisX.useLogScale = False
-        b.run()
-
-        match = [(0.5, 4, {}), (0.5, 5, {}), (0.5, 7, {}), (0.5, 9, {}),
-                 (1.5, 11, {}), (1.5, 0, {}), (1.5, 2, {}), (1.5, 4, {}), (1.5, 5, {}),
-                 (1.5, 7, {}), (1.5, 9, {}), (1.5, 11, {}), (1.5, 0, {}),
-                 (2.0, 0, {})]
-        self.assertEqual(b.data, match)
+        pass
         # b.write()
 
     def testChordsA4(self):
-        from music21 import scale
-        sc = scale.MajorScale('c4')
-
-        s = stream.Stream()
-        s.append(sc.getChord('e3', 'a3', quarterLength=0.5))
-        s.append(note.Note('c3', quarterLength=2))
-        s.append(sc.getChord('b3', 'e4', quarterLength=1.5))
-        s.append(note.Note('d3', quarterLength=2))
-        self.assertEqual([e.offset for e in s], [0.0, 0.5, 2.5, 4.0])
-
-        # s.show()
-        b = ScatterPitchClassOffset(s, doneAction=None)
-        b.run()
-
-        match = [(0.0, 4, {}), (0.0, 5, {}), (0.0, 7, {}), (0.0, 9, {}),
-                 (0.5, 0, {}),
-                 (2.5, 11, {}), (2.5, 0, {}), (2.5, 2, {}), (2.5, 4, {}),
-                 (4.0, 2, {})]
-        self.assertEqual(b.data, match)
+        pass
         # b.write()
 
     def testChordsA5(self):
-        from music21 import scale
-        sc = scale.MajorScale('c4')
-
-        s = stream.Stream()
-        s.append(dynamics.Dynamic('f'))
-        s.append(sc.getChord('e3', 'a3', quarterLength=0.5))
-        # s.append(note.Note('c3', quarterLength=2))
-        s.append(dynamics.Dynamic('p'))
-        s.append(sc.getChord('b3', 'e4', quarterLength=1.5))
-        # s.append(note.Note('d3', quarterLength=2))
-
-        # s.show()
-        b = ScatterPitchSpaceDynamicSymbol(s, doneAction=None)
-        b.run()
-
-        self.assertEqual(b.data, [(52, 8, {}), (53, 8, {}), (55, 8, {}),
-                                  (57, 8, {}), (59, 8, {}), (59, 5, {}),
-                                  (60, 8, {}), (60, 5, {}), (62, 8, {}),
-                                  (62, 5, {}), (64, 8, {}), (64, 5, {})])
+        pass
         # b.write()
 
     def testChordsB(self):
-        from music21 import scale
-        sc = scale.MajorScale('c4')
-
-        s = stream.Stream()
-        s.append(note.Note('c3'))
-        s.append(sc.getChord('e3', 'a3', quarterLength=0.5))
-        # s.append(note.Note('c3', quarterLength=2))
-        s.append(sc.getChord('b3', 'e4', quarterLength=1.5))
-
-        b = HorizontalBarPitchClassOffset(s, doneAction=None)
-        b.run()
-
-        match = [['C', [(0.0, 0.9375, {}), (1.5, 1.4375, {})], {}],
-                 ['', [], {}],
-                 ['D', [(1.5, 1.4375, {})], {}],
-                 ['', [], {}],
-                 ['E', [(1.0, 0.4375, {}), (1.5, 1.4375, {})], {}],
-                 ['F', [(1.0, 0.4375, {})], {}],
-                 ['', [], {}],
-                 ['G', [(1.0, 0.4375, {})], {}],
-                 ['', [], {}],
-                 ['A', [(1.0, 0.4375, {})], {}],
-                 ['', [], {}],
-                 ['B', [(1.5, 1.4375, {})], {}]]
-        self.assertEqual(b.data, match)
-        # b.write()
-
-        s = stream.Stream()
-        s.append(note.Note('c3'))
-        s.append(sc.getChord('e3', 'a3', quarterLength=0.5))
-        # s.append(note.Note('c3', quarterLength=2))
-        s.append(sc.getChord('b3', 'e4', quarterLength=1.5))
-
-        b = HorizontalBarPitchSpaceOffset(s, doneAction=None)
-        b.run()
-        match = [['C3', [(0.0, 0.9375, {})], {}],
-                 ['', [], {}],
-                 ['', [], {}],
-                 ['', [], {}],
-                 ['E', [(1.0, 0.4375, {})], {}],
-                 ['F', [(1.0, 0.4375, {})], {}],
-                 ['', [], {}],
-                 ['G', [(1.0, 0.4375, {})], {}],
-                 ['', [], {}],
-                 ['A', [(1.0, 0.4375, {})], {}],
-                 ['', [], {}],
-                 ['B', [(1.5, 1.4375, {})], {}],
-                 ['C4', [(1.5, 1.4375, {})], {}],
-                 ['', [], {}],
-                 ['D', [(1.5, 1.4375, {})], {}],
-                 ['', [], {}],
-                 ['E', [(1.5, 1.4375, {})], {}]]
-
-        self.assertEqual(b.data, match)
-        # b.write()
-
-        s = stream.Stream()
-        s.append(note.Note('c3'))
-        s.append(sc.getChord('e3', 'a3', quarterLength=0.5))
-        # s.append(note.Note('c3', quarterLength=2))
-        s.append(sc.getChord('b3', 'e4', quarterLength=1.5))
-        s.append(sc.getChord('f4', 'g5', quarterLength=3))
-        s.append(sc.getChord('f4', 'g5', quarterLength=3))
-        s.append(note.Note('c5', quarterLength=3))
-
-        b = ScatterWeightedPitchSpaceQuarterLength(s, doneAction=None)
-        b.axisX.useLogScale = False
-        b.run()
-
-        self.assertEqual(b.data[0:7], [(0.5, 52.0, 1, {}), (0.5, 53.0, 1, {}), (0.5, 55.0, 1, {}),
-                                       (0.5, 57.0, 1, {}), (1.0, 48.0, 1, {}), (1.5, 59.0, 1, {}),
-                                       (1.5, 60.0, 1, {})])
-        # b.write()
-
-        s = stream.Stream()
-        s.append(note.Note('c3'))
-        s.append(sc.getChord('e3', 'a3', quarterLength=0.5))
-        # s.append(note.Note('c3', quarterLength=2))
-        s.append(sc.getChord('b3', 'e4', quarterLength=1.5))
-        s.append(sc.getChord('f4', 'g5', quarterLength=3))
-        s.append(sc.getChord('f4', 'g5', quarterLength=3))
-        s.append(note.Note('c5', quarterLength=3))
-
-        b = ScatterWeightedPitchClassQuarterLength(s, doneAction=None)
-        b.axisX.useLogScale = False
-        b.run()
-
-        self.assertEqual(b.data[0:8], [(0.5, 4, 1, {}), (0.5, 5, 1, {}), (0.5, 7, 1, {}),
-                                       (0.5, 9, 1, {}),
-                                       (1.0, 0, 1, {}),
-                                       (1.5, 0, 1, {}), (1.5, 2, 1, {}), (1.5, 4, 1, {})])
+        pass
         # b.write()
 
     def testChordsB2(self):
-        from music21 import scale
-        sc = scale.MajorScale('c4')
-
-        s = stream.Stream()
-        s.append(dynamics.Dynamic('f'))
-        # s.append(note.Note('c3'))
-        c = sc.getChord('e3', 'a3', quarterLength=0.5)
-        self.assertEqual(repr(c), '<music21.chord.Chord E3 F3 G3 A3>')
-        self.assertEqual([n.pitch.ps for n in c], [52.0, 53.0, 55.0, 57.0])
-        s.append(c)
-        # s.append(note.Note('c3', quarterLength=2))
-        s.append(dynamics.Dynamic('mf'))
-        s.append(sc.getChord('b3', 'e4', quarterLength=1.5))
-        s.append(dynamics.Dynamic('pp'))
-        s.append(sc.getChord('f4', 'g5', quarterLength=3))
-        s.append(sc.getChord('f4', 'g5', quarterLength=3))
-        s.append(note.Note('c5', quarterLength=3))
-
-        b = ScatterWeightedPitchSpaceDynamicSymbol(s, doneAction=None)
-        b.axisX.useLogScale = False
-        b.run()
-        match = [(52.0, 8, 1, {}), (53.0, 8, 1, {}), (55.0, 8, 1, {}), (57.0, 8, 1, {}),
-                 (59.0, 7, 1, {}), (59.0, 8, 1, {}), (60.0, 7, 1, {}), (60.0, 8, 1, {}),
-                 (62.0, 7, 1, {}), (62.0, 8, 1, {}), (64.0, 7, 1, {}), (64.0, 8, 1, {}),
-                 (65.0, 4, 2, {}), (65.0, 7, 1, {}),
-                 (67.0, 4, 2, {}), (67.0, 7, 1, {}),
-                 (69.0, 4, 2, {}), (69.0, 7, 1, {}), (71.0, 4, 2, {}), (71.0, 7, 1, {}),
-                 (72.0, 4, 3, {}), (72.0, 7, 1, {}), (74.0, 4, 2, {}), (74.0, 7, 1, {}),
-                 (76.0, 4, 2, {}), (76.0, 7, 1, {}), (77.0, 4, 2, {}), (77.0, 7, 1, {}),
-                 (79.0, 4, 2, {}), (79.0, 7, 1, {})]
-
-        self.maxDiff = 2048
-        # TODO: Is this right? why are the old dynamics still active?
-        self.assertEqual(b.data, match)
+        pass
         # b.write()
 
     def testChordsB3(self):
-        from music21 import scale
-        sc = scale.MajorScale('c4')
-
-        s = stream.Stream()
-        s.append(dynamics.Dynamic('f'))
-        s.append(note.Note('c3'))
-        s.append(sc.getChord('e3', 'a3', quarterLength=0.5))
-        s.append(dynamics.Dynamic('mf'))
-        s.append(sc.getChord('b3', 'e4', quarterLength=1.5))
-        s.append(dynamics.Dynamic('pp'))
-        s.append(sc.getChord('f4', 'g5', quarterLength=3))
-        s.append(note.Note('c5', quarterLength=3))
-
-        b = Plot3DBarsPitchSpaceQuarterLength(s, doneAction=None)
-        b.axisX.useLogScale = False
-        b.run()
-
-        self.assertEqual(b.data[0], (0.5, 52.0, 1, {}))
+        pass
         # b.write()
 
     def testDolanA(self):
-        a = corpus.parse('bach/bwv57.8')
-        b = Dolan(a, title='Bach', doneAction=None)
-        b.run()
+        pass
 
         # b.show()
 

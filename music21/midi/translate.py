@@ -866,11 +866,7 @@ def midiEventsToInstrument(
     *,
     encoding: str = 'utf-8',
 ) -> instrument.Instrument:
-    if not common.isListLike(eventList):
-        event = t.cast(MidiEvent, eventList)
-    else:  # get the second event; first is delta time
-        event = eventList[1]
-    return midiEventToInstrument(event, encoding=encoding)
+    pass
 
 
 def midiEventToInstrument(

@@ -176,7 +176,7 @@ class Rules(prebase.ProtoM21Object):
         self._partsToCheck = []
 
     def _reprInternal(self):
-        return ''
+        pass
 
 
 # ------------------------------------------------------------------------------

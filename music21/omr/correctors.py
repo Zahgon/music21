@@ -93,18 +93,14 @@ class ScoreCorrector:
         >>> ss.getAllHashes()
         [['Z[', 'Z['], ['PPPP', 'PPPP']]
         '''
-        allPartsHashes = []
-        for p in self.singleParts:
-            allPartsHashes.append(p.hashedNotes)
-        return allPartsHashes
+        pass
 
     def getSinglePart(self, pn):
         '''
         returns a NEW SinglePart object for part number pn from the score
 
         '''
-
-        return SinglePart(self.score.parts[pn], pn)
+        pass
 
     def runHorizontalCorrectionModel(self):
         '''
@@ -466,32 +462,7 @@ class SinglePart:
         []
 
         '''
-        from music21 import meter
-        self.incorrectMeasures = []
-
-        if runFast is True:
-            try:
-                m = self.measureStream[0]
-                ts = m.timeSignature or m.getContextByClass(meter.TimeSignature)
-            except IndexError:
-                ts = meter.TimeSignature('4/4')
-            if ts is None:
-                ts = meter.TimeSignature('4/4')
-        else:
-            ts = meter.TimeSignature('4/4')
-
-        for i in range(len(self.measureStream)):
-            if runFast is False:
-                m = self.measureStream[i]
-                ts = m.timeSignature or m.getContextByClass(meter.TimeSignature)
-            tsOmr = ts.barDuration.quarterLength
-            if self.measureStream[i].duration.quarterLength == tsOmr:
-                continue
-            else:
-                self.incorrectMeasures.append(i)
-                # note: these measures are 0 indexed - this differs from measure number
-
-        return self.incorrectMeasures
+        pass
         # This is an array of indices
 
     def getSequenceHashesFromMeasureStream(self):

@@ -102,7 +102,7 @@ class MeterTerminal(prebase.ProtoM21Object, SlottedObjectMixin):
         return new
 
     def _reprInternal(self):
-        return str(self)
+        pass
 
     def __str__(self):
         return str(int(self.numerator)) + '/' + str(int(self.denominator))
@@ -273,11 +273,11 @@ class MeterTerminal(prebase.ProtoM21Object, SlottedObjectMixin):
         >>> a.weight
         0.5
         '''
-        return self._weight
+        pass
 
     @weight.setter
     def weight(self, value: float|int):
-        self._weight = value
+        pass
 
     @property
     def numerator(self) -> int:
@@ -293,12 +293,11 @@ class MeterTerminal(prebase.ProtoM21Object, SlottedObjectMixin):
         >>> a.duration.quarterLength
         11.0
         '''
-        return self._numerator
+        pass
 
     @numerator.setter
     def numerator(self, value: int):
-        self._numerator = value
-        self._ratioChanged()
+        pass
 
     @property
     def denominator(self) -> int:
@@ -318,15 +317,12 @@ class MeterTerminal(prebase.ProtoM21Object, SlottedObjectMixin):
         Traceback (most recent call last):
         music21.exceptions21.MeterException: bad denominator value: 7
         '''
-        return self._denominator
+        pass
 
     @denominator.setter
     def denominator(self, value: int):
         # use duration.typeFromNumDict?
-        if value not in tools.validDenominatorsSet:
-            raise MeterException(f'bad denominator value: {value}')
-        self._denominator = value
-        self._ratioChanged()
+        pass
 
     def _ratioChanged(self):
         '''
@@ -380,7 +376,7 @@ class MeterTerminal(prebase.ProtoM21Object, SlottedObjectMixin):
         '''
         Return how many levels deep this part is -- the depth of a terminal is always 1
         '''
-        return 1
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -554,10 +550,7 @@ class MeterSequence(MeterTerminal):
         >>> a.partitionDisplay
         '1/4+1/4+1/4+1/4'
         '''
-        msg = []
-        for mt in self._partition:
-            msg.append(str(mt))
-        return '+'.join(msg)
+        pass
 
     # -------------------------------------------------------------------------
 
@@ -1182,16 +1175,7 @@ class MeterSequence(MeterTerminal):
         >>> ms.partitionStr
         'Single'
         '''
-        count = len(self)
-        countName = ('Empty',  # should not happen
-                     'Single',
-                     'Duple', 'Triple', 'Quadruple', 'Quintuple',
-                     'Sextuple', 'Septuple', 'Octuple')
-
-        if count < len(countName):
-            return countName[count]
-        else:
-            return str(count) + '-uple'
+        pass
 
     # --------------------------------------------------------------------------
     # loading is always destructive
@@ -1358,30 +1342,12 @@ class MeterSequence(MeterTerminal):
         Thus, we cannot use numerator/denominator relationship
         as a scalar.
         '''
-        summation = 0.0
-        for obj in self._partition:
-            summation += obj.weight  # may be a MeterTerminal or MeterSequence
-        return summation
+        pass
 
     @weight.setter
     def weight(self, value: int | float) -> None:
         # environLocal.printDebug(['calling setWeight with value', value])
-        if not common.isNum(value):
-            raise MeterException('weight values must be numbers')
-
-        try:
-            totalRatio = self._numerator / self._denominator
-        except TypeError as te:
-            raise MeterException(
-                'Something wrong with the type of '
-                f'this numerator {self._numerator} {type(self._numerator)} '
-                f'or this denominator {self._denominator} {type(self._denominator)}'
-            ) from te
-
-        for mt in self._partition:
-            # for mt in self:
-            partRatio = mt._numerator / mt._denominator
-            mt.weight = value * (partRatio / totalRatio)
+        pass
             # mt.weight = (partRatio/totalRatio) #* totalRatio
             # environLocal.printDebug(['setting weight based on part, total, weight',
             #    partRatio, totalRatio, mt.weight])
@@ -1484,10 +1450,7 @@ class MeterSequence(MeterTerminal):
         '''
         Return a list of flat weight values
         '''
-        post = []
-        for mt in self._getFlatList():
-            post.append(mt.weight)
-        return post
+        pass
 
     @property
     def depth(self):
@@ -1495,17 +1458,7 @@ class MeterSequence(MeterTerminal):
         Return how many unique levels deep this part is
         This should be optimized to store values unless the structure has changed.
         '''
-        depth = 0  # start with 0, will count this level
-
-        lastMatch = None
-        while True:
-            test = self.getLevelList(depth)
-            if test != lastMatch:
-                depth += 1
-                lastMatch = test
-            else:
-                break
-        return depth
+        pass
 
     def isUniformPartition(self, *, depth=0):
         # noinspection PyShadowingNames
@@ -1773,10 +1726,7 @@ class MeterSequence(MeterTerminal):
         >>> b.getLevelWeight(2)
         [0.25, 0.125, 0.125, 0.25, 0.0625, 0.0625, 0.125]
         '''
-        post = []
-        for mt in self.getLevelList(level):
-            post.append(mt.weight)
-        return post
+        pass
 
     def setLevelWeight(self, weightList, level=0):
         '''
@@ -1808,10 +1758,7 @@ class MeterSequence(MeterTerminal):
         >>> b.getLevelWeight(2)
         [2, 1.5, 1.5, 2, 0.75, 0.75, 1.5]
         '''
-        levelObjs = self.getLevelList(level)
-        for i in range(len(levelObjs)):
-            mt = levelObjs[i]
-            mt.weight = weightList[i % len(weightList)]
+        pass
 
     # --------------------------------------------------------------------------
     # given a quarter note position, return the active index
@@ -1906,36 +1853,7 @@ class MeterSequence(MeterTerminal):
         >>> a.offsetToAddress(2.5)
         [2]
         '''
-        if qLenPos >= self.duration.quarterLength or qLenPos < 0:
-            raise MeterException(f'cannot access from qLenPos {qLenPos}')
-
-        start = 0
-        qPos = 0
-        match = []
-        i = None
-        for i in range(len(self)):
-            start = qPos
-            end = qPos + self[i].duration.quarterLength
-            # if adjoining ends are permitted, first match is found
-            if includeCoincidentBoundaries:
-                if start <= qLenPos <= end:
-                    match.append(i)
-                    break
-            else:
-                if start <= qLenPos < end:
-                    match.append(i)
-                    break
-            qPos += self[i].duration.quarterLength
-
-        if i is not None and isinstance(self[i], MeterSequence):  # recurse
-            # qLenPosition needs to be relative to this subdivision
-            # start is our current position that this subdivision
-            # starts at
-            qLenPosShift = qLenPos - start
-            match += self[i].offsetToAddress(qLenPosShift,
-                                             includeCoincidentBoundaries)
-
-        return match
+        pass
 
     def offsetToSpan(self, qLenPos, permitMeterModulus=False):
         '''
@@ -2004,15 +1922,7 @@ class MeterSequence(MeterTerminal):
         Fraction(1, 3)
 
         '''
-        # Not sure what this does!
-        qLenPos = opFrac(qLenPos)
-        if qLenPos >= self.duration.quarterLength or qLenPos < 0:
-            raise MeterException(
-                f'cannot access qLenPos {qLenPos} when total duration is '
-                f'{self.duration.quarterLength} and ts is {self}'
-            )
-        iMatch = self.offsetToIndex(qLenPos)
-        return opFrac(self[iMatch].weight)
+        pass
 
     def offsetToDepth(self, qLenPos, align='quantize', index: int|None = None):
         '''

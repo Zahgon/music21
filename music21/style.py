@@ -158,42 +158,17 @@ class Style(ProtoM21Object):
         * Changed in v9.7: We now differentiate between no enclosure
           (Enclosure.NO_ENCLOSURE) and unspecified enclosure (None).
         '''
-        return self._enclosure
+        pass
 
     @enclosure.setter
     def enclosure(self, value: Enclosure|str|None):
-        if value is None:
-            self._enclosure = value
-        elif isinstance(value, Enclosure):
-            self._enclosure = value
-        elif isinstance(value, str):
-            try:
-                enc_value = Enclosure(value.lower())
-            except ValueError as ve:
-                raise TextFormatException(f'Not a supported enclosure: {value!r}') from ve
-
-            self._enclosure = enc_value
-
-        else:
-            raise TextFormatException(f'Not a supported enclosure: {value!r}')
+        pass
 
     def _getAbsoluteY(self):
-        return self._absoluteY
+        pass
 
     def _setAbsoluteY(self, value):
-        if value is None:
-            self._absoluteY = None
-        elif value == 'above':  # TODO: convert to Enum and keep it
-            self._absoluteY = 10
-        elif value == 'below':
-            self._absoluteY = -70
-        else:
-            try:
-                self._absoluteY = common.numToIntOrFloat(value)
-            except ValueError as ve:
-                raise TextFormatException(
-                    f'Not a supported absoluteY position: {value!r}'
-                ) from ve
+        pass
 
     absoluteY = property(_getAbsoluteY,
                          _setAbsoluteY,
@@ -309,14 +284,11 @@ class TextStyle(Style):
         self._alignVertical = None
 
     def _getAlignVertical(self):
-        return self._alignVertical
+        pass
 
     def _setAlignVertical(self, value):
         # TODO: convert to StrEnum
-        if value in (None, 'top', 'middle', 'bottom', 'baseline'):
-            self._alignVertical = value
-        else:
-            raise TextFormatException(f'Invalid vertical align: {value!r}')
+        pass
 
     alignVertical = property(_getAlignVertical,
                              _setAlignVertical,
@@ -338,13 +310,10 @@ class TextStyle(Style):
         ''')
 
     def _getAlignHorizontal(self):
-        return self._alignHorizontal
+        pass
 
     def _setAlignHorizontal(self, value):
-        if value in (None, 'left', 'right', 'center'):
-            self._alignHorizontal = value
-        else:
-            raise TextFormatException(f'Invalid horizontal align: {value!r}')
+        pass
 
     alignHorizontal = property(_getAlignHorizontal,
                                _setAlignHorizontal,
@@ -384,16 +353,11 @@ class TextStyle(Style):
         music21.style.TextFormatException:
             Not a supported justification: 'hello'
         '''
-        return self._justify
+        pass
 
     @justify.setter
     def justify(self, value: str|None):
-        if value is None:
-            self._justify = None
-        else:
-            if value.lower() not in ('left', 'center', 'right', 'full'):
-                raise TextFormatException(f'Not a supported justification: {value!r}')
-            self._justify = value.lower()
+        pass
 
     @property
     def fontStyle(self) -> str|None:
@@ -413,27 +377,17 @@ class TextStyle(Style):
         music21.style.TextFormatException:
             Not a supported fontStyle: 'hello'
         '''
-        return self._fontStyle
+        pass
 
     @fontStyle.setter
     def fontStyle(self, value: str|None) -> None:
-        if value is None:
-            self._fontStyle = None
-        else:
-            if value.lower() not in ('italic', 'normal', 'bold', 'bolditalic'):
-                raise TextFormatException(f'Not a supported fontStyle: {value!r}')
-            self._fontStyle = value.lower()
+        pass
 
     def _getWeight(self):
-        return self._fontWeight
+        pass
 
     def _setWeight(self, value):
-        if value is None:
-            self._fontWeight = None
-        else:
-            if value.lower() not in ('normal', 'bold'):
-                raise TextFormatException(f'Not a supported fontWeight: {value}')
-            self._fontWeight = value.lower()
+        pass
 
     # TODO: figure out if we want to use fontStyle for all weights.
 
@@ -449,16 +403,10 @@ class TextStyle(Style):
         ''')
 
     def _getSize(self):
-        return self._fontSize
+        pass
 
     def _setSize(self, value):
-        if value is not None:
-            try:
-                value = common.numToIntOrFloat(value)
-            except ValueError:
-                pass  # MusicXML font sizes can be CSS strings.
-                # raise TextFormatException(f'Not a supported size: {value}')
-        self._fontSize = value
+        pass
 
     fontSize = property(_getSize,
                         _setSize,
@@ -472,19 +420,10 @@ class TextStyle(Style):
         ''')
 
     def _getLetterSpacing(self):
-        return self._letterSpacing
+        pass
 
     def _setLetterSpacing(self, value):
-        if value != 'normal' and value is not None:
-            # convert to number
-            try:
-                value = float(value)
-            except ValueError as ve:
-                raise TextFormatException(
-                    f'Not a supported letterSpacing: {value!r}'
-                ) from ve
-
-        self._letterSpacing = value
+        pass
 
     letterSpacing = property(_getLetterSpacing,
                              _setLetterSpacing,
@@ -521,16 +460,11 @@ class TextStyle(Style):
         >>> ts.fontFamily
         ['Helvetica', 'sans-serif']
         '''
-        if self._fontFamily is None:
-            self._fontFamily = []
-        return self._fontFamily
+        pass
 
     @fontFamily.setter
     def fontFamily(self, newFamily):
-        if common.isIterable(newFamily):
-            self._fontFamily = newFamily
-        else:
-            self._fontFamily = [f.strip() for f in newFamily.split(',')]
+        pass
 
 
 class TextStylePlacement(TextStyle):
@@ -653,9 +587,7 @@ class StyleMixin(common.SlottedObjectMixin):
         >>> lObj.hasStyleInformation
         True
         '''
-        if not hasattr(self, '_style'):
-            return False
-        return self._style is not None
+        pass
 
     @property
     def style(self) -> Style:
@@ -709,7 +641,7 @@ class StyleMixin(common.SlottedObjectMixin):
         >>> acc.hasEditorialInformation
         True
         '''
-        return self._editorial is not None
+        pass
 
     @property
     def editorial(self) -> editorial.Editorial:

@@ -54,14 +54,7 @@ def whitespaceEqual(a: str, b: str) -> bool:
     >>> common.whitespaceEqual(a, c)
     False
     '''
-    a = WHITESPACE.sub('', a)
-    b = WHITESPACE.sub('', b)
-    a = LINEFEED.sub('', a)
-    b = LINEFEED.sub('', b)
-    if a == b:
-        return True
-    else:
-        return False
+    pass
 
 
 def getNumFromStr(usrStr: str, numbers: str = '0123456789') -> tuple[str, str]:
@@ -154,12 +147,7 @@ def camelCaseToHyphen(usrStr: str, replacement: str = '-') -> str:
     Traceback (most recent call last):
     ValueError: Replacement cannot be an uppercase character.
     '''
-    if len(replacement) != 1:
-        raise ValueError('Replacement must be a single character.')
-    if replacement.lower() != replacement:
-        raise ValueError('Replacement cannot be an uppercase character.')
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1' + replacement + r'\2', usrStr)
-    return re.sub('([a-z0-9])([A-Z])', r'\1' + replacement + r'\2', s1).lower()
+    pass
 
 
 def spaceCamelCase(usrStr: str, replaceUnderscore=True, fixMeList=None) -> str:
@@ -192,55 +180,7 @@ def spaceCamelCase(usrStr: str, replaceUnderscore=True, fixMeList=None) -> str:
     >>> common.spaceCamelCase('hello_myke', replaceUnderscore=False)
     'hello_myke'
     '''
-    numbers = '0123456789.'
-    firstNum = False
-    firstChar = False
-    isNumber = False
-    lastIsNum = False
-    post: list[str] = []
-
-    # do not split these
-    if fixMeList is None:
-        fixupList = ('PMFC',)
-    else:
-        fixupList = fixMeList
-
-    for char in usrStr:
-        if char in numbers:
-            isNumber = True
-        else:
-            isNumber = False
-
-        if isNumber and not firstNum and not lastIsNum:
-            firstNum = True
-        else:
-            firstNum = False
-
-        # for chars
-        if not isNumber and not firstChar and lastIsNum:
-            firstChar = True
-        else:
-            firstChar = False
-
-        if post:
-            if char.isupper() or firstNum or firstChar:
-                post.append(' ')
-            post.append(char)
-        else:  # first character
-            post.append(char)
-
-        if isNumber:
-            lastIsNum = True
-        else:
-            lastIsNum = False
-    postStr = ''.join(post)
-    for fixMe in fixupList:
-        fixMeSpaced = ' '.join(fixMe)
-        postStr = postStr.replace(fixMeSpaced, fixMe)
-
-    if replaceUnderscore:
-        postStr = postStr.replace('_', ' ')
-    return postStr
+    pass
 
 
 def getMd5(value=None) -> str:
@@ -340,19 +280,7 @@ def normalizeFilename(name: str) -> str:
     >>> common.normalizeFilename('03-Niccolò all’lessandra.not really.xml')
     '03-Niccolo_all_lessandra_not_really.xml'
     '''
-    extension = None
-    lenName = len(name)
-
-    if lenName > 5 and name[-4] == '.':
-        extension = str(name[lenName - 4:])
-        name = name[:lenName - 4]
-
-    name = stripAccents(name)
-    name = name.encode('ascii', 'ignore').decode('UTF-8')
-    name = re.sub(r'[^\w-]', '_', name).strip()
-    if extension is not None:
-        name += extension
-    return name
+    pass
 
 
 def removePunctuation(s: str) -> str:

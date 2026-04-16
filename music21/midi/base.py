@@ -533,49 +533,10 @@ class MidiEvent(prebase.ProtoM21Object):
          <music21.midi.MidiEvent PITCH_BEND, track=None, channel=1>,
          <music21.midi.MidiEvent NOTE_ON, track=None, channel=1>]
         '''
-        # update based on type; type may be set after init
-        if self.type == ChannelVoiceMessages.NOTE_OFF:  # should come before pitch bend
-            return -20
-        elif self.type == ChannelVoiceMessages.PITCH_BEND:  # go before note events
-            return -10
-        else:
-            return 0
+        pass
 
     def _reprInternal(self) -> str:
-        trackIndex: int|None
-        if self.track is None:
-            trackIndex = None
-        elif isinstance(self.track, int):  # should not happen anymore
-            trackIndex = self.track
-        else:
-            trackIndex = self.track.index
-
-        printType: str
-        if isinstance(self.type, ContainsEnum):
-            printType = self.type.name
-        elif self.type is None:
-            printType = 'None'
-        else:  # should not happen anymore
-            printType = repr(self.type)
-
-        r = f'{printType}, '
-        if self.time != 0:
-            r += f't={self.time!r}, '
-        r += f'track={trackIndex}'
-        if self.isChannelEvent():
-            r += f', channel={self.channel!r}'
-        if self.type in (ChannelVoiceMessages.NOTE_ON, ChannelVoiceMessages.NOTE_OFF):
-            attrList = ['pitch', 'velocity']
-        else:
-            if self.parameter2 is None:
-                attrList = ['data']
-            else:
-                attrList = ['parameter1', 'parameter2']
-
-        for attrib in attrList:
-            if getattr(self, attrib) is not None:
-                r = r + ', ' + attrib + '=' + repr(getattr(self, attrib))
-        return r
+        pass
 
     # provide parameter access to pitch and velocity
     @property
@@ -593,13 +554,11 @@ class MidiEvent(prebase.ProtoM21Object):
 
     @property
     def velocity(self) -> int|None:
-        if not isinstance(self.parameter2, int):
-            return None
-        return self.parameter2
+        pass
 
     @velocity.setter
     def velocity(self, value: int|None):
-        self.parameter2 = value
+        pass
 
     # store generic data in parameter 1
     @property
@@ -614,16 +573,11 @@ class MidiEvent(prebase.ProtoM21Object):
         >>> me.data
         b'\x01'
         '''
-        return self.parameter1
+        pass
 
     @data.setter
     def data(self, value: int|str|bytes|bool|None):
-        if value is not None and not isinstance(value, bytes):
-            if isinstance(value, str):
-                value = value.encode('utf-8')
-            elif isinstance(value, bool):
-                value = bytes([int(value)])
-        self.parameter1 = value
+        pass
 
     def isChannelEvent(self) -> bool:
         '''
@@ -636,7 +590,7 @@ class MidiEvent(prebase.ProtoM21Object):
         >>> dt.isChannelEvent()
         False
         '''
-        return self.type in ChannelVoiceMessages or self.type in ChannelModeMessages
+        pass
 
     def setPitchBend(self, cents: int|float, bendRange=2) -> None:
         '''
@@ -1214,10 +1168,7 @@ class MidiEvent(prebase.ProtoM21Object):
         Note that this method is no longer used in MIDI Parsing
         because it is inefficient.
         '''
-        if self.isNoteOn() and other.isNoteOff():
-            if self.pitch == other.pitch and self.channel == other.channel:
-                return True
-        return False
+        pass
 
 
 class DeltaTime(MidiEvent):
@@ -1253,17 +1204,13 @@ class DeltaTime(MidiEvent):
         self.type = 'DeltaTime'
 
     def _reprInternal(self) -> str:
-        rep = super()._reprInternal()
-        rep = rep.replace("'DeltaTime', ", '')
-        if self.time == 0:
-            rep = '(empty) ' + rep
-        return rep
+        pass
 
     def isChannelEvent(self) -> bool:
         '''
         Save processing time -- is always False
         '''
-        return False
+        pass
 
     def readUntilLowByte(self, oldBytes: bytes) -> tuple[int, bytes]:
         r'''
@@ -1405,7 +1352,7 @@ class MidiTrack(prebase.ProtoM21Object):
 
     @property
     def length(self) -> int:
-        return len(self.data)
+        pass
 
     def read(self, midiBytes: bytes) -> bytes:
         '''
@@ -1555,8 +1502,7 @@ class MidiTrack(prebase.ProtoM21Object):
         return self.headerId + putNumber(len(bytes_out), 4) + bytes_out
 
     def _reprInternal(self):
-        r = f'{self.index} -- {len(self.events)} events'
-        return r
+        pass
 
     # --------------------------------------------------------------------------
     def updateEvents(self) -> None:
@@ -1617,10 +1563,7 @@ class MidiTrack(prebase.ProtoM21Object):
         Traceback (most recent call last):
         music21.midi.base.MidiException: bad channel value: 22
         '''
-        if value not in range(1, 17):  # count from 1
-            raise MidiException(f'bad channel value: {value}')
-        for e in self.events:
-            e.channel = value
+        pass
 
     def getChannels(self) -> list[int]:
         '''
@@ -1638,11 +1581,7 @@ class MidiTrack(prebase.ProtoM21Object):
         >>> mt.getChannels()
         [5, 14]
         '''
-        post: set[int] = set()
-        for e in self.events:
-            if e.isChannelEvent():
-                post.add(e.channel)
-        return sorted(post)
+        pass
 
     def getProgramChanges(self) -> list[int]:
         '''
@@ -1659,13 +1598,7 @@ class MidiTrack(prebase.ProtoM21Object):
         >>> mt.getProgramChanges()
         [14, 1]
         '''
-        post: list[int] = []
-        for e in self.events:
-            if (e.type == ChannelVoiceMessages.PROGRAM_CHANGE
-                    and isinstance(e.data, int)
-                    and e.data not in post):  # O(127) = O(1), faster than a set lookup + append
-                post.append(e.data)
-        return post
+        pass
 
 
 class MidiFile(prebase.ProtoM21Object):
@@ -1723,10 +1656,7 @@ class MidiFile(prebase.ProtoM21Object):
 
         For writing to a MIDI file, `attrib` should be "wb".
         '''
-        if attrib not in ['rb', 'wb']:
-            raise MidiException('cannot read or write unless in binary mode, not:', attrib)
-        # pylint: disable-next=consider-using-with, unspecified-encoding
-        self.file = t.cast(t.BinaryIO, open(filename, attrib))
+        pass
 
     def openFileLike(self, fileLike: t.BinaryIO) -> None:
         '''
@@ -1738,12 +1668,10 @@ class MidiFile(prebase.ProtoM21Object):
         >>> mf.openFileLike(fileLikeOpen)
         >>> mf.close()
         '''
-        self.file = fileLike
+        pass
 
     def _reprInternal(self) -> str:
-        lenTracks = len(self.tracks)
-        plural = 's' if lenTracks != 1 else ''
-        return f'{lenTracks} track{plural}'
+        pass
 
     def close(self) -> None:
         '''

@@ -247,12 +247,7 @@ class MetadataCachingJob:
 
     @property
     def cleanFilePath(self):
-        corpusPath = common.getCorpusFilePath()
-        try:
-            cleanFilePath = self.filePath.relative_to(corpusPath)
-        except ValueError:
-            cleanFilePath = self.filePath
-        return cleanFilePath
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -318,42 +313,7 @@ class JobProcessor:
         jobs is a list of :class:`~music21.metadata.MetadataCachingJob` objects.
 
         '''
-        processCount = processCount or common.cpus()
-        processCount = max(processCount, 1)
-        # do not start more processes than jobs
-        remainingJobs = len(jobs)
-        processCount = min(processCount, remainingJobs)
-
-        environLocal.printDebug(
-            f'Processing {remainingJobs} jobs in parallel, with {processCount} processes.')
-        results = []
-        job_queue = multiprocessing.JoinableQueue()
-        result_queue = multiprocessing.Queue()
-        workers = [WorkerProcess(job_queue, result_queue)
-                   for _ in range(processCount)]
-        for worker in workers:
-            worker.start()
-        if jobs:
-            for job in jobs:
-                job_queue.put(pickle.dumps(job))  # do not use highest protocol to generate.
-            for unused_jobCounter in range(len(jobs)):
-                job = pickle.loads(result_queue.get())
-                results = job.getResults()
-                errors = job.getErrors()
-                remainingJobs -= 1
-                yield {
-                    'metadataEntries': results,
-                    'errors': errors,
-                    'filePath': job.filePath,
-                    'remainingJobs': remainingJobs,
-                }
-        for _worker in workers:
-            job_queue.put(None)
-        job_queue.join()
-        result_queue.close()
-        job_queue.close()
-        for worker in workers:
-            worker.join()
+        pass
         # end generator
 
     @staticmethod
@@ -361,16 +321,7 @@ class JobProcessor:
         '''
         Process jobs serially.
         '''
-        remainingJobs = len(jobs)
-        for job in jobs:
-            results, errors = job.run()
-            remainingJobs -= 1
-            yield {
-                'metadataEntries': results,
-                'errors': errors,
-                'filePath': job.filePath,
-                'remainingJobs': remainingJobs,
-            }
+        pass
         # end generator
 
 

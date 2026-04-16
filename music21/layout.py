@@ -120,7 +120,7 @@ class LayoutBase(base.Music21Object):
     classSortOrder = -10
 
     def _reprInternal(self):
-        return ''
+        pass
 
 # ------------------------------------------------------------------------------
 
@@ -195,10 +195,7 @@ class ScoreLayout(LayoutBase):
         >>> sl.tenthsToMillimeters(17)
         3.4
         '''
-        if self.scalingMillimeters is None or self.scalingTenths is None:
-            return 0.0
-        millimetersPerTenth = self.scalingMillimeters / self.scalingTenths
-        return round(millimetersPerTenth * tenths, 6)
+        pass
 
 
 # ------------------------------------------------------------------------------
@@ -380,8 +377,7 @@ class StaffLayout(LayoutBase):
         self.staffType: StaffType = staffType
 
     def _reprInternal(self):
-        return (f'distance {self.distance!r}, staffNumber {self.staffNumber!r}, '
-                f'staffSize {self.staffSize!r}, staffLines {self.staffLines!r}')
+        pass
 
 # ------------------------------------------------------------------------------
 
@@ -447,19 +443,10 @@ class StaffGroup(spanner.Spanner):
     # --------------------------------------------------------------------------
 
     def _getBarTogether(self) -> t.Literal[True, False, None, 'Mensurstrich']:
-        return self._barTogether
+        pass
 
     def _setBarTogether(self, value: t.Literal[True, False, None, 'Mensurstrich', 'yes', 'no']):
-        if value is None:
-            pass  # do nothing for now; could set a default
-        elif value in ['yes', True]:
-            self._barTogether = True
-        elif value in ['no', False]:
-            self._barTogether = False
-        elif isinstance(value, str) and value.lower() == 'mensurstrich':
-            self._barTogether = 'Mensurstrich'
-        else:
-            raise StaffGroupException(f'the bar together value {value} is not acceptable')
+        pass
 
     barTogether = property(_getBarTogether, _setBarTogether, doc='''
         Get or set the barTogether value, with either Boolean values
@@ -478,15 +465,10 @@ class StaffGroup(spanner.Spanner):
         ''')
 
     def _getSymbol(self) -> t.Literal['bracket', 'line', 'brace', 'square']|None:
-        return self._symbol
+        pass
 
     def _setSymbol(self, value: t.Literal['bracket', 'line', 'brace', 'square']|None):
-        if value is None or str(value).lower() == 'none':
-            self._symbol = None
-        elif value.lower() in ['brace', 'line', 'bracket', 'square']:
-            self._symbol = t.cast(t.Literal['bracket', 'line', 'brace', 'square'], value.lower())
-        else:
-            raise StaffGroupException(f'the symbol value {value} is not acceptable')
+        pass
 
     symbol = property(_getSymbol, _setSymbol, doc='''
         Get or set the symbol value, with either Boolean values or yes or no strings.
@@ -581,131 +563,15 @@ def divideByPages(
     >>> isinstance(secondStaff, stream.Part)
     True
     '''
-    def getRichSystemLayout(inner_allSystemLayouts):
-        '''
-        If there are multiple systemLayouts in an iterable (list or StreamIterator),
-        make a copy of the first one and get information from each successive one into
-        a rich system layout.
-        '''
-        richestSystemLayout = copy.deepcopy(inner_allSystemLayouts[0])
-        for sl in inner_allSystemLayouts[1:]:
-            for attribute in ('distance', 'topDistance', 'leftMargin', 'rightMargin'):
-                if (getattr(richestSystemLayout, attribute) is None
-                        and getattr(sl, attribute) is not None):
-                    setattr(richestSystemLayout, attribute, getattr(sl, attribute))
-        return richestSystemLayout
-
-    pageMeasureTuples = getPageRegionMeasureNumbers(scoreIn)
-    systemMeasureTuples = getSystemRegionMeasureNumbers(scoreIn)
-    firstMeasureNumber = pageMeasureTuples[0][0]
-    lastMeasureNumber = pageMeasureTuples[-1][1]
-
-    scoreLists = LayoutScore()
-    scoreLists.definesExplicitPageBreaks = True
-    scoreLists.definesExplicitSystemBreaks = True
-    scoreLists.measureStart = firstMeasureNumber
-    scoreLists.measureEnd = lastMeasureNumber
-    for el in scoreIn:
-        if not isinstance(el, stream.Part):
-            if 'ScoreLayout' in el.classes:
-                scoreLists.scoreLayout = el
-            scoreLists.insert(scoreIn.elementOffset(el), el)
-
-    pageNumber = 0
-    systemNumber = 0
-    scoreStaffNumber = 0
-
-    for pageStartM, pageEndM in pageMeasureTuples:
-        pageNumber += 1
-        if printUpdates is True:
-            print('updating page', pageNumber)
-        thisPage = Page()
-        thisPage.measureStart = pageStartM
-        thisPage.measureEnd = pageEndM
-        thisPage.pageNumber = pageNumber
-        if fastMeasures is True:
-            thisPageAll = scoreIn.measures(pageStartM, pageEndM,
-                                           collect=[],
-                                           gatherSpanners=GatherSpanners.NONE)
-        else:
-            thisPageAll = scoreIn.measures(pageStartM, pageEndM)
-        thisPage.systemStart = systemNumber + 1
-        for el in thisPageAll:
-            if not isinstance(el.classes and 'StaffGroup' not in el, stream.Part):
-                thisPage.insert(thisPageAll.elementOffset(el), el)
-        firstMeasureOfFirstPart = thisPageAll.parts.first().getElementsByClass(
-            stream.Measure).first()
-        for el in firstMeasureOfFirstPart:
-            if 'PageLayout' in el.classes:
-                thisPage.pageLayout = el
-
-        pageSystemNumber = 0
-        for systemStartM, systemEndM in systemMeasureTuples:
-            if systemStartM < pageStartM or systemEndM > pageEndM:
-                continue
-            systemNumber += 1  # global, not on this page
-            pageSystemNumber += 1
-            if fastMeasures is True:
-                measureStacks = scoreIn.measures(systemStartM, systemEndM,
-                                                 collect=[],
-                                                 gatherSpanners=GatherSpanners.NONE)
-            else:
-                measureStacks = scoreIn.measures(systemStartM, systemEndM)
-            thisSystem = System()
-            thisSystem.systemNumber = systemNumber
-            thisSystem.pageNumber = pageNumber
-            thisSystem.pageSystemNumber = pageSystemNumber
-            thisSystem.mergeAttributes(measureStacks)
-            thisSystem.elements = measureStacks
-            thisSystem.measureStart = systemStartM
-            thisSystem.measureEnd = systemEndM
-
-            systemStaffNumber = 0
-
-            for p in list(thisSystem.parts):
-                scoreStaffNumber += 1
-                systemStaffNumber += 1
-
-                staffObject = Staff()
-                staffObject.mergeAttributes(p)
-                staffObject.scoreStaffNumber = scoreStaffNumber
-                staffObject.staffNumber = systemStaffNumber
-                staffObject.pageNumber = pageNumber
-                staffObject.pageSystemNumber = pageSystemNumber
-
-                # until getters/setters can have different types
-                staffObject.elements = p  # type: ignore
-                thisSystem.replace(p, staffObject)
-                allStaffLayouts: list[StaffLayout] = list(p[StaffLayout])
-                if not allStaffLayouts:
-                    continue
-                # else:
-                staffObject.staffLayout = allStaffLayouts[0]
-                # if len(allStaffLayouts) > 1:
-                #    print('Got many staffLayouts')
-
-            allSystemLayouts = thisSystem[SystemLayout]
-            if len(allSystemLayouts) >= 2:
-                thisSystem.systemLayout = getRichSystemLayout(list(allSystemLayouts))
-            elif len(allSystemLayouts) == 1:
-                thisSystem.systemLayout = allSystemLayouts[0]
-            else:
-                thisSystem.systemLayout = None
-
-            thisPage.coreAppend(thisSystem)
-        thisPage.systemEnd = systemNumber
-        thisPage.coreElementsChanged()
-        scoreLists.coreAppend(thisPage)
-    scoreLists.coreElementsChanged()
-    return scoreLists
+    pass
 
 
 def getPageRegionMeasureNumbers(scoreIn):
-    return getRegionMeasureNumbers(scoreIn, 'Page')
+    pass
 
 
 def getSystemRegionMeasureNumbers(scoreIn):
-    return getRegionMeasureNumbers(scoreIn, 'System')
+    pass
 
 
 def getRegionMeasureNumbers(scoreIn, region='Page'):
@@ -714,33 +580,7 @@ def getRegionMeasureNumbers(scoreIn, region='Page'):
     refers to the first measure on a page and whose second number
     is the last measure on the page.
     '''
-    if region == 'Page':
-        classesToReturn = ['PageLayout']
-    elif region == 'System':
-        classesToReturn = ['PageLayout', 'SystemLayout']
-    else:
-        raise ValueError('region must be one of Page or System')
-
-    firstPart = scoreIn.parts.first()
-    # first measure could be 1 or 0 (or something else)
-    allMeasures = firstPart.getElementsByClass(stream.Measure)
-    firstMeasureNumber = allMeasures.first().number
-    lastMeasureNumber = allMeasures.last().number
-    measureStartList = [firstMeasureNumber]
-    measureEndList = []
-    allAppropriateLayout = firstPart.flatten().getElementsByClass(classesToReturn)
-
-    for pl in allAppropriateLayout:
-        plMeasureNumber = pl.measureNumber
-        if pl.isNew is False:
-            continue
-        if plMeasureNumber not in measureStartList:
-            # in case of firstMeasureNumber or system and page layout at same time.
-            measureStartList.append(plMeasureNumber)
-            measureEndList.append(plMeasureNumber - 1)
-    measureEndList.append(lastMeasureNumber)
-    measureList = list(zip(measureStartList, measureEndList))
-    return measureList
+    pass
 
 
 class LayoutScore(stream.Opus):
@@ -763,7 +603,7 @@ class LayoutScore(stream.Opus):
 
     @property
     def pages(self):
-        return self.getElementsByClass(Page)
+        pass
 
     def show(self, fmt=None, app=None, **keywords):
         '''
@@ -792,40 +632,7 @@ class LayoutScore(stream.Opus):
         >>> l.getPageAndSystemNumberFromMeasureNumber(80)
         (3, 3)
         '''
-        if 'pageAndSystemNumberFromMeasureNumbers' not in self._cache:
-            self._cache['pageAndSystemNumberFromMeasureNumbers'] = {}
-        dataCache = self._cache['pageAndSystemNumberFromMeasureNumbers']
-
-        if measureNumber in dataCache:
-            return dataCache[measureNumber]
-
-        foundPage = None
-        foundPageId = None
-
-        for pageId, thisPage in enumerate(self.pages):
-            if measureNumber < thisPage.measureStart or measureNumber > thisPage.measureEnd:
-                continue
-            foundPage = thisPage
-            foundPageId = pageId
-            break
-
-        if foundPage is None:
-            raise LayoutException('Cannot find this measure on any page!')
-
-        foundSystem = None
-        foundSystemId = None
-        for systemId, thisSystem in enumerate(foundPage.systems):
-            if measureNumber < thisSystem.measureStart or measureNumber > thisSystem.measureEnd:
-                continue
-            foundSystem = thisSystem
-            foundSystemId = systemId
-            break
-
-        if foundSystem is None:
-            raise LayoutException("that's strange, this measure was supposed to be on this page, "
-                                  + "but I couldn't find it anywhere!")
-        dataCache[measureNumber] = (foundPageId, foundSystemId)
-        return (foundPageId, foundSystemId)
+        pass
 
     def getMarginsAndSizeForPageId(self, pageId):
         '''
@@ -843,60 +650,7 @@ class LayoutScore(stream.Opus):
         >>> layout.PageSize(171.0, 204.0, 171.0, 171.0, 1457.0, 1886.0) #_DOCS_HIDE
         PageSize(top=171.0, left=204.0, right=171.0, bottom=171.0, width=1457.0, height=1886.0)
         '''
-        if 'marginsAndSizeForPageId' not in self._cache:
-            self._cache['marginsAndSizeForPageId'] = {}
-        dataCache = self._cache['marginsAndSizeForPageId']
-        if pageId in dataCache:
-            return dataCache[pageId]
-
-        # define defaults
-        pageMarginTop = 100
-        pageMarginLeft = 100
-        pageMarginRight = 100
-        pageMarginBottom = 100
-        pageWidth = 850
-        pageHeight = 1100
-
-        thisPage = self.pages[pageId]
-
-        # override defaults with scoreLayout
-        if self.scoreLayout is not None:
-            scl = self.scoreLayout
-            if scl.pageLayout is not None:
-                pl = scl.pageLayout
-                if pl.pageWidth is not None:
-                    pageWidth = pl.pageWidth
-                if pl.pageHeight is not None:
-                    pageHeight = pl.pageHeight
-                if pl.topMargin is not None:
-                    pageMarginTop = pl.topMargin
-                if pl.leftMargin is not None:
-                    pageMarginLeft = pl.leftMargin
-                if pl.rightMargin is not None:
-                    pageMarginRight = pl.rightMargin
-                if pl.bottomMargin is not None:
-                    pageMarginBottom = pl.bottomMargin
-
-        # override global information with page specific pageLayout
-        if thisPage.pageLayout is not None:
-            pl = thisPage.pageLayout
-            if pl.pageWidth is not None:
-                pageWidth = pl.pageWidth
-            if pl.pageHeight is not None:
-                pageHeight = pl.pageHeight
-            if pl.topMargin is not None:
-                pageMarginTop = pl.topMargin
-            if pl.leftMargin is not None:
-                pageMarginLeft = pl.leftMargin
-            if pl.rightMargin is not None:
-                pageMarginRight = pl.rightMargin
-            if pl.bottomMargin is not None:
-                pageMarginBottom = pl.bottomMargin
-
-        dataTuple = PageSize(pageMarginTop, pageMarginLeft, pageMarginBottom, pageMarginRight,
-                             pageWidth, pageHeight)
-        dataCache[pageId] = dataTuple
-        return dataTuple
+        pass
 
     def getPositionForSystem(self, pageId: int, systemId: int) -> SystemSize:
         '''
@@ -921,70 +675,7 @@ class LayoutScore(stream.Opus):
         >>> ls.getPositionForSystem(0, 4)
         SystemSize(top=2144.0, left=0.0, right=0.0, bottom=2583.0)
         '''
-        if 'positionForSystem' not in self._cache:
-            self._cache['positionForSystem'] = {}
-        positionForSystemCache = self._cache['positionForSystem']
-        cacheKey = f'{pageId}-{systemId}'
-        if cacheKey in positionForSystemCache:
-            return positionForSystemCache[cacheKey]
-
-        if pageId == 0 and systemId == 4:
-            pass
-
-        leftMargin = 0
-        rightMargin = 0
-        # no top or bottom margins
-
-        # distance from previous
-        previousDistance = 0
-
-        # override defaults with scoreLayout
-        if self.scoreLayout is not None:
-            scl = self.scoreLayout
-            if scl.systemLayout is not None:
-                sl = scl.systemLayout
-                if sl.leftMargin is not None:
-                    leftMargin = sl.leftMargin
-                if sl.rightMargin is not None:
-                    rightMargin = sl.rightMargin
-                if systemId == 0:
-                    if sl.topDistance is not None:
-                        previousDistance = sl.topDistance
-                else:
-                    if sl.distance is not None:
-                        previousDistance = sl.distance
-
-        # override global information with system specific pageLayout
-        thisSystem = self.pages[pageId].systems[systemId]
-
-        if thisSystem.systemLayout is not None:
-            sl = thisSystem.systemLayout
-            if sl.leftMargin is not None:
-                leftMargin = sl.leftMargin
-            if sl.rightMargin is not None:
-                rightMargin = sl.rightMargin
-            if systemId == 0:
-                if sl.topDistance is not None:
-                    previousDistance = sl.topDistance
-            else:
-                if sl.distance is not None:
-                    previousDistance = sl.distance
-
-        if systemId > 0:
-            lastSystemDimensions = self.getPositionForSystem(pageId, systemId - 1)
-            bottomOfLastSystem = lastSystemDimensions.bottom
-        else:
-            bottomOfLastSystem = 0
-
-        numStaves = len(thisSystem.staves)
-        lastStaff = numStaves - 1  #
-        unused_systemStart, systemHeight = self.getPositionForStaff(pageId, systemId, lastStaff)
-
-        top = previousDistance + bottomOfLastSystem
-        bottom = top + systemHeight
-        dataTuple = SystemSize(float(top), float(leftMargin), float(rightMargin), float(bottom))
-        positionForSystemCache[cacheKey] = dataTuple
-        return dataTuple
+        pass
 
     def getPositionForStaff(self, pageId, systemId, staffId):
         '''
@@ -1086,35 +777,7 @@ class LayoutScore(stream.Opus):
         >>> ls.getPositionForStaff(0, 4, 1)
         (0.0, 40.0)
         '''
-        # if staffId == 99:
-        #    staffId = 1
-        if 'positionForStaff' not in self._cache:
-            self._cache['positionForStaff'] = {}
-        positionForStaffCache = self._cache['positionForStaff']
-        cacheKey = f'{pageId}-{systemId}-{staffId}'
-        if cacheKey in positionForStaffCache:
-            return positionForStaffCache[cacheKey]
-
-        hiddenStaff = self.getStaffHiddenAttribute(pageId, systemId, staffId)  # False
-        if hiddenStaff is not True:
-            staffDistanceFromPrevious = self.getStaffDistanceFromPrevious(pageId, systemId, staffId)
-            staffHeight = self.getStaffSizeFromLayout(pageId, systemId, staffId)
-        else:  # hiddenStaff is True
-            staffHeight = 0.0
-            staffDistanceFromPrevious = 0.0
-
-        if staffId > 0:
-            unused_previousStaffTop, previousStaffBottom = self.getPositionForStaff(
-                pageId, systemId, staffId - 1)
-        else:
-            previousStaffBottom = 0
-
-        staffDistanceFromStart = staffDistanceFromPrevious + previousStaffBottom
-        staffBottom = staffDistanceFromStart + staffHeight
-
-        dataTuple = (staffDistanceFromStart, staffBottom)
-        positionForStaffCache[cacheKey] = dataTuple
-        return dataTuple
+        pass
 
     def getStaffDistanceFromPrevious(self, pageId, systemId, staffId):
         '''
@@ -1124,63 +787,7 @@ class LayoutScore(stream.Opus):
 
         TODO:tests, now that this is out from previous
         '''
-        if staffId == 0:
-            return 0.0
-
-        if 'distanceFromPrevious' not in self._cache:
-            self._cache['distanceFromPrevious'] = {}
-        positionForStaffCache = self._cache['distanceFromPrevious']
-        cacheKey = f'{pageId}-{systemId}-{staffId}'
-        if cacheKey in positionForStaffCache:
-            return positionForStaffCache[cacheKey]
-
-        # if this is the first non-hidden staff in the score then also return 0
-        foundVisibleStaff = False
-        i = staffId - 1
-        while i >= 0:
-            hiddenStatus = self.getStaffHiddenAttribute(pageId, systemId, i)
-            if hiddenStatus is False:
-                foundVisibleStaff = True
-                break
-            else:
-                i = i - 1
-        if foundVisibleStaff is False:
-            positionForStaffCache[cacheKey] = 0.0
-            return 0.0
-
-        # nope, not first staff or first visible staff
-
-        staffDistanceFromPrevious = 60.0  # sensible default?
-
-        if self.scoreLayout is not None:
-            scl = self.scoreLayout
-            if scl.staffLayoutList:
-                for slTemp in scl.staffLayoutList:
-                    distanceTemp = slTemp.distance
-                    if distanceTemp is not None:
-                        staffDistanceFromPrevious = distanceTemp
-                        break
-
-        # override global information with staff specific pageLayout
-        thisStaff = self.pages[pageId].systems[systemId].staves[staffId]
-        firstMeasureOfStaff = thisStaff.getElementsByClass(stream.Measure).first()
-        if firstMeasureOfStaff is None:
-            firstMeasureOfStaff = stream.Stream()
-            environLocal.warn(
-                f'No measures found in pageId {pageId}, systemId {systemId}, staffId {staffId}'
-            )
-
-        allStaffLayouts = firstMeasureOfStaff.getElementsByClass('StaffLayout')
-        if allStaffLayouts:
-            # print('Got staffLayouts: ')
-            for slTemp in allStaffLayouts:
-                distanceTemp = slTemp.distance
-                if distanceTemp is not None:
-                    staffDistanceFromPrevious = distanceTemp
-                    break
-
-        positionForStaffCache[cacheKey] = staffDistanceFromPrevious
-        return staffDistanceFromPrevious
+        pass
 
     def getStaffSizeFromLayout(self, pageId: int, systemId: int, staffId: int) -> float:
         '''
@@ -1204,47 +811,7 @@ class LayoutScore(stream.Opus):
         >>> ls.getStaffSizeFromLayout(0, 3, 1)
         32.0
         '''
-        if 'staffSize' not in self._cache:
-            self._cache['staffSize'] = {}
-        staffSizeCache = self._cache['staffSize']
-        cacheKey = f'{pageId}-{systemId}-{staffId}'
-        if cacheKey in staffSizeCache:
-            return staffSizeCache[cacheKey]
-
-        thisStaff = self.pages[pageId].systems[systemId].staves[staffId]
-        firstMeasureOfStaff = thisStaff.getElementsByClass(stream.Measure).first()
-        if firstMeasureOfStaff is None:
-            firstMeasureOfStaff = stream.Stream()
-            environLocal.warn(
-                f'No measures found in pageId {pageId}, systemId {systemId}, staffId {staffId}'
-            )
-
-        numStaffLines = 5  # TODO: should be taken from staff attributes
-        numSpaces = numStaffLines - 1
-        staffSizeBase = numSpaces * 10.0
-        staffSizeDefinedLocally = False
-
-        staffSize = staffSizeBase
-
-        allStaffLayouts = list(firstMeasureOfStaff.getElementsByClass('StaffLayout'))
-        if allStaffLayouts:
-            # print('Got staffLayouts: ')
-            staffLayoutObj = allStaffLayouts[0]
-            if staffLayoutObj.staffSize is not None:
-                staffSize = staffSizeBase * (staffLayoutObj.staffSize / 100.0)
-                # print(f'Got staffHeight of {staffHeight} for partId {partId}')
-                staffSizeDefinedLocally = True
-
-        if staffSizeDefinedLocally is False:
-            previousPageId, previousSystemId = self.getSystemBeforeThis(pageId, systemId)
-            if previousPageId is None:
-                staffSize = staffSizeBase
-            else:
-                staffSize = self.getStaffSizeFromLayout(previousPageId, previousSystemId, staffId)
-
-        staffSize = float(staffSize)
-        staffSizeCache[cacheKey] = staffSize
-        return staffSize
+        pass
 
     def getStaffHiddenAttribute(self, pageId: int, systemId: int, staffId: int) -> bool:
         '''
@@ -1265,31 +832,7 @@ class LayoutScore(stream.Opus):
         >>> ls.getStaffHiddenAttribute(0, 3, 1)
         False
         '''
-        if 'staffHiddenAttribute' not in self._cache:
-            self._cache['staffHiddenAttribute'] = {}
-
-        staffHiddenCache = self._cache['staffHiddenAttribute']
-        cacheKey = f'{pageId}-{systemId}-{staffId}'
-        if cacheKey in staffHiddenCache:
-            return staffHiddenCache[cacheKey]
-
-        thisStaff = self.pages[pageId].systems[systemId].staves[staffId]
-
-        staffLayoutObject = None
-        allStaffLayoutObjects = list(thisStaff.flatten().getElementsByClass('StaffLayout'))
-        if allStaffLayoutObjects:
-            staffLayoutObject = allStaffLayoutObjects[0]
-        if staffLayoutObject is None or staffLayoutObject.hidden is None:
-            previousPageId, previousSystemId = self.getSystemBeforeThis(pageId, systemId)
-            if previousPageId is None:
-                hiddenTag = False
-            else:
-                hiddenTag = self.getStaffHiddenAttribute(previousPageId, previousSystemId, staffId)
-        else:
-            hiddenTag = staffLayoutObject.hidden
-
-        staffHiddenCache[cacheKey] = hiddenTag
-        return hiddenTag
+        pass
 
     def getSystemBeforeThis(
         self,
@@ -1314,14 +857,7 @@ class LayoutScore(stream.Opus):
         ...    (pageId, systemId)
         (2, 0) (1, 2) (1, 1) (1, 0) (0, 4) (0, 3) (0, 2) (0, 1) (0, 0) (None, -1)
         '''
-        if systemId > 0:
-            return pageId, systemId - 1
-        else:
-            if pageId == 0:
-                return (None, -1)
-            previousPageId = pageId - 1
-            numSystems = len(self.pages[previousPageId].systems)
-            return previousPageId, numSystems - 1
+        pass
 
     def getPositionForStaffMeasure(self, staffId, measureNumber, returnFormat='tenths'):
         '''
@@ -1371,46 +907,7 @@ class LayoutScore(stream.Opus):
         >>> ls.getPositionForStaffMeasure(1, 24)
         ((328.0, 100.0), (360.0, 431.0), 1)
         '''
-        if 'positionForPartMeasure' not in self._cache:
-            self._cache['positionForPartMeasure'] = {}
-        positionForPartMeasureCache = self._cache['positionForPartMeasure']
-        if measureNumber not in positionForPartMeasureCache:
-            positionForPartMeasureCache[measureNumber] = {}
-        dataCache = positionForPartMeasureCache[measureNumber]
-        if staffId in dataCache:
-            return dataCache[staffId]
-
-        pageId, systemId = self.getPageAndSystemNumberFromMeasureNumber(measureNumber)
-
-        startXMeasure, endXMeasure = self.measurePositionWithinSystem(
-            measureNumber, pageId, systemId)
-        staffTop, staffBottom = self.getPositionForStaff(pageId, systemId, staffId)
-        systemPos = self.getPositionForSystem(pageId, systemId)
-        systemTop = systemPos.top
-        systemLeft = systemPos.left
-        pageSize = self.getMarginsAndSizeForPageId(pageId)
-
-        top = pageSize.top + systemTop + staffTop
-        left = pageSize.left + systemLeft + startXMeasure
-        bottom = pageSize.top + systemTop + staffBottom
-        right = pageSize.left + systemLeft + endXMeasure
-        pageWidth = pageSize.width
-        pageHeight = pageSize.height
-
-        dataTuple = None
-        if returnFormat == 'tenths':
-            dataTuple = ((top, left), (bottom, right), pageId)
-        else:
-            pageWidth = float(pageWidth)
-            pageHeight = float(pageHeight)
-            topRatio = float(top) / pageHeight
-            leftRatio = float(left) / pageWidth
-            bottomRatio = float(bottom) / pageHeight
-            rightRatio = float(right) / pageWidth
-            dataTuple = ((topRatio, leftRatio), (bottomRatio, rightRatio), pageId)
-
-        dataCache[staffId] = dataTuple
-        return dataTuple
+        pass
         # return self.getPositionForStaffIdSystemIdPageIdMeasure(
         #    staffId, systemId, pageId, measureNumber, returnFormat)
 
@@ -1441,39 +938,7 @@ class LayoutScore(stream.Opus):
         >>> ls.measurePositionWithinSystem(7)
         (331.0, 549.0)
         '''
-        if pageId is None or systemId is None:
-            pageId, systemId = self.getPageAndSystemNumberFromMeasureNumber(measureNumber)
-
-        thisSystem = self.pages[pageId].systems[systemId]
-        startOffset = 0.0
-        width = None
-        thisSystemStaves = thisSystem.staves
-        measureStream = thisSystemStaves[0].getElementsByClass(stream.Measure)
-        for i, m in enumerate(measureStream):
-            currentWidth = m.layoutWidth
-            if currentWidth is None:
-                # first system is hidden, thus has no width information
-                for j in range(1, len(thisSystemStaves)):
-                    searchOtherStaffForWidth = thisSystemStaves[j]
-                    searchIter = searchOtherStaffForWidth.iter()
-                    searchOtherStaffMeasure = searchIter.getElementsByClass(stream.Measure)[i]
-                    if searchOtherStaffMeasure.layoutWidth is not None:
-                        currentWidth = searchOtherStaffMeasure.layoutWidth
-                        break
-            if currentWidth is None:
-                # error mode? throw error? or assume default width?  Let's do the latter for now
-                environLocal.warn(
-                    f'Could not get width for measure {m.number}, using default of 300')
-                currentWidth = 300.0
-            else:
-                currentWidth = float(currentWidth)
-            if m.number == measureNumber:
-                width = currentWidth
-                break
-            else:
-                startOffset += currentWidth
-
-        return startOffset, startOffset + width
+        pass
 
     def getAllMeasurePositionsInDocument(self, returnFormat='tenths', printUpdates=False):
         '''
@@ -1485,27 +950,7 @@ class LayoutScore(stream.Opus):
         # >>> gl = layout.divideByPages(g)
         # >>> gl.getAllMeasurePositionsInDocument()
         '''
-        numStaves = len(self.pages[0].systems[0].staves)
-        allRetInfo = []
-        for mNum in range(self.measureStart, self.measureEnd + 1):
-            if printUpdates is True:  # so fast now that it's not needed
-                print('Doing measure ', mNum)
-            mList = []
-            for staffNum in range(numStaves):
-                tupleInfo = self.getPositionForStaffMeasure(staffNum, mNum, returnFormat)
-                infoDict = {
-                    'measureNumberActual': mNum,
-                    'measureNumber': mNum - 1,
-                    'staffNumber': staffNum,
-                    'top': tupleInfo[0][0],
-                    'left': tupleInfo[0][1],
-                    'bottom': tupleInfo[1][0],
-                    'right': tupleInfo[1][1],
-                    'pageNumber': tupleInfo[2],
-                }
-                mList.append(infoDict)
-            allRetInfo.append(mList)
-        return allRetInfo
+        pass
 
 
 class Page(stream.Opus):
@@ -1524,11 +969,11 @@ class Page(stream.Opus):
         self.pageLayout = None
 
     def _reprInternal(self):
-        return f'p.{self.pageNumber}'
+        pass
 
     @property
     def systems(self):
-        return self.getElementsByClass(System)
+        pass
 
     def show(self, fmt=None, app=None, **keywords):
         '''
@@ -1566,11 +1011,11 @@ class System(stream.Score):
         self.measureEnd = None
 
     def _reprInternal(self):
-        return f'{self.systemNumber}: p.{self.pageNumber}, sys.{self.pageSystemNumber}'
+        pass
 
     @property
     def staves(self):
-        return self.getElementsByClass(Staff)
+        pass
 
 
 class Staff(stream.Part):
@@ -1593,12 +1038,7 @@ class Staff(stream.Part):
         self.staffLayout = None
 
     def _reprInternal(self):
-        return (
-            f'{self.scoreStaffNumber}: '
-            f'p.{self.pageNumber}, '
-            f'sys.{self.pageSystemNumber}, '
-            f'st.{self.staffNumber}'
-        )
+        pass
 
 
 _DOC_ORDER = [ScoreLayout, PageLayout, SystemLayout, StaffLayout, LayoutBase,
@@ -1609,79 +1049,16 @@ _DOC_ORDER = [ScoreLayout, PageLayout, SystemLayout, StaffLayout, LayoutBase,
 class Test(unittest.TestCase):
 
     def testBasic(self):
-        from music21 import note
-        from music21.musicxml import m21ToXml
-        s = stream.Stream()
-
-        for i in range(1, 11):
-            m = stream.Measure()
-            m.number = i
-            n = note.Note()
-            m.append(n)
-            s.append(m)
-
-        sl = SystemLayout()
-        # sl.isNew = True  # this should not be on first system
-        # as this causes all subsequent margins to be distorted
-        sl.leftMargin = 300
-        sl.rightMargin = 300
-        s.getElementsByClass(stream.Measure)[0].insert(0, sl)
-
-        sl = SystemLayout()
-        sl.isNew = True
-        sl.leftMargin = 200
-        sl.rightMargin = 200
-        sl.distance = 40
-        s.getElementsByClass(stream.Measure)[2].insert(0, sl)
-
-        sl = SystemLayout()
-        sl.isNew = True
-        sl.leftMargin = 220
-        s.getElementsByClass(stream.Measure)[4].insert(0, sl)
-
-        sl = SystemLayout()
-        sl.isNew = True
-        sl.leftMargin = 60
-        sl.rightMargin = 300
-        sl.distance = 200
-        s.getElementsByClass(stream.Measure)[6].insert(0, sl)
-
-        sl = SystemLayout()
-        sl.isNew = True
-        sl.leftMargin = 0
-        sl.rightMargin = 0
-        s.getElementsByClass(stream.Measure)[8].insert(0, sl)
-
-        # systemLayoutList = s[music21.layout.SystemLayout]
-        # self.assertEqual(len(systemLayoutList), 4)
-
-        # s.show()
-        unused_raw = m21ToXml.GeneralObjectExporter().parse(s)
+        pass
 
     def x_testGetPageMeasureNumbers(self):
-        from music21 import corpus
-        c = corpus.parse('luca/gloria').parts[0]
-        # c.show('text')
-        retStr = ''
-        for x in c.flatten():
-            if 'PageLayout' in x.classes:
-                retStr += str(x.pageNumber) + ': ' + str(x.measureNumber) + ', '
-#        print(retStr)
-        self.assertEqual(retStr, '1: 1, 2: 23, 3: 50, 4: 80, 5: 103, ')
+        pass
 
     def testGetStaffLayoutFromStaff(self):
         '''
         we have had problems with attributes disappearing.
         '''
-        from music21 import corpus
-        from music21 import layout
-        lt = corpus.parse('demos/layoutTest.xml')
-        ls = layout.divideByPages(lt, fastMeasures=True)
-
-        hiddenStaff = ls.pages[0].systems[3].staves[1]
-        self.assertTrue(repr(hiddenStaff).endswith('Staff 11: p.1, sys.4, st.2>'),
-                        repr(hiddenStaff))
-        self.assertIsNotNone(hiddenStaff.staffLayout)
+        pass
 
 
 # ------------------------------------------------------------------------------

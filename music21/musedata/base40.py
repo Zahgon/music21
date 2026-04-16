@@ -226,15 +226,7 @@ def base40ToPitch(base40Num):
     >>> musedata.base40.base40ToPitch(186)
     <music21.pitch.Pitch G5>
     '''
-    p = pitch.Pitch()
-    p.octave = ((base40Num - 1) / 40) + 1
-    tableNum = base40Num - 40 * (p.octave - 1)
-    pitchName = base40Equivalent[tableNum]
-    if pitchName is not None:
-        p.name = pitchName
-        return p
-
-    raise Base40Exception('Pitch name not assigned to this Base40 number ' + str(base40Num))
+    pass
 
 
 def pitchToBase40(pitchToConvert):
@@ -255,15 +247,7 @@ def pitchToBase40(pitchToConvert):
     Traceback (most recent call last):
     music21.musedata.base40.Base40Exception: Base40 cannot handle this pitch F###4
     '''
-    if isinstance(pitchToConvert, str):
-        pitchToConvert = pitch.Pitch(pitchToConvert)
-    if pitchToConvert.name in base40Representation:
-        tableNum = base40Representation[pitchToConvert.name]
-        base40Num = (40 * (pitchToConvert.octave - 1)) + tableNum
-        return base40Num
-
-    # raise ValueError('Base40 cannot handle this pitch.')
-    raise Base40Exception('Base40 cannot handle this pitch ' + pitchToConvert.nameWithOctave)
+    pass
 
 
 def base40Interval(base40NumA, base40NumB):
@@ -304,26 +288,7 @@ def base40Interval(base40NumA, base40NumB):
     music21.musedata.base40.Base40Exception: Pitch name not assigned to these Base40 numbers
         12 and 6 Interval does not exist
     '''
-    pitchA = base40Equivalent[(base40NumA - 1) % 40 + 1]
-    pitchB = base40Equivalent[(base40NumB - 1) % 40 + 1]
-
-    delta = base40NumB - base40NumA
-
-    if pitchA is None and pitchB is None:
-        raise Base40Exception('Pitch name not assigned to these Base40 numbers '
-                              + str(base40NumA) + ' and '
-                              + str(base40NumB) + ' Interval does not exist')
-    if pitchA is None:
-        raise Base40Exception('Pitch name not assigned to this Base40 number '
-                              + str(base40NumA) + ' Interval does not exist')
-    if pitchB is None:
-        raise Base40Exception('Pitch name not assigned to this Base40 number '
-                              + str(base40NumB) + ' Interval does not exist')
-    if delta > 3 and pitchA[0] == pitchB[0]:
-        raise Base40Exception('Base40 cannot compute interval between '
-                              + str(base40NumA) + ' and ' + str(base40NumB) + '.')
-
-    return base40DeltaToInterval(delta)
+    pass
 
 
 def base40ActualInterval(base40NumA, base40NumB):
@@ -354,63 +319,14 @@ def base40ActualInterval(base40NumA, base40NumB):
     Traceback (most recent call last):
     music21.musedata.base40.Base40Exception: Pitch name not assigned to this Base40 number 12
     '''
-    pitchA = base40ToPitch(base40NumA)
-    pitchB = base40ToPitch(base40NumB)
-
-    noteA = note.Note()
-    noteA.pitch = pitchA
-    noteB = note.Note()
-    noteB.pitch = pitchB
-
-    try:
-        return interval.Interval(noteA, noteB)
-    except IndexError:
-        raise Base40Exception('Unusual interval- Limitation of music21.interval')
+    pass
 
 
 def _quickEnharmonicString(nameStr, direction='up', allowDoubleAccidentals=True):
     '''
     Helper function for quickHigherEnharmonicString and quickLowerEnharmonicString
     '''
-    if direction == 'up':
-        addNum = 4
-    elif direction == 'down':
-        addNum = -4
-    else:
-        raise Base40Exception(f'Not a valid direction, {direction}')
-
-    enharmonics = []
-    if common.isNum(nameStr):
-        base40num = nameStr
-        nameStr = base40Equivalent.get(base40num, None)
-        if nameStr is None:
-            base40num = None
-    else:
-        base40num = base40Representation.get(nameStr, None)
-
-    while base40num is not None:
-        base40num = (base40num + addNum) % 40
-        if base40num == 0:
-            base40num = 40
-
-        base40str = base40Equivalent.get(base40num, None)
-        if allowDoubleAccidentals is False and base40str is not None and len(base40str) > 2:
-            base40str = None
-
-        if base40str is None:
-            base40num = None
-        else:
-            if base40str[0] == nameStr[0]:
-                base40num = None
-                base40str = None
-            for e in enharmonics:
-                if base40str[0] == e[0]:
-                    base40num = None
-                    base40str = None
-            if base40str is not None:
-                enharmonics.append(base40str)
-
-    return enharmonics
+    pass
 
 
 def quickHigherEnharmonicString(nameStr, allowDoubleAccidentals=True):
@@ -428,9 +344,7 @@ def quickHigherEnharmonicString(nameStr, allowDoubleAccidentals=True):
     >>> musedata.base40.quickHigherEnharmonicString('B#')
     ['C', 'D--']
     '''
-    return _quickEnharmonicString(nameStr,
-                                  direction='up',
-                                  allowDoubleAccidentals=allowDoubleAccidentals)
+    pass
 
 
 def quickLowerEnharmonicString(nameStr, allowDoubleAccidentals=True):
@@ -448,9 +362,7 @@ def quickLowerEnharmonicString(nameStr, allowDoubleAccidentals=True):
     >>> musedata.base40.quickLowerEnharmonicString('C-')
     ['B', 'A##']
     '''
-    return _quickEnharmonicString(nameStr,
-                                  direction='down',
-                                  allowDoubleAccidentals=allowDoubleAccidentals)
+    pass
 
 
 def quickEnharmonicString(nameStr, allowDoubleAccidentals=True):
@@ -466,9 +378,7 @@ def quickEnharmonicString(nameStr, allowDoubleAccidentals=True):
     >>> musedata.base40.quickEnharmonicString('G')
     ['F##', 'A--']
     '''
-    harmonicString = quickLowerEnharmonicString(nameStr, allowDoubleAccidentals)
-    harmonicString.extend(quickHigherEnharmonicString(nameStr, allowDoubleAccidentals))
-    return harmonicString
+    pass
 
 
 class Base40Exception(exceptions21.Music21Exception):
@@ -480,16 +390,7 @@ class BaseN:
         self.order = order
 
     def generateLetters(self):
-        outLetters = []
-        for letter in ('C', 'D', 'E', 'F', 'G', 'A', 'B'):
-            for i in range(self.order, 0, -1):
-                outLetters.append(letter + '-' * i)
-            outLetters.append(letter)
-            for i in range(self.order):
-                outLetters.append(letter + '#' * (i + 1))
-            if letter not in ('E', 'B'):
-                outLetters.append(None)
-        return outLetters
+        pass
 
 # ------------------------------------------------------------------------------
 

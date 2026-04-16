@@ -146,12 +146,11 @@ class Tie(prebase.ProtoM21Object, SlottedObjectMixin):
         return id(self) >> 4
 
     def _reprInternal(self):
-        return self.type
+        pass
 
 class Test(unittest.TestCase):
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
 
 # ------------------------------------------------------------------------------

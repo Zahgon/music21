@@ -110,8 +110,7 @@ class Timespan:
         >>> timespan.offset
         1.0
         '''
-        # this is a property to make it immutable.
-        return self._offset
+        pass
 
     @property
     def endTime(self):
@@ -126,8 +125,7 @@ class Timespan:
         >>> timespan.endTime
         2.0
         '''
-        # this is a property to make it immutable.
-        return self._endTime
+        pass
 
     def new(self, offset=None, endTime=None):
         '''
@@ -159,14 +157,7 @@ class Timespan:
         >>> ts1.canMerge(ts4)
         (False, 'Cannot merge <Timespan 0.0 5.0> with <Timespan 3.0 4.0>: not contiguous')
         '''
-        if not isinstance(other, type(self)):
-            message = f'Cannot merge {self} with {other}: wrong types'
-            return (False, message)
-        if not ((self.endTime == other.offset)
-                or (other.endTime == self.offset)):
-            message = f'Cannot merge {self} with {other}: not contiguous'
-            return (False, message)
-        return (True, '')
+        pass
 
     def mergeWith(self, other):
         r'''
@@ -187,15 +178,7 @@ class Timespan:
         music21.tree.spans.TimespanException: Cannot merge <Timespan 0.0 7.0> with
             <Timespan 6.0 10.0>: not contiguous
         '''
-        can, message = self.canMerge(other)
-        if can is False:
-            raise TimespanException(message)
-
-        if self.offset < other.offset:
-            mergedTimespan = self.new(endTime=other.endTime)
-        else:
-            mergedTimespan = other.new(endTime=self.endTime)
-        return mergedTimespan
+        pass
 
     def splitAt(self, offset):
         r'''
@@ -381,7 +364,7 @@ class ElementTimespan(Timespan):
         >>> pts2.element.duration.quarterLength
         2.0
         '''
-        return self.endTime - self.offset
+        pass
 
     # PUBLIC METHODS #
 
@@ -439,7 +422,7 @@ class ElementTimespan(Timespan):
         >>> pitchedTimespan.measureNumber
         1
         '''
-        return self.element.measureNumber
+        pass
         # from music21 import stream
         # for x in self.parentage:
         #    if not isinstance(x, stream.Measure):
@@ -493,8 +476,7 @@ class ElementTimespan(Timespan):
         >>> pitchedTimespan.part
         <music21.stream.Part Tenor>
         '''
-        from music21 import stream
-        return self.getParentageByClass(classList=(stream.Part,))
+        pass
 
     def makeElement(self, makeCopy: bool = True) -> base.Music21Object|None:
         '''
@@ -548,7 +530,7 @@ class PitchedTimespan(ElementTimespan):
         False
 
         '''
-        return self.element.pitches
+        pass
 
     def canMerge(self, other):
         '''
@@ -614,12 +596,7 @@ class PitchedTimespan(ElementTimespan):
         <music21.stream.Part Soprano>
 
         '''
-        can, message = super().canMerge(other)
-        if can is True:
-            if self.pitches != other.pitches:
-                message = f'Cannot merge {self} with {other}: different pitches'
-                can = False
-        return (can, message)
+        pass
 
 
 # -----------------------------------------------------------------------------

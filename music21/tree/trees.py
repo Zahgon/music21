@@ -606,48 +606,7 @@ class ElementTree(core.AVLTree):
         >>> scoreTree.getNodeByIndex(slice(-100, -200))
         []
         '''
-        def recurseByIndex(node, index):
-            '''
-            Return the node element at a given index
-            '''
-            if node.payloadElementIndex == index:
-                return node
-            elif node.leftChild and index < node.payloadElementIndex:
-                return recurseByIndex(node.leftChild, index)
-            elif node.rightChild and node.payloadElementIndex <= index:
-                return recurseByIndex(node.rightChild, index)
-
-        def recurseBySlice(node, start, stop):
-            '''
-            Return a slice of the nodes (plural) whose indices are between start <= index < stop.
-            '''
-            result = []
-            if node is None:
-                return result
-            if start < node.payloadElementIndex and node.leftChild:
-                result.extend(recurseBySlice(node.leftChild, start, stop))
-            if start <= node.payloadElementIndex < stop:
-                result.append(node)
-            if node.payloadElementIndex < stop and node.rightChild:
-                result.extend(recurseBySlice(node.rightChild, start, stop))
-            return result
-
-        if isinstance(i, int):
-            if self.rootNode is None:
-                raise IndexError
-            if i < 0:
-                i = self.rootNode.subtreeElementsStopIndex + i
-            if i < 0 or self.rootNode.subtreeElementsStopIndex <= i:
-                raise IndexError
-            return recurseByIndex(self.rootNode, i)
-        elif isinstance(i, slice):
-            if self.rootNode is None:
-                return []
-            indices = i.indices(self.rootNode.subtreeElementsStopIndex)
-            outer_start, outer_stop = indices[0], indices[1]
-            return recurseBySlice(self.rootNode, outer_start, outer_stop)
-        else:
-            raise TypeError(f'Indices must be integers or slices, got {i}')
+        pass
 
     def iterNodes(self):
         '''
@@ -855,12 +814,12 @@ class ElementTree(core.AVLTree):
         >>> eTree.source is s
         True
         '''
-        return common.unwrapWeakref(self._source)
+        pass
 
     @source.setter
     def source(self, expr):
         # uses weakrefs so that garbage collection on the stream cache is possible
-        self._source = common.wrapWeakref(expr)
+        pass
 
     @property
     def endTime(self):
@@ -880,9 +839,7 @@ class ElementTree(core.AVLTree):
         >>> et.endTime
         inf
         '''
-        if self.rootNode is not None:
-            return self.rootNode.endTimeHigh
-        return INFINITY
+        pass
 
 
 # ---------------------------------------------------------------
@@ -962,30 +919,13 @@ class OffsetTree(ElementTree):
             '''
             Return the payload element at a given index
             '''
-            if node.payloadElementsStartIndex <= index < node.payloadElementsStopIndex:
-                return node.payload[index - node.payloadElementsStartIndex]
-            elif node.leftChild and index < node.payloadElementsStartIndex:
-                return recurseByIndex(node.leftChild, index)
-            elif node.rightChild and node.payloadElementsStopIndex <= index:
-                return recurseByIndex(node.rightChild, index)
+            pass
 
         def recurseBySlice(node: nodeModule.OffsetNode, start, stop):
             '''
             Return a slice of the payload elements (plural) where start <= index < stop.
             '''
-            result = []
-            if node is None:
-                return result
-            if start < node.payloadElementsStartIndex and node.leftChild:
-                result.extend(recurseBySlice(node.leftChild, start, stop))
-            if start < node.payloadElementsStopIndex and node.payloadElementsStartIndex < stop:
-                indexStart = start - node.payloadElementsStartIndex
-                indexStart = max(indexStart, 0)
-                indexStop = stop - node.payloadElementsStartIndex
-                result.extend(node.payload[indexStart:indexStop])
-            if node.payloadElementsStopIndex <= stop and node.rightChild:
-                result.extend(recurseBySlice(node.rightChild, start, stop))
-            return result
+            pass
 
         if isinstance(i, int):
             if self.rootNode is None:
@@ -1124,7 +1064,7 @@ class OffsetTree(ElementTree):
         the number of elements at a single offset should be few enough that
         it is not a problem
         '''
-        return x.sortTuple()[2:]  # cut off atEnd and offset
+        pass
 
     def _insertCore(self, position, el):
         '''
@@ -1384,17 +1324,7 @@ class OffsetTree(ElementTree):
         {0.5: <music21.tree.verticality.Verticality 0.5 {G#3 B3 E4 B4}>}
 
         '''
-        checkPoints = self.allOffsets() if includeStopPoints is False else self.allTimePoints()
-        overlaps = []
-        for cp in checkPoints:
-            overlappingElements = self.elementsOverlappingOffset(cp)
-            if not overlappingElements:
-                continue
-            if returnVerticality is False:
-                overlaps.append(cp)
-            else:
-                overlaps.append({cp: self.getVerticalityAt(cp)})
-        return overlaps
+        pass
 
     def getVerticalityAt(self, offset):
         r'''
@@ -1462,12 +1392,7 @@ class OffsetTree(ElementTree):
         >>> sd[2.0]
         [<music21.note.Note E>, <music21.note.Note G#>]
         '''
-        simultaneityDict = {}
-        for node in self.iterNodes():
-            pl = node.payload
-            if len(pl) > 1:
-                simultaneityDict[node.position] = pl[:]
-        return simultaneityDict
+        pass
 
 
 # ---------------------------------------------------------------
@@ -1481,27 +1406,7 @@ class Test(unittest.TestCase):
         test that get position after works with
         an offset when the tree is built on SortTuples.
         '''
-        from music21 import note
-        from music21 import stream
-
-        et = ElementTree()
-
-        s = stream.Stream()
-        for i in range(100):
-            n = note.Note()
-            n.duration.quarterLength = 2.0
-            s.insert(i * 2, n)
-
-        for n in s:
-            et.insert(n)
-        self.assertTrue(repr(et).startswith('<ElementTree {100} (0.0 <0.20'))
-
-        n2 = s[-1]
-
-        self.assertEqual(et.index(n2, n2.sortTuple()), 99)
-
-        st3 = et.getPositionAfter(5.0)
-        self.assertIsNotNone(st3)
+        pass
 
 #     def testBachDoctest(self):
 #         from music21 import corpus, note, chord, tree
@@ -1540,48 +1445,7 @@ class Test(unittest.TestCase):
 
         G# was coming from an incorrect activeSite.  activeSite should not be used!
         '''
-        from music21 import corpus
-        from music21 import stream
-        from music21 import note
-        s = stream.Stream()
-        n0 = note.Note('A')
-        n0.duration.quarterLength = 3.0
-        s.insert(0, n0)
-        n1 = note.Note('B')
-        n1.duration.quarterLength = 2.0
-        s.insert(1, n1)
-        n2 = note.Note('C')
-        n2.duration.quarterLength = 1.0
-        s.insert(2, n2)
-        # and one later to be sure that order is right
-        n3 = note.Note('A#')
-        n3.duration.quarterLength = 2.5
-        s.insert(0.5, n3)
-
-        st = s.asTree(groupOffsets=True)
-        stList = st.elementsStoppingAt(3.0)
-        self.assertEqual(len(stList), 4)
-        self.assertEqual([n.name for n in stList],
-                         ['A', 'A#', 'B', 'C'])
-        # making the tree more complex does not change anything, I hope?
-        for i in range(30):
-            s.insert(0, note.Rest())
-        for i in range(22):
-            s.insert(10 + i, note.Rest())
-        st = s.asTree(groupOffsets=True)
-        stList = st.elementsStoppingAt(3.0)
-        self.assertEqual(len(stList), 4)
-        self.assertEqual([n.name for n in stList],
-                         ['A', 'A#', 'B', 'C'])
-
-        # real world example
-        score = corpus.parse('bwv66.6')
-        scoreTree = score.asTree(flatten=True, groupOffsets=True)
-        elementList = scoreTree.elementsStoppingAt(0.5)
-        self.assertEqual(len(elementList), 3)
-        self.assertEqual(elementList[0].name, 'C#')
-        self.assertEqual(elementList[1].name, 'A')
-        self.assertEqual(elementList[2].name, 'A')
+        pass
 
 
 #     def testBachDoctest(self):

@@ -33,17 +33,7 @@ def compressAllXMLFiles(*, deleteOriginal=False):
     :meth:`music21.musicxml.archiveTools.compressXML` on each.  If the musicXML files are
     compressed, the originals are deleted from the system.
     '''
-    from music21.corpus.corpora import CoreCorpus
-    environLocal.warn('Compressing musicXML files...')
-
-    # this gets all .xml, .musicxml, .mxl etc.
-    for filename in CoreCorpus().getPaths(fileExtensions=('.xml',)):
-        compressXML(filename, deleteOriginal=deleteOriginal)
-    environLocal.warn(
-        'Compression complete. '
-        'Run the main test suite, fix bugs if necessary,'
-        'and then commit modified directories in corpus.'
-    )
+    pass
 
 
 def compressXML(filename: str|pathlib.Path,
@@ -115,41 +105,7 @@ def uncompressMXL(filename: str|pathlib.Path,
 
     Returns bool if successful.
     '''
-    filename = str(filename)
-    if not filename.endswith('.mxl') and strictMxlCheck:
-        return False  # not a compressed musicXML file
-
-    fp: pathlib.Path = common.pathTools.cleanpath(filename, returnPathlib=True)
-    if not silent:  # pragma: no cover
-        environLocal.warn(f'Updating file: {fp}')
-    extractPath = str(fp.parent)
-    unarchivedName = fp.with_suffix('.musicxml').name
-    # Export container and original xml file to system as a compressed XML.
-    with zipfile.ZipFile(filename, 'r', compression=zipfile.ZIP_DEFLATED) as myZip:
-        try:
-            myZip.extract(member=unarchivedName, path=extractPath)
-        except KeyError:
-            try:
-                unarchivedName = unarchivedName.replace('.xml', '.musicxml')
-                myZip.extract(member=unarchivedName, path=extractPath)
-            except KeyError:
-                found_one_file = False
-                for storedName in myZip.namelist():
-                    if 'META-INF' in storedName:
-                        continue
-                    myZip.extract(member=storedName, path=extractPath)
-                    if not found_one_file:
-                        # only rename one file: hope it is the right one.
-                        extractPath_pathlib = pathlib.Path(extractPath)
-                        wrongName = extractPath_pathlib / storedName
-                        correctName = extractPath_pathlib / unarchivedName
-                        wrongName.rename(correctName)
-                        found_one_file = True
-
-    # Delete uncompressed xml file from system
-    if deleteOriginal:
-        fp.unlink()
-    return True
+    pass
 
 
 if __name__ == '__main__':

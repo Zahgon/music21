@@ -51,25 +51,15 @@ class BrailleText(prebase.ProtoM21Object):
         self.showHand = showHand
 
     def _reprInternal(self) -> str:
-        line_len = len(self.allLines)
-        line_str = f'{line_len} line' + ('s' if line_len != 1 else '')
-        heading_len = len(self.allHeadings)
-        heading_str = f'{heading_len} heading' + ('s' if heading_len != 1 else '')
-
-        return f'{line_str}, {heading_str}, {self.lineLength} cols'
+        pass
 
     @property
     def showHand(self):
-        return self._showHand
+        pass
 
     @showHand.setter
     def showHand(self, newHand):
-        if newHand == 'right':
-            self.rightHandSymbol = True
-        elif newHand == 'left':
-            self.leftHandSymbol = True
-        elif newHand is not None:
-            raise BrailleTextException('Illegal hand sign request.')
+        pass
 
     def addHeading(self, heading):
         '''
@@ -329,21 +319,7 @@ class BrailleText(prebase.ProtoM21Object):
         ⠀⠀⠀⠀buh⠀⠀⠀⠀⠀
         ⠀short⠀court
         '''
-        for (indexStart, indexFinal) in self.allHeadings:
-            maxLineLength = 0  # refers to the maximum length of any heading.
-            for i in range(indexFinal, len(self.allLines)):
-                if self.allLines[i].isHeading:
-                    break
-                lineLength = self.allLines[i].textLocation
-                maxLineLength = max(maxLineLength, lineLength)
-            for j in range(indexStart, indexFinal):
-                brailleTextLine = self.allLines[j]
-                lineStrToCenter = str(brailleTextLine)
-                lineStrToCenter = lineStrToCenter.strip(symbols['space'])
-                if maxLineLength > len(lineStrToCenter):
-                    lineStrToCenter = lineStrToCenter.center(maxLineLength, symbols['space'])
-                    brailleTextLine.insert(0, lineStrToCenter)
-                    brailleTextLine.textLocation = maxLineLength
+        pass
 
     def __str__(self):
         self.recenterHeadings()
@@ -467,7 +443,7 @@ class BrailleTextLine(prebase.ProtoM21Object):
         self.highestUsedLocation = 0
 
     def _reprInternal(self) -> str:
-        return repr(''. join(self.allChars))
+        pass
 
     def append(self, text, addSpace=True):
         '''

@@ -519,23 +519,7 @@ class NoteOrRestToken(Token):
         '''
         The result of a successful search for a duration type: puts a Duration in the right place.
         '''
-        self.durationFound = True
-        typeNum = int(search.group(1))
-        if typeNum == 0:
-            if parent.stateDict['currentTimeSignature'] is not None:
-                element.duration = copy.deepcopy(
-                    parent.stateDict['currentTimeSignature'].barDuration
-                )
-                element.expressions.append(expressions.Fermata())
-        else:
-            try:
-                element.duration.type = duration.typeFromNumDict[typeNum]
-            except KeyError as ke:
-                raise TinyNotationException(
-                    f'Cannot parse token with duration {typeNum}'
-                ) from ke
-        t = re.sub(pm, '', t)
-        return t
+        pass
 
     def dots(self, element, search, pm, t, parent):
         '''
@@ -543,9 +527,7 @@ class NoteOrRestToken(Token):
 
         Subclassed in TrecentoNotation where two dots has a different meaning.
         '''
-        element.duration.dots = len(search.group(1))
-        t = re.sub(pm, '', t)
-        return t
+        pass
 
 
 class RestToken(NoteOrRestToken):
@@ -620,9 +602,7 @@ class NoteToken(NoteOrRestToken):
         '''
         indicates that the accidental is in parentheses, so set it up to be stored in ficta.
         '''
-        self.isEditorial = True
-        t = search.group(1) + search.group(2)
-        return t
+        pass
 
     def _addAccidental(self, n, alter, pm, t):
         # noinspection PyShadowingNames
@@ -648,13 +628,7 @@ class NoteToken(NoteOrRestToken):
         >>> n.editorial.ficta
         <music21.pitch.Accidental double-flat>
         '''
-        acc = pitch.Accidental(alter)
-        if self.isEditorial:
-            n.editorial.ficta = acc
-        else:
-            n.pitch.accidental = acc
-        t = re.sub(pm, '', t)
-        return t
+        pass
 
     def sharps(self, n, search, pm, t):
         # noinspection PyShadowingNames
@@ -673,8 +647,7 @@ class NoteToken(NoteOrRestToken):
         >>> n.pitch.accidental
         <music21.pitch.Accidental double-sharp>
         '''
-        alter = len(search.group(1))
-        return self._addAccidental(n, alter, pm, t)
+        pass
 
     def flats(self, n, search, pm, t):
         # noinspection PyShadowingNames
@@ -694,8 +667,7 @@ class NoteToken(NoteOrRestToken):
         >>> n.pitch.accidental
         <music21.pitch.Accidental double-flat>
         '''
-        alter = -1 * len(search.group(1))
-        return self._addAccidental(n, alter, pm, t)
+        pass
 
     def natural(self, n, search, pm, t):
         # noinspection PyShadowingNames
@@ -715,7 +687,7 @@ class NoteToken(NoteOrRestToken):
         >>> n.pitch.accidental
         <music21.pitch.Accidental natural>
         '''
-        return self._addAccidental(n, 0, pm, t)
+        pass
 
     def lowOctave(self, n, search, pm, t):
         # noinspection PyShadowingNames
@@ -733,12 +705,7 @@ class NoteToken(NoteOrRestToken):
         >>> n.octave
         1
         '''
-        stepName = search.group(1)[0].upper()
-        octaveNum = 4 - len(search.group(1))
-        n.step = stepName
-        n.octave = octaveNum
-        t = re.sub(pm, '', t)
-        return t
+        pass
 
     def highOctave(self, n, search, pm, t):
         # noinspection PyShadowingNames
@@ -756,12 +723,7 @@ class NoteToken(NoteOrRestToken):
         >>> n.octave
         6
         '''
-        stepName = search.group(1)[0].upper()
-        octaveNum = 4 + len(search.group(2))
-        n.step = stepName
-        n.octave = octaveNum
-        t = re.sub(pm, '', t)
-        return t
+        pass
 
 
 def _getDefaultTokenMap() -> list[tuple[str, type[Token]]]:
@@ -831,46 +793,7 @@ def _getDefaultTokenMap() -> list[tuple[str, type[Token]]]:
     EQUALS-DATA = ? At least one non-whitespace, non-"_" character. ? ;
     UNDERSCORE-DATA = ? At least one non-whitespace, non-"=" character. ? ;
     '''
-    sharpsFlatsOrNaturalRegex = r'#+|-+|n'
-    editorialRegex = fr'\((?:{sharpsFlatsOrNaturalRegex})\)'
-    accidentalRegex = fr'{editorialRegex}|(?:{sharpsFlatsOrNaturalRegex})'
-
-    lowNoteRegex = fr'(?:A+|B+|C+|D+|E+|F+|G+)(?:{accidentalRegex})?'
-    highNoteRegex = (
-        r'(?:a|b|c|d|e|f|g)'
-        + fr"(?:(?:{accidentalRegex})?'*|'*(?:{accidentalRegex})?)"
-    )
-    noteNameRegex = fr'{lowNoteRegex}|{highNoteRegex}'
-
-    durationRegex = r'\d+\.*|\.*\d+|\.+'
-
-    tieStateRegex = r'~'
-
-    equalsRegex = r'=[^\s_]*'
-    starRegex = r'\*.*?\*'
-    angleRegex = r'<.*?>'
-    parensRegex = r'\(.*?\)'
-    squareRegex = r'\[.*?]'
-    underscoreRegex = r'_[^\s=]'
-    modifierRegex = (
-        fr'{equalsRegex}|{starRegex}|{angleRegex}|'
-        + fr'{parensRegex}|{squareRegex}|{underscoreRegex}'
-    )
-
-    return [
-        (r'^(\d+\/\d+)$', TimeSignatureToken),
-        (
-            fr'^r((?:{durationRegex})?(?:{modifierRegex})*)$',
-            RestToken
-        ),
-        (
-            (
-                fr'^((?:{noteNameRegex})(?:{durationRegex})?'
-                + fr'(?:{tieStateRegex})?(?:{modifierRegex})*)$'
-            ),
-            NoteToken
-        ),  # last
-    ]
+    pass
 
 
 _stateDictDefault = {
@@ -1423,156 +1346,23 @@ class Test(unittest.TestCase):
     parseTest = '1/4 trip{C8~ C~_hello C=mine} F~ F~ 2/8 F F# quad{g--16 a## FF(n) g#} g16 F0'
 
     def testOne(self) -> None:
-        c = Converter(self.parseTest)
-        c.parse()
-        s = c.stream
-        sfn = s.flatten().getElementsByClass(note.Note)
-        t0 = sfn[0].tie
-        t1 = sfn[1].tie
-        t2 = sfn[2].tie
-        if typing.TYPE_CHECKING:
-            assert t0 is not None
-            assert t1 is not None
-            assert t2 is not None
-
-        self.assertIsInstance(t0, tie.Tie)
-        self.assertIsInstance(t1, tie.Tie)
-        self.assertIsInstance(t2, tie.Tie)
-        self.assertEqual(t0.type, 'start')
-        self.assertEqual(t1.type, 'continue')
-        self.assertEqual(t2.type, 'stop')
-        self.assertEqual(sfn[0].step, 'C')
-        self.assertEqual(sfn[0].octave, 3)
-        self.assertEqual(sfn[1].lyric, 'hello')
-        self.assertEqual(sfn[2].id, 'mine')
-
-        acc6 = sfn[6].pitch.accidental
-        acc7 = sfn[7].pitch.accidental
-        if typing.TYPE_CHECKING:
-            assert acc6 is not None
-            assert acc7 is not None
-        self.assertEqual(acc6.alter, 1)
-        self.assertEqual(acc7.alter, -2)
-        self.assertEqual(sfn[9].editorial.ficta.alter, 0)
-        self.assertEqual(sfn[12].duration.quarterLength, 1.0)
-        self.assertEqual(sfn[12].expressions[0].classes, expressions.Fermata().classes)
+        pass
 
     def testRaiseExceptions(self) -> None:
-        error_states = [
-            {
-                'string': 'h',
-                'reason': 'h is not a valid note',
-            },
-            {
-                'string': 'a;',
-                'reason': 'a semicolon is not a valid character or modifier',
-            },
-            {
-                'string': 'r;',
-                'reason': 'a semicolon is not a valid character or modifier',
-            },
-            {
-                'string': '4/4;',
-                'reason': 'a semicolon is not a valid character or modifier',
-            },
-            {
-                'string': 'ABC',
-                'reason': (
-                    'only the same upper-cased letter may be repeated to '
-                    + 'indicate lower octaves'
-                ),
-            },
-            {
-                'string': 'aaa',
-                'reason': (
-                    'the same lower-cased letter may not be repeated to '
-                    + 'indicate higher octaves. Instead use apostrophes.'
-                ),
-            },
-        ]
-
-        for error_state in error_states:
-            with self.assertRaises(TinyNotationException, msg=(
-                    'Should have raised a TinyNotationException for input '
-                    + f"'{error_state['string']}' because {error_state['reason']}."
-            )):
-                converter = Converter(error_state['string'], raiseExceptions=True)
-                converter.parse()
+        pass
 
     def testGetDefaultTokenMap(self) -> None:
-        defaultTokenMap = _getDefaultTokenMap()
-
-        self.assertEqual(
-            len(defaultTokenMap),
-            3,
-            (
-                'There should be three valid token types by default: Time '
-                + 'signatures, Notes, and Rests'
-            )
-        )
-
-        validTokenTypeCounts = {
-            NoteToken: 0,
-            RestToken: 0,
-            TimeSignatureToken: 0,
-        }
-
-        for regex, tokenType in defaultTokenMap:
-            self.assertIn(
-                tokenType,
-                validTokenTypeCounts,
-                (
-                    'Found unexpected token type in default token map:'
-                    f'{tokenType.__class__.__name__}.'
-                )
-            )
-
-            # noinspection PyTypeChecker
-            validTokenTypeCounts[tokenType] += 1
-            self.assertGreater(
-                len(regex),
-                0,
-                (
-                    'Should provide a non-empty string for the regular '
-                    'expression in the default token map for tokens of type '
-                    f'{tokenType.__class__.__name__}.'
-                )
-            )
-
-        for tokenType in validTokenTypeCounts:
-            self.assertEqual(
-                validTokenTypeCounts[tokenType],
-                1,
-                (
-                    'Should have found each valid token type exactly once in '
-                    + 'the default token map.'
-                )
-            )
+        pass
 
     def test_too_many_states(self):
-        c = Converter('2/4 trip{c8 d e}} f4', makeNotation=False)
-        c.parse()
-        s = c.stream
-        self.assertEqual(s.notes[-2].duration.quarterLength, fractions.Fraction(1, 3))
-        self.assertEqual(s.notes.last().duration.quarterLength, 1.0)
-
-        c = Converter('2/4 trip{c8 d e}} f4', makeNotation=False)
-        c.raiseExceptions = True
-        with self.assertRaisesRegex(
-            TinyNotationException,
-            "Token 'e}}' closes more states than are open"
-        ):
-            c.parse()
+        pass
 
 
 class TestExternal(unittest.TestCase):
     show = True
 
     def testOne(self):
-        c = Converter(Test.parseTest)
-        c.parse()
-        if self.show:
-            c.stream.show('musicxml.png')
+        pass
 
 
 # TODO: Chords

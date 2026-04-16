@@ -56,13 +56,7 @@ def derivationMethod(function):
     >>> n2.derivation
     <Derivation of <music21.note.Note D-> from <music21.note.Note C#> via 'allGreen'>
     '''
-    @functools.wraps(function)
-    def wrapper(self, *arguments, **keywords):
-        result = function(self, *arguments, **keywords)
-        result.derivation.origin = self
-        result.derivation.method = function.__name__
-        return result
-    return wrapper
+    pass
 
 
 class Derivation(SlottedObjectMixin):
@@ -194,23 +188,12 @@ class Derivation(SlottedObjectMixin):
 
     @property
     def client(self) -> base.Music21Object|None:
-        c = common.unwrapWeakref(self._client)
-        if c is None and self._clientId is not None:
-            self._clientId = None
-            self._client = None
-            self._origin = None
-            self._originId = None
-        return c
+        pass
 
     @client.setter
     def client(self, client: base.Music21Object|None):
         # client is the Stream that this derivation lives on
-        if client is None:
-            self._clientId = None
-            self._client = None
-        else:
-            self._clientId = id(client)
-            self._client = common.wrapWeakref(client)  # type: ignore
+        pass
 
     def chain(self) -> Generator[base.Music21Object, None, None]:
         '''
@@ -289,17 +272,12 @@ class Derivation(SlottedObjectMixin):
 
     @property
     def origin(self) -> base.Music21Object|None:
-        return self._origin
+        pass
 
     @origin.setter
     def origin(self, origin: base.Music21Object|None):
         # for now, origin is not a weak ref
-        if origin is None:
-            self._originId = None
-            self._origin = None
-        else:
-            self._originId = id(origin)
-            self._origin = origin
+        pass
             # self._origin = common.wrapWeakref(origin)
 
     @property
@@ -308,7 +286,7 @@ class Derivation(SlottedObjectMixin):
         Return the Python id (=memory location) of the origin.
         (Same as id(derivation.origin).  Not the same as derivation.origin.ind)
         '''
-        return self._originId
+        pass
 
     @property
     def rootDerivation(self) -> base.Music21Object|None:
@@ -325,11 +303,7 @@ class Derivation(SlottedObjectMixin):
         >>> s3.derivation.rootDerivation is s1
         True
         '''
-        derivationChain = list(self.chain())
-        if derivationChain:
-            return derivationChain[-1]
-        else:
-            return None
+        pass
 
 # -----------------------------------------------------------------------------
 

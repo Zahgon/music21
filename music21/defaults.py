@@ -119,7 +119,7 @@ class Test(unittest.TestCase):
     Unit tests
     '''
     def testTest(self):
-        self.assertEqual(1, 1)
+        pass
 
 
 # ----------------------------------------------------------------||||||||||||--

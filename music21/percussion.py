@@ -113,35 +113,17 @@ class PercussionChord(chord.ChordBase):
 
     @property
     def notes(self) -> tuple[note.NotRest, ...]:
-        return tuple(self._notes)
+        pass
 
     @notes.setter
     def notes(self, newNotes: Iterable[note.Unpitched|note.Note]) -> None:
         '''
         Sets notes to an iterable of Note or Unpitched objects
         '''
-        if not common.isIterable(newNotes):
-            raise TypeError('notes must be set with an iterable')
-        if not all(isinstance(n, (note.Unpitched, note.Note)) for n in newNotes):
-            raise TypeError('every element of notes must be a note.Note or note.Unpitched object')
-        self._notes.clear()
-        self.add(newNotes)
+        pass
 
     def _reprInternal(self) -> str:
-        if not self.notes:
-            return super()._reprInternal()
-
-        allNotes = []
-        for thisNote in self.notes:
-            if isinstance(thisNote, note.Note):
-                allNotes.append(thisNote.nameWithOctave)
-            elif isinstance(thisNote, note.Unpitched):
-                if thisNote.storedInstrument:
-                    allNotes.append(str(thisNote.storedInstrument.instrumentName))
-                else:
-                    allNotes.append(f'unpitched[{thisNote.displayName}]')
-
-        return '[' + ' '.join(allNotes) + ']'
+        pass
 
 
     @property
@@ -164,17 +146,11 @@ class PercussionChord(chord.ChordBase):
         >>> pChord.notes
         (<music21.note.Note C>,)
         '''
-        pitches: tuple[pitch.Pitch, ...] = tuple(
-            component.pitch for component in self._notes if isinstance(component, note.Note))
-        return pitches
+        pass
 
     @pitches.setter
     def pitches(self, value: t.Iterable[pitch.Pitch]) -> None:
-        self._notes = []
-        # TODO: individual ties are not being retained here
-        for p in value:
-            # assumes value is an iterable of pitches or something to pass to Note __init__
-            self._notes.append(note.Note(p))
+        pass
 
 
 class Test(unittest.TestCase):

@@ -287,20 +287,7 @@ class TestCuthbert(unittest.TestCase):  # pragma: no cover
         '''
         test a local version of this mess
         '''
-        from music21 import corpus
-        from music21 import environment
-        environLocal = environment.Environment()
-
-        s = corpus.parse('luca/gloria').measures(1, 19)
-        # s = corpus.parse('beethoven/opus18no1', 2).parts[0].measures(4, 10)
-
-        vfp = VexflowPickler()
-        vfp.defaults['m21URI'] = 'file:///Users/Cuthbert/git/music21j/src/music21'
-        vfp.defaults['requireURI'] = 'file:///Users/Cuthbert/git/music21j/ext/require/require.js'
-        data = vfp.fromObject(s)
-        fp = environLocal.getTempFile('.html')
-        with open(fp, 'w', encoding='utf-8') as f:
-            f.write(data)
+        pass
         # environLocal.launch('vexflow', fp)
 
 

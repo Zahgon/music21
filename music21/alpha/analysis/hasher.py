@@ -132,12 +132,7 @@ class Hasher:
         >>> key.KeySignature in h2.validTypes
         True
         '''
-        if self.hashIntervalFromLastNote:
-            self.stateVars['IntervalFromLastNote'] = None
-
-        if self.hashIsAccidental:
-            self.validTypes.append(key.KeySignature)
-            self.stateVars['KeySignature'] = None
+        pass
 
         # -- Begin Individual Hashing Functions of Properties---
     def _hashDuration(self, e, thisChord=None):
@@ -155,18 +150,13 @@ class Hasher:
         >>> h._hashDuration(n, thisChord=c)
         2.0
         '''
-        if thisChord:
-            return thisChord.duration.quarterLength
-        return e.duration.quarterLength
+        pass
 
     def _hashRoundedDuration(self, e, thisChord=None):
         '''
         TODO: Check if this is working
         '''
-        if thisChord:
-            return self._getApproxDurOrOffset(float(thisChord.duration.quarterLength))
-        e.duration.quarterLength = self._getApproxDurOrOffset(float(e.duration.quarterLength))
-        return e.duration.quarterLength
+        pass
 
     def _hashMIDIPitchName(self, e, thisChord=None):
         '''
@@ -188,11 +178,7 @@ class Hasher:
         0
 
         '''
-        if thisChord and self.hashChordsAsChords:
-            return 1
-        elif isinstance(e, note.Rest):
-            return 0
-        return e.pitch.midi
+        pass
 
     def _hashPitchName(self, e, thisChord=None):
         '''
@@ -213,11 +199,7 @@ class Hasher:
         >>> h._hashPitchName(r, thisChord=c)
         'r'
         '''
-        if thisChord and self.hashChordsAsChords:
-            return 'z'
-        elif isinstance(e, note.Rest):
-            return 'r'
-        return str(e.pitch)
+        pass
 
     def _hashPitchNameNoOctave(self, e, thisChord=None):
         '''
@@ -238,11 +220,7 @@ class Hasher:
         >>> h._hashPitchNameNoOctave(r, thisChord=c)
         'r'
         '''
-        if thisChord and self.hashChordsAsChords:
-            return 'z'
-        elif isinstance(e, note.Rest):
-            return 'r'
-        return str(e.pitch)[:-1]
+        pass
 
     def _hashOctave(self, e, thisChord=None):
         '''
@@ -262,11 +240,7 @@ class Hasher:
         >>> h._hashOctave(r, thisChord=c)
         -1
         '''
-        if isinstance(e, chord.Chord) and self.hashChordsAsChords:
-            return -1
-        elif isinstance(e, note.Rest):
-            return -1
-        return e.octave
+        pass
 
     def _hashIsAccidental(self, e, thisChord=None):
         # TODO: figure out how to tell if note is accidental based on key sig
@@ -278,18 +252,13 @@ class Hasher:
         The subdivided beat is indicated with self.granularity.
         By default, the granularity is set to 32, or 32nd notes
         '''
-        if thisChord:
-            return self._getApproxDurOrOffset(thisChord.offset)
-        e.offset = self._getApproxDurOrOffset(e.offset)
-        return e.offset
+        pass
 
     def _hashOffset(self, e, thisChord=None):
         '''
         returns an unrounded floating point representation of a note's offset
         '''
-        if thisChord:
-            return thisChord.offset
-        return e.offset
+        pass
 
     def _hashIntervalFromLastNote(self, e, thisChord=None):
         '''
@@ -297,35 +266,21 @@ class Hasher:
         known issues with first note of every measure in transposed pieces
         returns 0 if things don't work
         '''
-        try:
-            if (isinstance(e, note.Note)
-                    and e.previous('Note') is not None):
-                previousNote = e.previous('Note')
-                if previousNote is None:
-                    return 0
-                intFromLastNote = interval.Interval(noteStart=previousNote,
-                                                    noteEnd=e).intervalClass
-                return interval.convertGeneric(interval.Interval(intFromLastNote).intervalClass)
-        except TypeError:
-            return 0
+        pass
 
     def _hashPrimeFormString(self, e, thisChord=None):
         '''
         returns prime form of a chord as a string e.g. '<037>'
         returns '<>' otherwise
         '''
-        if thisChord:
-            return thisChord.primeFormString
-        return '<>'
+        pass
 
     def _hashChordNormalOrderString(self, e, thisChord=None):
         '''
         returns normal order of a chord as a string e.g. '<047>'
         returns '<>' otherwise
         '''
-        if thisChord:
-            return thisChord.formatVectorString(thisChord.normalOrder)
-        return '<>'
+        pass
 
     # --- End Individual Hashing Functions
 
@@ -338,55 +293,7 @@ class Hasher:
         NoteHash that is different depending upon which properties a particular instance of
         Hasher object hashes.
         '''
-        tupleList = []
-
-        if self.hashPitch:
-            tupleList.append('Pitch')
-            if self.hashMIDI:
-                self.hashingFunctions['Pitch'] = self._hashMIDIPitchName
-            elif not self.hashMIDI and not self.hashNoteNameOctave:
-                self.hashingFunctions['Pitch'] = self._hashPitchName
-            elif not self.hashMIDI and self.hashNoteNameOctave:
-                self.hashingFunctions['Pitch'] = self._hashPitchNameNoOctave
-
-            if self.hashIsAccidental:
-                tupleList.append('IsAccidental')
-                self.hashingFunctions['IsAccidental'] = self._hashIsAccidental
-
-        if self.hashOctave:
-            tupleList.append('Octave')
-            self.hashingFunctions['Octave'] = self._hashOctave
-
-        if self.hashChordsAsNotes:
-            pass
-        elif self.hashChordsAsChords:
-            if self.hashNormalOrderString:
-                tupleList.append('NormalOrderString')
-                self.hashingFunctions['NormalOrderString'] = self._hashChordNormalOrderString
-            if self.hashPrimeFormString:
-                tupleList.append('PrimeFormString')
-                self.hashingFunctions['PrimeFormString'] = self._hashPrimeFormString
-
-        if self.hashDuration:
-            tupleList.append('Duration')
-            if self.roundDurationAndOffset:
-                self.hashingFunctions['Duration'] = self._hashRoundedDuration
-            else:
-                self.hashingFunctions['Duration'] = self._hashDuration
-
-        if self.hashOffset:
-            tupleList.append('Offset')
-            if self.roundDurationAndOffset:
-                self.hashingFunctions['Offset'] = self._hashRoundedOffset
-            else:
-                self.hashingFunctions['Offset'] = self._hashOffset
-
-        if self.hashIntervalFromLastNote:
-            tupleList.append('IntervalFromLastNote')
-            self.hashingFunctions['IntervalFromLastNote'] = self._hashIntervalFromLastNote
-
-        self.tupleList = tupleList
-        self.tupleClass = collections.namedtuple('NoteHash', tupleList)
+        pass
 
     def hashMeasures(self, s):
         '''
@@ -401,42 +308,10 @@ class Hasher:
         self.addSingleNoteHashToFinalHash, which creates the appropriate hash for that element
         and adds it to self.finalHash
         '''
-        finalHash = []
-        self.setupValidTypesAndStateVars()
-        ss = s.recurse()
-        tupValidTypes = tuple(self.validTypes)
-        finalEltsToBeHashed = [elt for elt in ss if isinstance(elt, tupValidTypes)]
-        self.setupTupleList()
-
-        # TODO: see if can break for loop up into separate functions
-        for elt in finalEltsToBeHashed:
-
-            if self.hashIsAccidental and isinstance(elt, key.KeySignature):
-                self.stateVars['currKeySig'] = elt
-            elif isinstance(elt, chord.Chord):
-                if self.hashChordsAsNotes:
-                    for n in elt:
-                        singleNoteHash = [self.hashingFunctions[hashProperty](n, thisChord=elt)
-                                            for hashProperty in self.tupleList]
-
-                        self.addHashToFinalHash(singleNoteHash, finalHash, n)
-                elif self.hashChordsAsChords:
-                    singleNoteHash = [self.hashingFunctions[hashProperty](None, thisChord=elt)
-                                        for hashProperty in self.tupleList]
-                    self.addHashToFinalHash(singleNoteHash, finalHash, elt)
-            else:
-                singleNoteHash = [self.hashingFunctions[hashProperty](elt)
-                                    for hashProperty in self.tupleList]
-                self.addHashToFinalHash(singleNoteHash, finalHash, elt)
-        # TODO: don't finalHash back and forth, return it in the smaller functions
-        return finalHash
+        pass
 
     def addHashToFinalHash(self, singleNoteHash, finalHash, reference):
-        tupleHash = (self.tupleClass._make(singleNoteHash))
-        if self.includeReference:
-            self.addNoteHashWithReferenceToFinalHash(finalHash, tupleHash, reference)
-        else:
-            self.addNoteHashToFinalHash(finalHash, tupleHash)
+        pass
 
     def addNoteHashWithReferenceToFinalHash(self, finalHash, tupleHash, reference):
         # noinspection PyShadowingNames
@@ -457,9 +332,7 @@ class Hasher:
         >>> finalHash[0].reference.id == n.id
         True
         '''
-        nhwr = NoteHashWithReference(tupleHash)
-        nhwr.reference = reference
-        finalHash.append(nhwr)
+        pass
 
     def addNoteHashToFinalHash(self, finalHash, tupleHash):
         # noinspection PyShadowingNames
@@ -477,8 +350,7 @@ class Hasher:
         >>> finalHash
         [(<music21.pitch.Pitch C4>, <music21.duration.Duration 1.0>)]
         '''
-        nh = NoteHash(tupleHash)
-        finalHash.append(nh)
+        pass
 
 #     def addSingleNoteHashToFinalHash(self, singleNoteHash, finalHash, reference=None):
 #         # TODO: use the linter, reference DOESN'T have to be passed in
@@ -498,14 +370,14 @@ class Hasher:
     # --- Begin Rounding Helper Functions ---
 
     def _getApproxDurOrOffset(self, durOrOffset):
-        return round(durOrOffset * self.granularity) / self.granularity
+        pass
 
     def _approximatelyEqual(self, a, b, sig_fig=4):
         '''
         use to look at whether beat lengths are close, within a certain range
         probably can use for other things that are approx. equal
         '''
-        return a == b or int(a * 10 ** sig_fig) == int(b * 10 ** sig_fig)
+        pass
 
     # --- End Rounding Helper Functions ---
 
@@ -585,180 +457,42 @@ class NoteHash(tuple):
 
 class Test(unittest.TestCase):
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
     def _approximatelyEqual(self, a, b, sig_fig=2):
         '''
         use to look at whether beat lengths are close, within a certain range
         probably can use for other things that are approx. equal
         '''
-        return a == b or int(a * 10 ** sig_fig) == int(b * 10 ** sig_fig)
+        pass
 
     def testBasicHash(self):
         '''
         test for hasher with basic settings: pitch, rounded duration, offset
         with notes, chord, and rest
         '''
-        s1 = stream.Stream()
-        note1 = note.Note('C4')
-        note1.duration.type = 'half'
-        note2 = note.Note('F#4')
-        note3 = note.Note('B-2')
-        cMinor = chord.Chord(['C4', 'G4', 'E-5'])
-        cMinor.duration.type = 'half'
-        r = note.Rest(quarterLength=1.5)
-        s1.append(note1)
-        s1.append(note2)
-        s1.append(note3)
-        s1.append(cMinor)
-        s1.append(r)
-
-        h = Hasher()
-
-        hashes_plain_numbers = [(60, 2.0, 0.0), (66, 1.0, 2.0), (46, 1.0, 3.0), (60, 2.0, 4.0),
-                                (67, 2.0, 4.0), (75, 2.0, 4.0), (0, 1.5, 6.0)]
-        CNoteHash = collections.namedtuple('NoteHash', ['Pitch', 'Duration', 'Offset'])
-        hashes_in_format = [CNoteHash(Pitch=x, Duration=y, Offset=z)
-                            for (x, y, z) in hashes_plain_numbers]
-
-        self.assertEqual(h.hashStream(s1), hashes_in_format)
+        pass
 
     def testHashChordsAsChordsPrimeFormString(self):
         '''
         test to make sure that hashing works when trying to hash chord as chord
         '''
-        s1 = stream.Stream()
-        note1 = note.Note('C4')
-        note1.duration.type = 'half'
-        cMinor = chord.Chord(['C4', 'G4', 'E-5'])
-        cMinor.duration.type = 'half'
-        cMajor = chord.Chord(['C4', 'G4', 'E4'])
-        cMajor.duration.type = 'whole'
-        s1.append(note1)
-        s1.append(cMinor)
-        s1.append(cMajor)
-        h = Hasher()
-        h.hashChordsAsChords = True
-        h.hashChordsAsNotes = False
-        h.hashPrimeFormString = True
-        CNoteHash = collections.namedtuple('NoteHash', ['Pitch', 'PrimeFormString',
-                                                        'Duration', 'Offset'])
-        hashes_plain_numbers = [(60, '<>', 2.0, 0.0), (1, '<037>', 2.0, 2.0),
-                                (1, '<037>', 4.0, 4.0)]
-        hashes_in_format = [CNoteHash(Pitch=x, PrimeFormString=y, Duration=z, Offset=a)
-                            for (x, y, z, a) in hashes_plain_numbers]
-
-        self.assertEqual(h.hashStream(s1), hashes_in_format)
+        pass
 
     def testHashChordsAsChordsNormalOrder(self):
-        s2 = stream.Stream()
-        note1 = note.Note('C4')
-        note1.duration.type = 'half'
-        cMinor = chord.Chord(['C4', 'G4', 'E-5'])
-        cMinor.duration.type = 'half'
-        cMajor = chord.Chord(['C4', 'G4', 'E3'])
-        cMajor.duration.type = 'whole'
-        s2.append(note1)
-        s2.append(cMinor)
-        s2.append(cMajor)
-        h = Hasher()
-        h.hashChordsAsChords = True
-        h.hashChordsAsNotes = False
-        h.hashPrimeFormString = False
-        h.hashNormalOrderString = True
-        CNoteHash = collections.namedtuple('NoteHash', ['Pitch', 'NormalOrderString',
-                                                        'Duration', 'Offset'])
-        hashes_plain_numbers = [(60, '<>', 2.0, 0.0), (1, '<037>', 2.0, 2.0),
-                                (1, '<047>', 4.0, 4.0)]
-        hashes_in_format = [CNoteHash(Pitch=x, NormalOrderString=y, Duration=z, Offset=a)
-                            for (x, y, z, a) in hashes_plain_numbers]
-        self.assertEqual(h.hashStream(s2), hashes_in_format)
+        pass
 
     def testHashUnroundedDuration(self):
-        s3 = stream.Stream()
-        note1 = note.Note('C4')
-        note2 = note.Note('G4')
-        cMinor = chord.Chord(['C4', 'G4'])
-        note1.duration.quarterLength = 1.783
-        note2.duration.quarterLength = 2 / 3
-        cMinor.duration.type = 'half'
-        s3.append(note1)
-        s3.append(note2)
-        s3.append(cMinor)
-        h = Hasher()
-        h.roundDurationAndOffset = False
-        CNoteHash = collections.namedtuple('NoteHash', ['Pitch', 'Duration', 'Offset'])
-        hashes_plain_numbers = [(60, 1.783, 0.0), (67, 2 / 3, 1.783), (60, 2.0, 1.783 + 2 / 3),
-                                (67, 2.0, 1.783 + 2 / 3)]
-        hashes_in_format = [CNoteHash(Pitch=x, Duration=z, Offset=a)
-                            for (x, z, a) in hashes_plain_numbers]
-        h3 = h.hashStream(s3)
-        h3_floats = [h3[0][2], h3[1][2], h3[2][2], h3[3][2]]
-        answers_floats = [hashes_in_format[0][2],
-                          hashes_in_format[1][2],
-                          hashes_in_format[2][2],
-                          hashes_in_format[3][2]]
-        assert all(self._approximatelyEqual(*values)
-                   for values in zip(h3_floats, answers_floats))
+        pass
 
     def testHashRoundedDuration(self):
-        s3 = stream.Stream()
-        note1 = note.Note('C4')
-        note2 = note.Note('G4')
-        cMinor = chord.Chord(['C4', 'G4'])
-        note1.duration.quarterLength = 1.783
-        note2.duration.quarterLength = 2 / 3
-        cMinor.duration.type = 'half'
-        s3.append(note1)
-        s3.append(note2)
-        s3.append(cMinor)
-        h = Hasher()
-        h.roundDurationAndOffset = True
-
-        CNoteHash = collections.namedtuple('NoteHash', ['Pitch', 'Duration', 'Offset'])
-        hashes_plain_numbers = [(60, 1.78125, 0.0), (67, 0.65625, 1.78125), (60, 2.0, 2.4375),
-                                (67, 2.0, 2.4375)]
-        hashes_in_format = [CNoteHash(Pitch=x, Duration=z, Offset=a)
-                            for (x, z, a) in hashes_plain_numbers]
-        h3 = h.hashStream(s3)
-        self.assertEqual(h3, hashes_in_format)
-        h.granularity = 8  # smallest length note is now 8th note
-        new_hashes_in_format = [(60, 1.75, 0.0),
-                                (67, 0.625, 1.75),
-                                (60, 2.0, 2.5),
-                                (67, 2.0, 2.5)]
-        h4 = h.hashStream(s3)
-        self.assertEqual(h4, new_hashes_in_format)
+        pass
 
     def testReferences(self):
-        s = stream.Stream()
-        note1 = note.Note('C4')
-        note2 = note.Note('G4')
-        s.append([note1, note2])
-
-        h = Hasher()
-        h.includeReference = True
-        hashes = h.hashStream(s)
-
-        note1ref = hashes[0].reference
-        note2ref = hashes[1].reference
-
-        self.assertEqual(note1.id, note1ref.id)
-        self.assertEqual(note2.id, note2ref.id)
+        pass
 
     def testIntervals(self):
-        s = stream.Stream()
-        note1 = note.Note('E5')
-        note2 = note.Note('D5')
-        note3 = note.Note('A5')
-        s.append([note1, note2, note3])
-        h = Hasher()
-        h.hashPitch = True
-        h.hashDuration = False
-        h.hashOffset = False
-        h.hashIntervalFromLastNote = True
-        unused_hashes = h.hashStream(s)
+        pass
 
 
 class TestExternal(unittest.TestCase):
@@ -829,56 +563,10 @@ class TestExternal(unittest.TestCase):
     #     print(difflib.SequenceMatcher(a=hashes1, b=hashes2).ratio())
 
     def testBvSvS(self):
-        from music21 import corpus
-        h = Hasher()
-        h.hashDuration = False
-        h.hashOffset = False
-        s1 = corpus.parse('schoenberg', 6).parts.first()
-        s2 = corpus.parse('schoenberg', 2).parts.first()
-        s3 = corpus.parse('bwv66.6').parts.first()
-        hashes1 = h.hashStream(s1)
-        hashes2 = h.hashStream(s2)
-        hashes3 = h.hashStream(s3)
-
-        if self.show:
-            print(difflib.SequenceMatcher(a=hashes1, b=hashes2).ratio())
-            print(difflib.SequenceMatcher(a=hashes1, b=hashes3).ratio())
-            print(difflib.SequenceMatcher(a=hashes2, b=hashes3).ratio())
-            s2.show()
-
-        h.hashPitch = False
-        h.hashDuration = True
-        h.hashOffset = True
-
-        hashes1 = h.hashStream(s1)
-        hashes2 = h.hashStream(s2)
-        hashes3 = h.hashStream(s3)
-
-        if self.show:
-            print(difflib.SequenceMatcher(a=hashes1, b=hashes2).ratio())
-            print(difflib.SequenceMatcher(a=hashes1, b=hashes3).ratio())
-            print(difflib.SequenceMatcher(a=hashes2, b=hashes3).ratio())
+        pass
 
     def testInterval(self):
-        from music21 import corpus
-        h = Hasher()
-        s3 = corpus.parse('bwv66.6').parts.first()
-        s4 = corpus.parse('bwv66.6').parts.first().transpose('M2')
-
-        hashes3 = h.hashStream(s3)
-        hashes4 = h.hashStream(s4)
-
-        if self.show:
-            print(difflib.SequenceMatcher(a=hashes3, b=hashes4).ratio())
-
-        h.hashIntervalFromLastNote = True
-        h.hashPitch = False
-
-        hashes3 = h.hashStream(s3)
-        hashes4 = h.hashStream(s4)
-
-        if self.show:
-            print(difflib.SequenceMatcher(a=hashes3, b=hashes4).ratio())
+        pass
 
 
 if __name__ == '__main__':

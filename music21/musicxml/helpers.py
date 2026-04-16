@@ -195,14 +195,7 @@ def measureNumberComesBefore(mNum1: str, mNum2: str) -> bool:
 
 
 def isFullMeasureRest(r: 'music21.note.Rest') -> bool:
-    isFullMeasure = False
-    if r.fullMeasure in (True, 'always'):
-        isFullMeasure = True
-    elif r.fullMeasure == 'auto':
-        tsContext = r.getContextByClass(meter.TimeSignature)
-        if tsContext and tsContext.barDuration.quarterLength == r.duration.quarterLength:
-            isFullMeasure = True
-    return isFullMeasure
+    pass
 
 
 def synchronizeIdsToM21(element: ET.Element, m21Object: Music21Object):
@@ -230,10 +223,7 @@ def synchronizeIdsToM21(element: ET.Element, m21Object: Music21Object):
     >>> f.id
     'doNotOverwrite'
     '''
-    newId = element.get('id', None)
-    if not newId:
-        return
-    m21Object.id = newId
+    pass
 
 def synchronizeIdsToXML(
     element: ET.Element,
@@ -272,21 +262,7 @@ def synchronizeIdsToXML(
     >>> e.get('id', 'no idea')
     'no idea'
     '''
-    # had to suppress type-checking because of spurious error on
-    #    e.get('id', 'no idea')
-    if not isinstance(m21Object, prebase.ProtoM21Object):
-        return
-    if not hasattr(m21Object, 'id'):
-        return
-
-    m21Id = m21Object.id  # type: ignore
-
-    if m21Id is None:
-        return
-
-    if not xmlObjects.isValidXSDID(m21Id):
-        return
-    element.set('id', m21Id)
+    pass
 
 
 
@@ -331,16 +307,7 @@ def setM21AttributeFromAttribute(
     >>> pl.isNew
     True
     '''
-    value = xmlEl.get(xmlAttributeName)  # find first
-    if value is None:
-        return
-
-    if transform is not None:
-        value = transform(value)
-
-    if attributeName is None:
-        attributeName = common.hyphenToCamelCase(xmlAttributeName)
-    setattr(m21El, attributeName, value)
+    pass
 
 
 def setXMLAttributeFromAttribute(
@@ -385,17 +352,7 @@ def setXMLAttributeFromAttribute(
     >>> e.get('new-page')
     'yes'
     '''
-    if attributeName is None:
-        attributeName = common.hyphenToCamelCase(xmlAttributeName)
-
-    value = getattr(m21El, attributeName, None)
-    if value is None:
-        return
-
-    if transform is not None:
-        value = transform(value)
-
-    xmlEl.set(xmlAttributeName, str(value))
+    pass
 
 
 

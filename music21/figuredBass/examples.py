@@ -72,11 +72,7 @@ def exampleA():
     .. image:: images/figuredBass/fbExamples_sol2A.*
         :width: 700
     '''
-    from music21 import converter
-    s = converter.parse('tinynotation: 3/2 C2 D2_6 E2_6 F2_6 C#2_b7,5,3 D2 '
-                        'BB2_#6,5,3 C2_6 AA#2_7,5,#3 BB1_6,4 BB2_7,#5,#3 E1.',
-                        makeNotation=False)
-    return realizer.figuredBassFromStream(s)
+    pass
 
 
 def exampleD():
@@ -133,13 +129,7 @@ def exampleD():
     .. image:: images/figuredBass/fbExamples_sol3D.*
             :width: 700
     '''
-    from music21 import converter
-    from music21 import key
-    s = converter.parse('tinynotation: 3/4 BB4 C#4_#6 D4_6 E2 E#4_7,5,#3 F#2_6,4 '
-                        'F#4_5,#3 G2 E4_6 F#2_6,4 E4_#4,2 D2_6 EE4_7,5,#3 AA2.',
-                        makeNotation=False)
-    s.insert(0, key.Key('b'))
-    return realizer.figuredBassFromStream(s)
+    pass
 
 
 def exampleB():
@@ -180,12 +170,7 @@ def exampleB():
     .. image:: images/figuredBass/fbExamples_sol2B.*
         :width: 700
     '''
-    from music21 import converter
-    from music21 import key
-    s = converter.parse('tinynotation: 4/4 D4 A4_7,5,#3 B-4 F4_6 G4_6 AA4_7,5,#3 D2',
-                        makeNotation=False)
-    s.insert(0, key.Key('d'))
-    return realizer.figuredBassFromStream(s)
+    pass
 
 
 def exampleC():
@@ -226,12 +211,7 @@ def exampleC():
     .. image:: images/figuredBass/fbExamples_sol2C.*
         :width: 700
     '''
-    from music21 import converter
-    from music21 import key
-    s = converter.parse('tinynotation: 4/4 FF#4 GG#4_#6 AA4_6 FF#4 BB4_6,5 C#4_7,5,#3 F#2',
-                        makeNotation=False)
-    s.insert(0, key.Key('f#'))
-    return realizer.figuredBassFromStream(s)
+    pass
 
 
 def V43ResolutionExample():
@@ -248,11 +228,7 @@ def V43ResolutionExample():
     .. image:: images/figuredBass/fbExamples_V43.*
         :width: 350
     '''
-    from music21 import converter
-    from music21 import key
-    s = converter.parse('tinynotation: 4/4 D2 E2_4,3 D2_5,3 E2_4,3 F#1_6,3', makeNotation=False)
-    s.insert(0, key.Key('D'))
-    return realizer.figuredBassFromStream(s)
+    pass
 
 
 def viio65ResolutionExample():
@@ -279,11 +255,7 @@ def viio65ResolutionExample():
     .. image:: images/figuredBass/fbExamples_vii65.*
         :width: 700
     '''
-    from music21 import converter
-    from music21 import key
-    s = converter.parse('tinyNotation: 4/4 D2 E2_6,b5 D2 E2_6,b5 F#1_6', makeNotation=False)
-    s.insert(0, key.Key('D'))
-    return realizer.figuredBassFromStream(s)
+    pass
 
 
 def augmentedSixthResolutionExample():
@@ -306,14 +278,7 @@ def augmentedSixthResolutionExample():
     .. image:: images/figuredBass/fbExamples_a6.*
         :width: 700
     '''
-    from music21 import converter
-    from music21 import key
-    s = converter.parse('tinynotation: 4/4 D4 BB-4_8,#6,3 AA2_# D4 BB-4_#6,4,3 '
-                        'AA2_# D4 BB-4_#6,5,3 AA2_# D4 BB-4_#6,#4,3 AA2_# D4 '
-                        'BB-4_#6,5,3 AA2_6,4',
-                        makeNotation=False)
-    s.insert(0, key.Key('d'))
-    return realizer.figuredBassFromStream(s)
+    pass
 
 
 def italianA6ResolutionExample():
@@ -353,13 +318,7 @@ def italianA6ResolutionExample():
     .. image:: images/figuredBass/fbExamples_it+6.*
         :width: 700
     '''
-    from music21 import converter
-    from music21 import key
-    s = converter.parse(
-        'tinynotation: D4 BB-4_#6,3 AA2_# D4 BB-4_#6,3 AA2_6,4 D4 BB-4_#6,3 AA2_#6,4',
-        makeNotation=False)
-    s.insert(0, key.Key('d'))
-    return realizer.figuredBassFromStream(s)
+    pass
 
 
 def twelveBarBlues():
@@ -389,13 +348,7 @@ def twelveBarBlues():
     .. image:: images/figuredBass/fbExamples_twelveBarBlues.*
         :width: 700
     '''
-    from music21 import converter
-    from music21 import key
-    s = converter.parse(
-        'tinynotation: BB-1 E-1 BB-1 BB-1_7 E-1 E-1 BB-1 BB-1_7 F1_7 G1_6 BB-1 BB-1',
-        makeNotation=False)
-    s.insert(0, key.Key('B-'))
-    return realizer.figuredBassFromStream(s)
+    pass
 
 # -----------------------------------------------------------------
 # Functions that generate Boogie/Blues vamps.
@@ -416,37 +369,7 @@ def generateBoogieVamp(blRealization=None, numRepeats=5):
     .. image:: images/figuredBass/fbExamples_boogieVamp.*
         :width: 700
     '''
-    from music21 import converter
-    from music21 import stream
-    from music21 import interval
-    if blRealization is None:
-        bluesLine = twelveBarBlues()
-        fbRules = rules.Rules()
-        fbRules.partMovementLimits = [(1, 4), (2, 12), (3, 12)]
-        fbRules.forbidVoiceOverlap = False
-        blRealization = bluesLine.realize(fbRules)
-
-    sampleScore = blRealization.generateRandomRealizations(numRepeats)
-    boogieBassLine = converter.parse('tinynotation: BB-8. D16 F8. G16 A-8. G16 F8. D16',
-                                     makeNotation=False)
-
-    newBassLine = stream.Part()
-    newBassLine.append(sampleScore[1][0])  # Time signature
-    newBassLine.append(sampleScore[1][1])  # Key signature
-
-    for n in sampleScore[1].notes:
-        i = interval.Interval(boogieBassLine[0], n)
-        tp = boogieBassLine.transpose(i)
-        for lyr in n.lyrics:
-            tp.notes.first().addLyric(lyr.text)
-        for m in tp.notes:
-            newBassLine.append(m)
-
-    newScore = stream.Score()
-    newScore.insert(0, sampleScore[0])
-    newScore.insert(newBassLine)
-
-    return newScore
+    pass
 
 
 def generateTripletBlues(blRealization=None, numRepeats=5):  # 12/8
@@ -464,42 +387,7 @@ def generateTripletBlues(blRealization=None, numRepeats=5):  # 12/8
     .. image:: images/figuredBass/fbExamples_tripletBlues.*
         :width: 700
     '''
-    from music21 import converter
-    from music21 import stream
-    from music21 import interval
-    from music21 import meter
-    if blRealization is None:
-        bluesLine = twelveBarBlues()
-        fbRules = rules.Rules()
-        fbRules.partMovementLimits = [(1, 4), (2, 12), (3, 12)]
-        fbRules.forbidVoiceOverlap = False
-        blRealization = bluesLine.realize(fbRules)
-
-    sampleScore = blRealization.generateRandomRealizations(numRepeats)
-    tripletBassLine = converter.parse('tinynotation: BB-4 BB-8 D4 D8 F4 F8 A-8 G8 F8',
-                                      makeNotation=False)
-
-    newBassLine = stream.Part()
-    for n in sampleScore[1].notes:
-        i = interval.Interval(tripletBassLine[0], n)
-        tp = tripletBassLine.transpose(i)
-        for lyr in n.lyrics:
-            tp.notes.first().addLyric(lyr.text)
-        for m in tp.notes:
-            newBassLine.append(m)
-
-    newTopLine = stream.Part()
-    for sampleChord in sampleScore[0].notes:
-        sampleChordCopy = copy.deepcopy(sampleChord)
-        sampleChordCopy.quarterLength = 6.0
-        newTopLine.append(sampleChordCopy)
-
-    newScore = stream.Score()
-    newScore.append(meter.TimeSignature('12/8'))  # Time signature
-    newScore.append(sampleScore[1][1])  # Key signature
-    newScore.insert(0, newTopLine)
-    newScore.insert(0, newBassLine)
-    return newScore
+    pass
 
 
 _DOC_ORDER = [exampleA, exampleB, exampleC, exampleD, V43ResolutionExample,

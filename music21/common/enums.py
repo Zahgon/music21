@@ -98,10 +98,7 @@ class BooleanEnum(Enum):
     '''
     @staticmethod
     def is_bool_tuple(v):
-        if isinstance(v, tuple) and len(v) == 2 and isinstance(v[0], bool):
-            return True
-        else:
-            return False
+        pass
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

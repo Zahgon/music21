@@ -58,28 +58,23 @@ class OmrGroundTruthPair:
         Returns either the debug value set for this
         evaluator, or globalDebug
         '''
-        if self._overriddenDebug is None:
-            return globalDebug
-        else:
-            return self._overriddenDebug
+        pass
 
     @debug.setter
     def debug(self, newDebug):
-        self._overriddenDebug = newDebug
+        pass
 
     def parseAll(self):
         '''
         Parse both scores.
         '''
-        self.omrScore = self.getOmrScore()
-        self.groundScore = self.getGroundScore()
+        pass
 
     def hashAll(self):
         '''
         store the Hashes for both scores.
         '''
-        self.omrScore.getAllHashes()
-        self.groundScore.getAllHashes()
+        pass
 
     def getOmrScore(self):
         '''
@@ -92,13 +87,7 @@ class OmrGroundTruthPair:
          >>> ssOMR
          <music21.omr.correctors.ScoreCorrector object at 0x...>
         '''
-        if self.debug:
-            print('parsing OMR score')
-
-        if not self.omrM21Score:
-            self.omrM21Score = converter.parse(self.omrPath)
-
-        return correctors.ScoreCorrector(self.omrM21Score)
+        pass
 
     def getGroundScore(self):
         '''
@@ -111,13 +100,7 @@ class OmrGroundTruthPair:
          >>> ssGT
          <music21.omr.correctors.ScoreCorrector object at 0x...>
         '''
-        if self.debug:
-            print('parsing Ground Truth score')
-
-        if not self.groundM21Score:
-            self.groundM21Score = converter.parse(self.groundPath)
-
-        return correctors.ScoreCorrector(self.groundM21Score)
+        pass
 
     # def getDifferencesBetweenAlignedScores(self):
     #     '''
@@ -141,45 +124,25 @@ class OmrGroundTruthPair:
         '''
         define the substitution cost for x and y (2 if x and y are unequal else 0)
         '''
-        if x == y:
-            return 0
-        else:
-            return 2
+        pass
 
     def insertCost(self, x):
         '''
         define the insertion cost for x and y (1)
         '''
-        return 1
+        pass
 
     def deleteCost(self, x):
         '''
         define the deletion cost for x and y (1)
         '''
-        return 1
+        pass
 
     def minEditDist(self, target, source):
         '''
         Computes the min edit distance from target to source. Figure 3.25
         '''
-        n = len(target)
-        m = len(source)
-
-        distance = [[0 for i in range(m + 1)] for j in range(n + 1)]
-
-        for i in range(1, n + 1):
-            distance[i][0] = distance[i - 1][0] + self.insertCost(target[i - 1])
-
-        for j in range(1, m + 1):
-            distance[0][j] = distance[0][j - 1] + self.deleteCost(source[j - 1])
-
-        for i in range(1, n + 1):
-            for j in range(1, m + 1):
-                distance[i][j] = min(distance[i - 1][j] + 1,
-                                     distance[i][j - 1] + 1,
-                                     distance[i - 1][j - 1]
-                                        + self.substCost(source[j - 1], target[i - 1]))
-        return distance[n][m]
+        pass
 
     def getDifferences(self):
         '''
@@ -195,15 +158,7 @@ class OmrGroundTruthPair:
         >>> differences
         32
         '''
-        self.numberOfDifferences = 0
-        omrList = self.omrScore.getAllHashes()
-        gtList = self.groundScore.getAllHashes()
-        for partNum in range(len(omrList)):
-            omrPart = omrList[partNum]
-            gtPart = gtList[partNum]
-            measureErrors = self.minEditDist(omrPart, gtPart)
-            self.numberOfDifferences += measureErrors
-        return self.numberOfDifferences
+        pass
 
 
 def evaluateCorrectingModel(omrPath, groundTruthPath, debug=None,
@@ -225,87 +180,7 @@ def evaluateCorrectingModel(omrPath, groundTruthPath, debug=None,
     ('originalEditDistance', 32)
     ('totalNumberOfMeasures', 84)
     '''
-    if debug is None:
-        debug = globalDebug
-    # declare part number (0 indexed) if running single part
-    pn = 1
-
-    # get number of differences T
-    omrGTP = OmrGroundTruthPair(omr=omrPath, ground=groundTruthPath)
-    if debug:
-        print('getting differences')
-    if originalDifferences is None:
-        numberOfDifferences = omrGTP.getDifferences()
-    else:
-        numberOfDifferences = originalDifferences
-    if debug:
-        print('Original edit distance', numberOfDifferences)
-
-    myOmrScore = omrGTP.omrScore
-    s = myOmrScore
-    if debug:
-        print('Running Horizontal Model (Prior-based-on-distance)')
-
-    correctingArrayHorAllPart = []
-    numberOfIncorrectMeasures = 0
-    numberOfTotalMeasures = 0
-
-    if runOnePart is True:
-        scorePart = s.singleParts[pn]
-        incorrectMeasureIndices = scorePart.getIncorrectMeasureIndices()
-        if debug:
-            print('Incorrect measure indices:', incorrectMeasureIndices)
-            print('Hashed notes:', s.singleParts[pn].hashedNotes)
-        scorePart.runHorizontalCorrectionModel()
-    else:
-        for tempPN in range(len(s.singleParts)):
-            scorePart = s.singleParts[tempPN]
-            incorrectMeasureIndices = scorePart.getIncorrectMeasureIndices()
-            numberOfIncorrectMeasures += len(incorrectMeasureIndices)
-            correctingArrayHorOnePart = scorePart.runHorizontalCorrectionModel()
-            correctingArrayHorAllPart.append(correctingArrayHorOnePart)
-            numberOfTotalMeasures += len(s.singleParts[tempPN].hashedNotes)
-
-    if debug:
-        print('for each entry in the array below, we have ')
-        print('[flagged measure part, flagged measure index, source measure part, '
-              + 'source measure index, source measure probability]')
-        print('HORIZONTAL CORRECTING ARRAY', correctingArrayHorAllPart)
-        print('**********************************')
-
-        print('Running Vertical Model (Prior-based-on-Parts)')
-
-    correctingArrayVertAllPart = s.runVerticalCorrectionModel()
-
-    if debug:
-        print('for each entry in the array below, we have ')
-        print('[flagged measure part, flagged measure index, source measure part,'
-              + ' source measure index, source measure probability]')
-        print('VERTICAL CORRECTING MEASURES', correctingArrayVertAllPart)
-        print('**********************************')
-
-        print('Finding best from Horizontal and Vertical and replacing flagged '
-              + 'measures with source measures')
-    priorScore = s.generateCorrectedScore(correctingArrayHorAllPart, correctingArrayVertAllPart)
-
-    if debug:
-        print('done replacing flagged measures with source measures')
-        print(priorScore)
-    # get new number of differences
-    newNumberOfDifferences = omrGTP.getDifferences()
-
-    if debug:
-        print('new edit distance', newNumberOfDifferences)
-        print('number of flagged measures originally', numberOfIncorrectMeasures)
-        print('total number of measures', numberOfTotalMeasures)
-        s.score.show()
-
-    returnDict = {'originalEditDistance': numberOfDifferences,
-                  'newEditDistance': newNumberOfDifferences,
-                  'numberOfFlaggedMeasures': numberOfIncorrectMeasures,
-                  'totalNumberOfMeasures': numberOfTotalMeasures}
-
-    return returnDict
+    pass
 
 
 def autoCorrelationBestMeasure(inputScore):
@@ -338,44 +213,7 @@ def autoCorrelationBestMeasure(inputScore):
     0.333...
 
     '''
-    ss = correctors.ScoreCorrector(inputScore)
-    allHashes = ss.getAllHashes()
-
-    totalMeasures = 0
-    totalMatches = 0
-
-    singleParts = ss.singleParts
-
-    for pNum, pHashArray in enumerate(allHashes):
-        incorrectIndices = singleParts[pNum].getIncorrectMeasureIndices()
-        for i, mHash in enumerate(pHashArray):
-            if i in incorrectIndices:
-                continue
-
-            totalMeasures += 1
-            match = False
-
-            # horizontal search
-            for j, nHash in enumerate(pHashArray):
-                if i == j:
-                    continue
-                if mHash == nHash:
-                    match = True
-                    break
-
-            # vertical search
-            if match is False:
-                for otherPNum in range(len(singleParts)):
-                    if otherPNum == pNum:
-                        continue
-                    otherHash = allHashes[otherPNum][i]
-                    if otherHash == mHash:
-                        match = True
-                        break
-
-            if match is True:
-                totalMatches += 1
-    return (totalMeasures, totalMatches)
+    pass
 
 
 if __name__ == '__main__':

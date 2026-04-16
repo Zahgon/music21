@@ -252,10 +252,7 @@ class Date(prebase.ProtoM21Object):
         >>> metadata.Date.errorToSymbol('uncertain')
         '?'
         '''
-        if value.lower() in Date.approximateSymbols + ('approximate',):
-            return Date.approximateSymbols[0]
-        if value.lower() in Date.uncertainSymbols + ('uncertain',):
-            return Date.uncertainSymbols[0]
+        pass
 
     def load(self, value: DateParseType):
         r'''
@@ -400,16 +397,7 @@ class Date(prebase.ProtoM21Object):
         Traceback (most recent call last):
         TypeError: function missing required argument 'day' (pos 3)
         '''
-        post = []
-        # order here is order for datetime
-        # TODO: need defaults for incomplete times.
-        for attr in self.attrNames:
-            # need to be integers
-            value = getattr(self, attr)
-            if value is None:
-                break
-            post.append(int(value))
-        return datetime.datetime(*post)  # pylint: disable=no-value-for-parameter
+        pass
 
     @property
     def hasTime(self):
@@ -424,12 +412,7 @@ class Date(prebase.ProtoM21Object):
         >>> b.hasTime
         True
         '''
-        if (self.hour is not None
-                or self.minute is not None
-                or self.second is not None):
-            return True
-        else:
-            return False
+        pass
 
     @property
     def hasError(self):
@@ -455,10 +438,7 @@ class Date(prebase.ProtoM21Object):
         False
 
         '''
-        for attr in self.attrNames:
-            if getattr(self, attr + 'Error') is not None:
-                return True
-        return False
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -503,7 +483,7 @@ class DatePrimitive(prebase.ProtoM21Object):
                     and self.relevance == other.relevance)
 
     def _reprInternal(self) -> str:
-        return str(self)
+        pass
 
     def __str__(self):
         if len(self._data) == 0:
@@ -531,8 +511,7 @@ class DatePrimitive(prebase.ProtoM21Object):
         >>> str(a)
         '1843/03/--'
         '''
-        # get from stored Date object
-        return self._data[0].datetime
+        pass
 
     @property
     def relevance(self):
@@ -541,18 +520,11 @@ class DatePrimitive(prebase.ProtoM21Object):
         values, `'certain'`, `'approximate'`, or
         `'uncertain'`.
         '''
-        return self._relevance
+        pass
 
     @relevance.setter
     def relevance(self, value):
-        if value in ('certain', 'approximate', 'uncertain'):
-            self._relevance = value
-            self._dataUncertainty = []
-            # only here is dataError the same as relevance
-            self._dataUncertainty.append(value)
-        else:
-            raise exceptions21.MetadataException(
-                f'Relevance value is not supported by this object: {value!r}')
+        pass
 
 
 class DateSingle(DatePrimitive):
@@ -588,12 +560,7 @@ class DateSingle(DatePrimitive):
         r'''
         Assume a string is supplied as argument
         '''
-        # here, using a list to store one object; this provides more
-        # compatibility  w/ other formats
-        self._data = []  # clear list
-        self._dataUncertainty = [self.relevance]
-        self._data.append(Date())
-        self._data[0].load(data)
+        pass
 
 
 
@@ -645,28 +612,17 @@ class DateRelative(DatePrimitive):
         values, `'prior'`, `'after'`, or
         `'onorbefore'` or `'onorafter'`.
         '''
-        return self._relevance
+        pass
 
     @relevance.setter
     def relevance(self, value):
-        if value == 'before':
-            value = 'prior'
-
-        if value.lower() not in ('prior', 'after', 'onorbefore', 'onorafter'):
-            raise exceptions21.MetadataException(
-                f'Relevance value is not supported by this object: {value!r}')
-        self._relevance = value.lower()
+        pass
 
     def _prepareData(self, data: DateParseType):
         r'''
         Assume a string is supplied as argument
         '''
-        # here, using a list to store one object; this provides more
-        # compatibility  w/ other formats
-        self._data = []  # clear list
-        self._dataUncertainty = [None]
-        self._data.append(Date())
-        self._data[0].load(data)
+        pass
 # -----------------------------------------------------------------------------
 
 
@@ -709,14 +665,7 @@ class DateBetween(DatePrimitive):
         r'''
         Assume a list of dates as strings is supplied as argument
         '''
-        self._data = []
-        self._dataUncertainty = []
-        for part in data:
-            d = Date()
-            d.load(part)
-            self._data.append(d)  # a list of Date objects
-            # can look at Date and determine overall error
-            self._dataUncertainty.append(None)
+        pass
 
     # PUBLIC PROPERTIES #
 
@@ -726,14 +675,11 @@ class DateBetween(DatePrimitive):
         The relevance attribute takes only one value:
         `'between'`.
         '''
-        return self._relevance
+        pass
 
     @relevance.setter
     def relevance(self, value):
-        if value != 'between':
-            raise exceptions21.MetadataException(
-                f'Relevance value is not supported by this object: {value!r}')
-        self._relevance = value
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -794,14 +740,7 @@ class DateSelection(DatePrimitive):
         r'''
         Assume a list of dates as strings is supplied as argument.
         '''
-        self._data = []
-        self._dataUncertainty = []
-        for part in data:
-            d = Date()
-            d.load(part)
-            self._data.append(d)  # a list of Date objects
-            # can look at Date and determine overall error
-            self._dataUncertainty.append(None)
+        pass
 
     # PUBLIC PROPERTIES #
 
@@ -811,14 +750,11 @@ class DateSelection(DatePrimitive):
         The relevance attribute takes only two values:
         `'or'` or `'and'`.
         '''
-        return self._relevance
+        pass
 
     @relevance.setter
     def relevance(self, value):
-        if value not in ('or', 'and'):
-            raise exceptions21.MetadataException(
-                f'Relevance value is not supported by this object: {value!r}')
-        self._relevance = value
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -869,7 +805,7 @@ class Text(prebase.ProtoM21Object):
             return str(self._data)
 
     def _reprInternal(self):
-        return str(self)
+        pass
 
     def __eq__(self, other) -> bool:
         '''
@@ -933,11 +869,11 @@ class Text(prebase.ProtoM21Object):
         >>> myText.language
         'en'
         '''
-        return self._language
+        pass
 
     @language.setter
     def language(self, value):
-        self._language = value
+        pass
 
     # PUBLIC METHODS #
 
@@ -1128,7 +1064,7 @@ class Contributor(prebase.ProtoM21Object):
             self.death = deathDS
 
     def _reprInternal(self):
-        return f'{self.role}:{self.name}'
+        pass
 
     def __str__(self):
         if not self.name:
@@ -1251,15 +1187,7 @@ class Contributor(prebase.ProtoM21Object):
         >>> 36 < shaw_years < 85
         True
         '''
-        if self.birth is None:
-            return None
-
-        if self.death is not None:
-            d = self.death.datetime
-            b = self.birth.datetime
-            return d - b
-        else:
-            return datetime.datetime.now() - self.birth.datetime
+        pass
 
     # PUBLIC PROPERTIES #
 
@@ -1278,17 +1206,12 @@ class Contributor(prebase.ProtoM21Object):
         >>> td.names
         ['Chopin, Fryderyk', 'Chopin, Frederick']
         '''
-        # return first name
-        if self._names:
-            return str(self._names[0])
-        else:
-            return None
+        pass
 
     @name.setter
     def name(self, value):
         # set first name
-        self._names = []  # reset
-        self._names.append(Text(value))
+        pass
 
     @property
     def names(self):
@@ -1306,20 +1229,11 @@ class Contributor(prebase.ProtoM21Object):
         >>> td.names
         ['Czerny', 'Spohr']
         '''
-        # return first name
-        msg = []
-        for n in self._names:
-            msg.append(str(n))
-        return msg
+        pass
 
     @names.setter
     def names(self, values):
-        if not common.isIterable(values):
-            raise exceptions21.MetadataException(
-                '.names must be a list -- do you mean .name instead?')
-        self._names = []  # reset
-        for n in values:
-            self._names.append(Text(n))
+        pass
 
     @property
     def role(self):
@@ -1345,16 +1259,11 @@ class Contributor(prebase.ProtoM21Object):
         >>> td.role
         'court jester'
         '''
-        return self._role
+        pass
 
     @role.setter
     def role(self, value):
-        if value is None or value in self.roleAbbreviationsDict.values():
-            self._role = value
-        elif value in self.roleAbbreviationsDict:
-            self._role = self.roleAbbreviationsDict[value]
-        else:
-            self._role = value
+        pass
 
     @staticmethod
     def abbreviationToRole(abbreviation):
@@ -1367,12 +1276,7 @@ class Contributor(prebase.ProtoM21Object):
         >>> metadata.Contributor.abbreviationToRole('lib')
         'librettist'
         '''
-        abbreviation = abbreviation.lower()
-        if abbreviation in Contributor.roleAbbreviationsDict:
-            return Contributor.roleAbbreviationsDict[abbreviation]
-        else:
-            raise exceptions21.MetadataException(
-                f'no such role: {abbreviation!r}')
+        pass
 
     @staticmethod
     def roleToAbbreviation(roleName):
@@ -1382,11 +1286,7 @@ class Contributor(prebase.ProtoM21Object):
         >>> metadata.Contributor.roleToAbbreviation('composer')
         'com'
         '''
-        # note: probably not the fastest way to do this
-        for role_id in Contributor.roleAbbreviationsDict:
-            if roleName.lower() == Contributor.roleAbbreviationsDict[role_id].lower():
-                return role_id
-        raise exceptions21.MetadataException(f'No such role: {roleName}')
+        pass
 
 # -----------------------------------------------------------------------------
 
@@ -1484,113 +1384,31 @@ class Imprint(prebase.ProtoM21Object):
 class Test(unittest.TestCase):
 
     def testText(self):
-        from music21 import metadata
-
-        text = metadata.primitives.Text('my text')
-        text.language = 'en'
-        self.assertEqual(text._data, 'my text')
-        self.assertEqual(text._language, 'en')
+        pass
 
     def testContributor(self):
-        from music21 import metadata
-
-        contributor = metadata.primitives.Contributor(
-            role='composer',
-            name='Gilles Binchois',
-        )
-        self.assertEqual(contributor.role, 'composer')
-        self.assertEqual(contributor.relevance, 'contributor')
-        self.assertEqual(contributor.name, 'Gilles Binchois')
+        pass
 
     def testCreator(self):
-        from music21 import metadata
-
-        creator = metadata.primitives.Creator(
-            role='composer',
-            name='Gilles Binchois',
-        )
-        self.assertEqual(creator.role, 'composer')
-        self.assertEqual(creator.relevance, 'creator')
-        self.assertEqual(creator.name, 'Gilles Binchois')
+        pass
 
     def testDate(self):
-        from music21 import metadata
-
-        date1 = metadata.primitives.Date(year=1843, yearError='approximate')
-        date2 = metadata.primitives.Date(year='1843?')
-
-        self.assertEqual(date1.year, 1843)
-        self.assertEqual(date1.yearError, 'approximate')
-
-        self.assertEqual(date2.year, 1843)
-        self.assertEqual(date2.yearError, 'uncertain')
+        pass
 
     def testDateValueError(self):
-        with self.assertRaisesRegex(ValueError, 'Month must be.*not 13'):
-            Date(month=13)
-
-        for d, m, y in ((32, None, None),
-                        (0, None, None),
-                        (31, 4, None),
-                        (30, 2, None),
-                        (29, 2, 1999),
-                        ):
-            with self.assertRaisesRegex(ValueError, 'Day.*is not possible'):
-                Date(year=y, month=m, day=d)
-
-        with self.assertRaisesRegex(ValueError, 'Hour'):
-            Date(hour=24)
-        with self.assertRaisesRegex(ValueError, 'Minute'):
-            Date(minute=61)
-        with self.assertRaisesRegex(ValueError, 'Second'):
-            Date(second=-1)
-
-        self.assertIsNotNone(Date(year=2000, month=2, day=29))
-        self.assertIsNotNone(Date(month=2, day=29))
-        self.assertIsNotNone(Date(month=12, day=31))
-        self.assertIsNotNone(Date(hour=23, minute=59, second=59))
+        pass
 
     def testDateSingle(self):
-        from music21 import metadata
-
-        dateSingle = metadata.primitives.DateSingle(
-            '2009/12/31', 'approximate')
-        self.assertEqual(str(dateSingle), '2009/12/31')
-        self.assertEqual(len(dateSingle._data), 1)
-        self.assertEqual(dateSingle._relevance, 'approximate')
-        self.assertEqual(dateSingle._dataUncertainty, ['approximate'])
+        pass
 
     def testDateRelative(self):
-        from music21 import metadata
-
-        dateRelative = metadata.primitives.DateRelative('2001/12/31', 'prior')
-        self.assertEqual(str(dateRelative), 'prior to 2001/12/31')
-        self.assertEqual(dateRelative.relevance, 'prior')
-        self.assertEqual(len(dateRelative._data), 1)
-        self.assertEqual(dateRelative._dataUncertainty, [None])
+        pass
 
     def testDateBetween(self):
-        from music21 import metadata
-
-        dateBetween = metadata.primitives.DateBetween(
-            ('2009/12/31', '2010/1/28'))
-        self.assertEqual(str(dateBetween), '2009/12/31 to 2010/01/28')
-        self.assertEqual(dateBetween.relevance, 'between')
-        self.assertEqual(dateBetween._dataUncertainty, [None, None])
-        self.assertEqual(len(dateBetween._data), 2)
+        pass
 
     def testDateSelection(self):
-        from music21 import metadata
-
-        dateSelection = metadata.primitives.DateSelection(
-            ['2009/12/31', '2010/1/28', '1894/1/28'],
-            'or',
-        )
-        self.assertEqual(str(dateSelection),
-                         '2009/12/31 or 2010/01/28 or 1894/01/28')
-        self.assertEqual(dateSelection.relevance, 'or')
-        self.assertEqual(dateSelection._dataUncertainty, [None, None, None])
-        self.assertEqual(len(dateSelection._data), 3)
+        pass
 
 
 # -----------------------------------------------------------------------------

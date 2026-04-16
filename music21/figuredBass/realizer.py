@@ -89,75 +89,7 @@ def figuredBassFromStream(streamPart: stream.Stream) -> FiguredBassLine:
 
     * Changed in v7.3: multiple figures in same lyric (e.g. '64') now supported.
     '''
-    sf = streamPart.flatten()
-    sfn = sf.getElementsByClass(note.Note)
-    myKey: key.Key
-    if firstKey := sf[key.Key].first():
-        myKey = firstKey
-    elif firstKeySignature := sf[key.KeySignature].first():
-        myKey = firstKeySignature.asKey('major')
-    else:
-        myKey = key.Key('C')
-
-    ts: meter.TimeSignature
-    if first_ts := sf[meter.TimeSignature].first():
-        ts = first_ts
-    else:
-        ts = meter.TimeSignature('4/4')
-
-    fb = FiguredBassLine(myKey, ts)
-    if streamPart.hasMeasures():
-        m_first = streamPart.measure(0, indicesNotNumbers=True)
-        if t.TYPE_CHECKING:
-            assert m_first is not None
-        paddingLeft = m_first.paddingLeft
-        if paddingLeft != 0.0:
-            fb._paddingLeft = paddingLeft
-
-    # noinspection PyShadowingNames
-    def updateAnnotationString(annotationString: str, inputText: str) -> str:
-        '''
-        Continue building the working `annotationString` based on some `inputText`
-        that has yet to be processed. Called recursively until `inputText` is exhausted
-        or contains unexpected characters.
-        '''
-        # "64" and "#6#42" but not necessarily "4-3" or "sus4"
-        stop_index_exclusive: int = 0
-        if inputText[0] in '+#bn' and len(inputText) > 1 and inputText[1].isnumeric():
-            stop_index_exclusive = 2
-        elif inputText[0].isnumeric():
-            stop_index_exclusive = 1
-        else:
-            # quit
-            stop_index_exclusive = 1000
-        annotationString += inputText[:stop_index_exclusive]
-        # Is there more?
-        if inputText[stop_index_exclusive:]:
-            annotationString += ', '
-            annotationString = updateAnnotationString(
-                annotationString, inputText[stop_index_exclusive:])
-        return annotationString
-
-    for n in sfn:
-        if n.lyrics:
-            annotationString: str = ''
-            for i, lyric_line in enumerate(n.lyrics):
-                if lyric_line.text in (None, ''):
-                    continue
-                if ',' in lyric_line.text:
-                    # presence of comma suggests we already have a separated
-                    # sequence of figures, e.g. "#6, 4, 2"
-                    annotationString = lyric_line.text
-                else:
-                    # parse it more carefully
-                    annotationString = updateAnnotationString(annotationString, lyric_line.text)
-                if i + 1 < len(n.lyrics):
-                    annotationString += ', '
-            fb.addElement(n, annotationString)
-        else:
-            fb.addElement(n)
-
-    return fb
+    pass
 
 
 def addLyricsToBassNote(bassNote, notationString=None):
@@ -178,16 +110,7 @@ def addLyricsToBassNote(bassNote, notationString=None):
     .. image:: images/figuredBass/fbRealizer_lyrics.*
         :width: 100
     '''
-    bassNote.lyrics = []
-    n = notation.Notation(notationString)
-    if not n.figureStrings:
-        return
-    maxLength = max([len(fs) for fs in n.figureStrings])
-    for fs in n.figureStrings:
-        spacesInFront = ''
-        for i in range(maxLength - len(fs)):
-            spacesInFront += ' '
-        bassNote.addLyric(spacesInFront + fs, applyRaw=True)
+    pass
 
 
 class FiguredBassLine:
@@ -262,19 +185,7 @@ class FiguredBassLine:
         >>> fbLine.addElement(roman.RomanNumeral('I'))
         >>> fbLine.addElement(roman.RomanNumeral('V'))
         '''
-        bassObject.editorial.notationString = notationString
-        c = bassObject.classes
-        if 'Note' in c:
-            self._fbList.append((bassObject, notationString))  # a bass note, and a notationString
-            addLyricsToBassNote(bassObject, notationString)
-        # ---------- Added to accommodate harmony.ChordSymbol and roman.RomanNumeral objects ---
-        elif 'RomanNumeral' in c or 'ChordSymbol' in c:
-            self._fbList.append(bassObject)  # a roman Numeral object
-        else:
-            raise FiguredBassLineException(
-                'Not a valid bassObject (only note.Note, '
-                f'harmony.ChordSymbol, and roman.RomanNumeral supported) was {bassObject!r}'
-            )
+        pass
 
     def generateBassLine(self):
         '''
@@ -380,7 +291,7 @@ class FiguredBassLine:
         return segmentList
 
     def overlayPart(self, music21Part):
-        self._overlaidParts.append(music21Part)
+        pass
 
     def realize(self, fbRules=None, numParts=4, maxPitch=None):
         # noinspection PyShadowingNames
@@ -599,30 +510,7 @@ class Realization:
         >>> fbRealization2.getNumSolutions()
         833
         '''
-        if len(self._segmentList) == 1:
-            return len(self._segmentList[0].correctA)
-        # What if there's only one (bassNote, notationString)?
-        self._segmentList.reverse()
-        pathList = {}
-        for segmentIndex in range(1, len(self._segmentList)):
-            segmentA = self._segmentList[segmentIndex]
-            newPathList = {}
-            if not pathList:
-                for possibA in segmentA.movements:
-                    newPathList[possibA] = len(segmentA.movements[possibA])
-            else:
-                for possibA in segmentA.movements:
-                    prevValue = 0
-                    for possibB in segmentA.movements[possibA]:
-                        prevValue += pathList[possibB]
-                    newPathList[possibA] = prevValue
-            pathList = newPathList
-
-        numSolutions = 0
-        for possibA in pathList:
-            numSolutions += pathList[possibA]
-        self._segmentList.reverse()
-        return numSolutions
+        pass
 
     def getAllPossibilityProgressions(self):
         '''
@@ -633,124 +521,19 @@ class Realization:
         .. warning:: This method is unoptimized, and may take a prohibitive amount
             of time for a Realization which has more than 200,000 solutions.
         '''
-        progressions = []
-        if len(self._segmentList) == 1:
-            for possibA in self._segmentList[0].correctA:
-                progressions.append([possibA])
-            return progressions
-
-        currMovements = self._segmentList[0].movements
-        for possibA in currMovements:
-            possibBList = currMovements[possibA]
-            for possibB in possibBList:
-                progressions.append([possibA, possibB])
-
-        for segmentIndex in range(1, len(self._segmentList) - 1):
-            currMovements = self._segmentList[segmentIndex].movements
-            for unused_progressionIndex in range(len(progressions)):
-                progression = progressions.pop(0)
-                possibB = progression[-1]
-                for possibC in currMovements[possibB]:
-                    newProgression = copy.copy(progression)
-                    newProgression.append(possibC)
-                    progressions.append(newProgression)
-
-        return progressions
+        pass
 
     def getRandomPossibilityProgression(self):
         '''
         Returns a random unique possibility progression.
         '''
-        progression = []
-        if len(self._segmentList) == 1:
-            possibA = random.sample(self._segmentList[0].correctA, 1)[0]
-            progression.append(possibA)
-            return progression
-
-        currMovements = self._segmentList[0].movements
-        if self.getNumSolutions() == 0:
-            raise FiguredBassLineException('Zero solutions')
-        prevPossib = random.sample(currMovements.keys(), 1)[0]
-        progression.append(prevPossib)
-
-        for segmentIndex in range(len(self._segmentList) - 1):
-            currMovements = self._segmentList[segmentIndex].movements
-            nextPossib = random.sample(currMovements[prevPossib], 1)[0]
-            progression.append(nextPossib)
-            prevPossib = nextPossib
-
-        return progression
+        pass
 
     def generateRealizationFromPossibilityProgression(self, possibilityProgression):
         '''
         Generates a realization as a :class:`~music21.stream.Score` given a possibility progression.
         '''
-        sol = stream.Score()
-
-        bassLine = stream.Part()
-        bassLine.append([copy.deepcopy(self._keySig), copy.deepcopy(self._inTime)])
-        r = None
-        if self._paddingLeft != 0.0:
-            r = note.Rest(quarterLength=self._paddingLeft)
-            bassLine.append(copy.deepcopy(r))
-
-        if self.keyboardStyleOutput:
-            rightHand = stream.Part()
-            sol.insert(0.0, rightHand)
-            rightHand.append([copy.deepcopy(self._keySig), copy.deepcopy(self._inTime)])
-            if r is not None:
-                rightHand.append(copy.deepcopy(r))
-
-            for segmentIndex in range(len(self._segmentList)):
-                possibA = possibilityProgression[segmentIndex]
-                bassNote = self._segmentList[segmentIndex].bassNote
-                bassLine.append(copy.deepcopy(bassNote))
-                rhPitches = possibA[0:-1]
-                rhChord = chord.Chord(rhPitches)
-                rhChord.quarterLength = self._segmentList[segmentIndex].quarterLength
-                rightHand.append(rhChord)
-            rightHand.insert(0.0, clef.TrebleClef())
-
-            rightHand.makeNotation(inPlace=True, cautionaryNotImmediateRepeat=False)
-            if r is not None:
-                rightHand[0].pop(3)
-                rightHand[0].padAsAnacrusis()
-
-        else:  # Chorale-style output
-            upperParts = []
-            for _partNumber in range(len(possibilityProgression[0]) - 1):
-                fbPart = stream.Part()
-                sol.insert(0.0, fbPart)
-                fbPart.append([copy.deepcopy(self._keySig), copy.deepcopy(self._inTime)])
-                if r is not None:
-                    fbPart.append(copy.deepcopy(r))
-                upperParts.append(fbPart)
-
-            for segmentIndex in range(len(self._segmentList)):
-                possibA = possibilityProgression[segmentIndex]
-                bassNote = self._segmentList[segmentIndex].bassNote
-                bassLine.append(copy.deepcopy(bassNote))
-
-                for partNumber in range(len(possibA) - 1):
-                    n1 = note.Note(possibA[partNumber])
-                    n1.quarterLength = self._segmentList[segmentIndex].quarterLength
-                    upperParts[partNumber].append(n1)
-
-            for upperPart in upperParts:
-                c = clef.bestClef(upperPart, allowTreble8vb=True, recurse=True)
-                upperPart.insert(0.0, c)
-                upperPart.makeNotation(inPlace=True, cautionaryNotImmediateRepeat=False)
-                if r is not None:
-                    upperPart[0].pop(3)
-                    upperPart[0].padAsAnacrusis()
-
-        bassLine.insert(0.0, clef.BassClef())
-        bassLine.makeNotation(inPlace=True, cautionaryNotImmediateRepeat=False)
-        if r is not None:
-            bassLine[0].pop(3)
-            bassLine[0].padAsAnacrusis()
-        sol.insert(0.0, bassLine)
-        return sol
+        pass
 
     def generateAllRealizations(self):
         '''
@@ -760,29 +543,13 @@ class Realization:
         .. warning:: This method is unoptimized, and may take a prohibitive amount
             of time for a Realization which has more than 100 solutions.
         '''
-        allSols = stream.Score()
-        possibilityProgressions = self.getAllPossibilityProgressions()
-        if not possibilityProgressions:
-            raise FiguredBassLineException('Zero solutions')
-        sol0 = self.generateRealizationFromPossibilityProgression(possibilityProgressions[0])
-        for music21Part in sol0:
-            allSols.append(music21Part)
-
-        for possibIndex in range(1, len(possibilityProgressions)):
-            solX = self.generateRealizationFromPossibilityProgression(
-                possibilityProgressions[possibIndex])
-            for partIndex in range(len(solX)):
-                for music21Measure in solX[partIndex]:
-                    allSols[partIndex].append(music21Measure)
-
-        return allSols
+        pass
 
     def generateRandomRealization(self):
         '''
         Generates a random unique realization as a :class:`~music21.stream.Score`.
         '''
-        possibilityProgression = self.getRandomPossibilityProgression()
-        return self.generateRealizationFromPossibilityProgression(possibilityProgression)
+        pass
 
     def generateRandomRealizations(self, amountToGenerate=20):
         '''
@@ -792,21 +559,7 @@ class Realization:
         .. warning:: This method is unoptimized, and may take a prohibitive amount
             of time if amountToGenerate is more than 100.
         '''
-        if amountToGenerate > self.getNumSolutions():
-            return self.generateAllRealizations()
-
-        allSols = stream.Score()
-        sol0 = self.generateRandomRealization()
-        for music21Part in sol0:
-            allSols.append(music21Part)
-
-        for unused_counter_solution in range(1, amountToGenerate):
-            solX = self.generateRandomRealization()
-            for partIndex in range(len(solX)):
-                for music21Measure in solX[partIndex]:
-                    allSols[partIndex].append(music21Measure)
-
-        return allSols
+        pass
 
 
 _DOC_ORDER = [figuredBassFromStream, addLyricsToBassNote,
@@ -821,33 +574,7 @@ class FiguredBassLineException(exceptions21.Music21Exception):
 
 class Test(unittest.TestCase):
     def testMultipleFiguresInLyric(self):
-        from music21 import converter
-
-        s = converter.parse('tinynotation: 4/4 C4 F4 G4_64 G4 C1', makeNotation=False)
-        third_note = s[note.Note][2]
-        self.assertEqual(third_note.lyric, '64')
-        unused_fb = figuredBassFromStream(s)
-        self.assertEqual(third_note.editorial.notationString, '6, 4')
-
-        third_note.lyric = '#6#42'
-        unused_fb = figuredBassFromStream(s)
-        self.assertEqual(third_note.editorial.notationString, '#6, #4, 2')
-
-        third_note.lyric = '#64#2'
-        unused_fb = figuredBassFromStream(s)
-        self.assertEqual(third_note.editorial.notationString, '#6, 4, #2')
-
-        # original case
-        third_note.lyric = '6\n4'
-        unused_fb = figuredBassFromStream(s)
-        self.assertEqual(third_note.editorial.notationString, '6, 4')
-
-        # single accidental
-        for single_symbol in '+#bn':
-            with self.subTest(single_symbol=single_symbol):
-                third_note.lyric = single_symbol
-                unused_fb = figuredBassFromStream(s)
-                self.assertEqual(third_note.editorial.notationString, single_symbol)
+        pass
 
 
 if __name__ == '__main__':

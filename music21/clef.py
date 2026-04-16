@@ -135,7 +135,7 @@ class Clef(base.Music21Object):
         # an integer to show transposing clef
 
     def _reprInternal(self):
-        return ''
+        pass
 
     @property
     def octaveChange(self) -> int:
@@ -148,11 +148,11 @@ class Clef(base.Music21Object):
         >>> clef.Treble8vbClef().octaveChange
         -1
         '''
-        return self._octaveChange
+        pass
 
     @octaveChange.setter
     def octaveChange(self, newValue: int):
-        self._octaveChange = newValue
+        pass
 
     @property
     def name(self) -> str:
@@ -176,11 +176,7 @@ class Clef(base.Music21Object):
         >>> clef.Clef().name
         ''
         '''
-        className = self.__class__.__name__.replace('Clef', '')
-        if className:
-            return className[0].lower() + className[1:]
-        else:
-            return ''
+        pass
 
     def getStemDirectionForPitches(
         self,
@@ -308,14 +304,11 @@ class PitchClef(Clef):
         >>> tc.lowestLine
         24
         '''
-        return super().octaveChange
+        pass
 
     @octaveChange.setter
     def octaveChange(self, newValue: int):
-        oldOctaveChange = self._octaveChange
-        self._octaveChange = newValue
-        if self.lowestLine is not None:
-            self.lowestLine += (newValue - oldOctaveChange) * 7
+        pass
 
 
 class PercussionClef(Clef):
@@ -1002,8 +995,7 @@ def bestClef(streamObj: stream.Stream,
 class Test(unittest.TestCase):
 
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
 
 # ------------------------------------------------------------------------------

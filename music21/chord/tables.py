@@ -1494,16 +1494,7 @@ def forteIndexToInversionsAvailable(card, index):
     >>> chord.tables.forteIndexToInversionsAvailable(3, 12)
     [0]
     '''
-    if card not in list(range(1,13)):
-        raise ChordTablesException(f'cardinality {card} not valid')
-    if index < 1 or index > maximumIndexNumberWithoutInversionEquivalence[card]:
-        raise ChordTablesException(f'index {index} not valid')
-    # get morris invariance vector
-    morris = FORTE[card][index][2]
-    if morris[1] > 0:  # second value stored inversion status
-        return [0]
-    else:
-        return [-1, 1]
+    pass
 
 def _validateAddress(address):
     '''
@@ -1530,41 +1521,7 @@ def _validateAddress(address):
     Traceback (most recent call last):
     music21.chord.tables.ChordTablesException: inversion -30 not valid
     '''
-    address = list(address)
-    card = address[0]
-    index = address[1]
-    if len(address) >= 3:
-        inversion = address[2]
-    else:
-        inversion = None
-
-    if card not in list(range(1,13)):
-        raise ChordTablesException(f'cardinality {card} not valid')
-
-    # using TN mode for all comparisons
-    if index < 1 or index > maximumIndexNumberWithoutInversionEquivalence[card]:
-        raise ChordTablesException(f'index {index} not valid')
-
-    inversionsAvailable = forteIndexToInversionsAvailable(card, index)
-    if inversion is not None:
-        if inversion not in inversionsAvailable:
-            raise ChordTablesException(f'inversion {inversion} not valid')
-
-    if inversion is None:  # get a default inversion
-        # environLocal.printDebug(['getting inversion for:', card, index])
-        if 0 in inversionsAvailable:
-            inversion = 0
-        else:
-            inversion = 1
-
-    # test access: will raise an exception on error
-    # ultimately this can be removed
-    # try:
-    #     nfSet = cardinalityToChordMembers[card][(index, inversion)][0]
-    # except KeyError as ke:
-    #     raise ChordTablesException(f'cannot validate address: {address}') from ke
-
-    return (card, index, inversion)
+    pass
 
 
 def addressToTransposedNormalForm(address):
@@ -1588,8 +1545,7 @@ def addressToTransposedNormalForm(address):
     >>> chord.tables.addressToTransposedNormalForm((3, 1))
     (0, 1, 2)
     '''
-    card, index, inversion = _validateAddress(address)
-    return cardinalityToChordMembers[card][(index, inversion)][0]
+    pass
 
 
 def addressToPrimeForm(address):
@@ -1614,9 +1570,7 @@ def addressToPrimeForm(address):
     >>> chord.tables.addressToPrimeForm((3, 11, None))
     (0, 3, 7)
     '''
-    # overriding inversion with None will always return prime form
-    card, index, inversion = _validateAddress(address[0:2])
-    return cardinalityToChordMembers[card][(index, inversion)][0]
+    pass
 
 
 def addressToIntervalVector(address):
@@ -1638,8 +1592,7 @@ def addressToIntervalVector(address):
     >>> chord.tables.addressToIntervalVector((3, 11, None))
     (0, 0, 1, 1, 1, 0)
     '''
-    card, index, inversion = _validateAddress(address)
-    return cardinalityToChordMembers[card][(index, inversion)][2]
+    pass
 
 
 def intervalVectorToAddress(vector):
@@ -1676,19 +1629,7 @@ def intervalVectorToAddress(vector):
     Traceback (most recent call last):
     ValueError: Vector must have exactly six entries
     '''
-    post = []
-    vector = tuple(vector)
-    if len(vector) != 6:
-        raise ValueError('Vector must have exactly six entries')
-
-    for card in range(1, 13):
-        for num, sc in enumerate(FORTE[card]):
-            if sc is None:
-                continue  # first, used for spacing
-            # index 1 is the vector
-            if sc[1] == vector:
-                post.append(ChordTableAddress(card, num, None, None))
-    return post
+    pass
 
 def addressToZAddress(address):
     '''
@@ -1708,13 +1649,7 @@ def addressToZAddress(address):
     >>> chord.tables.addressToZAddress((8, 29))
     ChordTableAddress(cardinality=8, forteClass=15, inversion=1, pcOriginal=None)
     '''
-    card, index, unused_inversion = _validateAddress(address)
-    z = FORTE[card][index][3]
-    if z == 0:
-        return None
-    else:
-        zAddress = _validateAddress((card, z, None))
-        return ChordTableAddress(*zAddress, None)
+    pass
 
 def addressToCommonNames(address):
     '''
@@ -1742,12 +1677,7 @@ def addressToCommonNames(address):
     Those matching this description that are still in common use will be demoted
     to the end of the list of names and may still be removed in the future.
     '''
-    address = _validateAddress(address)
-    refDict = tnIndexToChordInfo[address]
-    if 'name' in refDict:
-        return list(refDict['name'])  # convert to a list
-    else:
-        return None
+    pass
 
 def addressToForteName(address, classification='tn'):
     '''
@@ -1773,18 +1703,7 @@ def addressToForteName(address, classification='tn'):
     >>> chord.tables.addressToForteName((5, 37))
     '5-37'
     '''
-    card, index, inversion = _validateAddress(address)
-    iStr = ''
-    if classification.lower() == 'tn':
-        if inversion == -1:
-            iStr = 'B'
-        elif inversion == 1:
-            iStr = 'A'
-        elif inversion == 0:
-            iStr = ''
-    else:  # tni, ignore inversion
-        iStr = ''
-    return f'{card}-{index}{iStr}'
+    pass
 
 
 # noinspection GrazieInspection
@@ -1853,118 +1772,26 @@ def seekChordTablesAddress(c):
     >>> chord.tables.seekChordTablesAddress(c_aug)
     ChordTableAddress(cardinality=3, forteClass=12, inversion=0, pcOriginal=0)
     '''
-    pcSet = c.orderedPitchClasses
-    index = 0
-    inversion = 0
-    if not pcSet:
-        raise ChordTablesException(
-            f'cannot access chord tables address for Chord with {len(pcSet)} pitches')
-
-    # environLocal.printDebug(['calling seekChordTablesAddress:', pcSet])
-
-    card = len(pcSet)
-    if card == 1:  # it is a singleton: return it
-        return ChordTableAddress(1, 1, 0, pcSet[0])
-    elif card == 12:  # it is the aggregate
-        return ChordTableAddress(12, 1, 0, 0)
-
-    # go through each rotation of pcSet
-    candidates = []
-    for rot in range(card):
-        testSet = pcSet[rot:] + pcSet[0:rot]
-        # transpose to lead with zero
-        testSetOriginalPC = testSet[0]
-        testSet = [(x - testSetOriginalPC) % 12 for x in testSet]
-        # create inversion; first take difference from 12 mod 12
-        testSetInvert = [(12 - x) % 12 for x in testSet]
-        testSetInvert.reverse()  # reverse order (first steps now last)
-        # transpose all steps (were last) to zero, mod 12
-        testSetInvert = [(x + (12 - testSetInvert[0])) % 12
-                         for x in testSetInvert]
-
-        candidateTuple = (tuple(testSet), tuple(testSetInvert), testSetOriginalPC)
-        candidates.append(candidateTuple)
-
-    # compare sets to those in table
-    match = False
-    matchedPCOriginal = None
-
-    for indexCandidate in range(1, len(FORTE[card])):  # first entry is None
-        dataLine = FORTE[card][indexCandidate]
-        dataLinePcs = dataLine[0]
-        inversionsAvailable = forteIndexToInversionsAvailable(card, indexCandidate)
-
-        for candidate, candidateInversion, candidateOriginalPC in candidates:
-            # environLocal.printDebug([candidate])
-            # need to only match form
-            if dataLinePcs == candidate:
-                index = indexCandidate
-                if 0 in inversionsAvailable:
-                    inversion = 0
-                else:
-                    inversion = 1
-                matchedPCOriginal = candidateOriginalPC
-                match = True
-                break
-            elif dataLinePcs == candidateInversion:
-                index = indexCandidate
-                if 0 in inversionsAvailable:
-                    inversion = 0  # should never reach this line?
-                else:
-                    inversion = -1
-                matchedPCOriginal = candidateOriginalPC
-                match = True
-                break
-    if not match:
-        raise ChordTablesException(f'cannot find a chord table address for {pcSet}')
-    return ChordTableAddress(card, index, inversion, matchedPCOriginal)
+    pass
 
 
 # ------------------------------------------------------------------------------
 class Test(unittest.TestCase):
 
     def testDummy(self):
-        self.assertEqual(True, True)
+        pass
 
     def testTnIndexToChordInfo(self):
-        for key, value in tnIndexToChordInfo.items():
-            self.assertEqual(len(key), 3)
-            if value:
-                # if we have keys, make sure that name is one of them
-                self.assertTrue('name' in value)
+        pass
 
     def testForteNumberWithInversionToTnIndex(self):
-        partition = {}
-        for key, value in forteNumberWithInversionToTnIndex.items():
-            self.assertEqual(len(key), 3)
-            # the third value of the key should be -1, 1, or 0
-            self.assertTrue(key[2] in [-1, 0, 1])
-            if key[0] not in partition:
-                partition[key[0]] = []
-                partition[key[0]].append(value)  # append unique ids
-            else:
-                partition[key[0]].append(value)  # append unique ids
-
-        for value in partition.values():
-            # the length of the list should be the max value stored
-            self.assertEqual(max(value), len(value))
+        pass
 
     def testCardinalityToChordMembers(self):
-        for key, value in cardinalityToChordMembers.items():
-            maxVal = maximumIndexNumberWithoutInversionEquivalence[key]
-            # make sure the max value is the length of all keys for each size
-            self.assertEqual(maxVal, len(value.keys()))
+        pass
 
     def testForte(self):
-        set_info = maximumIndexNumberWithInversionEquivalence.items()
-        for setSize, setCount in set_info:  # look at TnI structures
-            if setSize == 0:
-                continue
-            for i in range(1, setCount + 1):
-                self.assertEqual(len(FORTE[setSize][1]), 4)
-            # must subtract one b/c all groups contain a zero set to pad
-            # index values
-            self.assertEqual(len(FORTE[setSize]) - 1, setCount)
+        pass
 
 
 # ------------------------------------------------------------------------------

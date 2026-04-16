@@ -198,7 +198,7 @@ class FiguredBassScale:
         return allPitches
 
     def _reprInternal(self):
-        return f'{self.realizerScale!r}'
+        pass
 
 
 class FiguredBassScaleException(exceptions21.Music21Exception):

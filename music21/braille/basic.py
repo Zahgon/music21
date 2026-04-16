@@ -101,15 +101,7 @@ def barlineToBraille(music21Barline):
     >>> print(barlineToBraille(heavyBarline))
     ⠇
     '''
-    try:
-        brailleBarline = lookup.barlines[music21Barline.type]
-        music21Barline.editorial.brailleEnglish = [
-            f'Barline {music21Barline.type} {brailleBarline}']
-        return brailleBarline
-    except KeyError:  # pragma: no cover
-        environRules.warn(f'Barline {music21Barline} cannot be transcribed to braille.')
-        music21Barline.editorial.brailleEnglish = [f'Barline {music21Barline.type} None']
-        return symbols['basic_exception']
+    pass
 
 
 def chordToBraille(music21Chord, descending=True, showOctave=True):
@@ -330,43 +322,7 @@ def clefToBraille(music21Clef, keyboardHandSwitched=False):
     >>> print(f'{sopranoClef.sign}, {sopranoClef.line}, {clefToBraille(sopranoClef)}')
     C, 1, ⠜⠬⠈⠇
     '''
-    clefNames = {
-        'FrenchViolinClef': 'French Violin',
-        'TrebleClef': 'Treble',
-        'GSopranoClef': 'G-soprano',
-        'SopranoClef': 'Soprano',
-        'MezzoSopranoClef': 'Mezzo-soprano',
-        'AltoClef': 'Alto',
-        'TenorClef': 'Tenor',
-        'CBaritoneClef': 'C-baritone',
-        'FBaritoneClef': 'F-baritone',
-        'BassClef': 'Bass',
-        'SubBassClef': 'Sub-bass'
-    }
-    if isinstance(music21Clef, clef.NoClef):
-        music21Clef.editorial.brailleEnglish = [f'No Clef {music21Clef}']
-        return ''
-    clefs = lookup.clefs
-    brailleClef = clefs['prefix']
-    try:
-        brailleClef += clefs[music21Clef.sign][music21Clef.line]
-        try:
-            music21Clef.editorial.brailleEnglish = (
-                [clefNames[music21Clef.__class__.__name__] + f' Clef {brailleClef}']
-            )
-        except KeyError:  # pragma: no cover
-            music21Clef.editorial.brailleEnglish = [f'Unnamed Clef {music21Clef}']
-        if isinstance(music21Clef, (clef.TrebleClef, clef.BassClef)):
-            brailleClef += clefs['suffix'][keyboardHandSwitched]
-            if keyboardHandSwitched:
-                music21Clef.editorial.brailleEnglish.append(' Keyboard hand switched')
-        else:
-            brailleClef += clefs['suffix'][False]
-        return brailleClef
-    except KeyError:  # pragma: no cover
-        environRules.warn(f'Clef {music21Clef} cannot be transcribed to braille.')
-        music21Clef.editorial.brailleEnglish = [f'{music21Clef} None']
-        return symbols['basic_exception']
+    pass
 
 
 def dynamicToBraille(music21Dynamic, precedeByWordSign=True):
@@ -386,23 +342,7 @@ def dynamicToBraille(music21Dynamic, precedeByWordSign=True):
     >>> print(dynamicToBraille(dynamics.Dynamic('pp')))
     ⠜⠏⠏
     '''
-    dynamicTrans = []
-    music21Dynamic.editorial.brailleEnglish = []
-    if precedeByWordSign:
-        dynamicTrans.append(symbols['word'])
-        music21Dynamic.editorial.brailleEnglish.append(f'Word: {symbols["word"]}')
-
-    try:
-        brailleDynamic = wordToBraille(music21Dynamic.value, isTextExpression=True)
-    except BrailleBasicException as wordException:  # pragma: no cover
-        environRules.warn(f'Dynamic {music21Dynamic}: {wordException}')
-        music21Dynamic.editorial.brailleEnglish.append(f'Dynamic {music21Dynamic.value} None')
-        return symbols['basic_exception']
-
-    music21Dynamic.editorial.brailleEnglish.append(
-        f'Dynamic {music21Dynamic.value} {brailleDynamic}')
-    dynamicTrans.append(brailleDynamic)
-    return ''.join(dynamicTrans)
+    pass
 
 
 def instrumentToBraille(music21Instrument):
@@ -416,20 +356,7 @@ def instrumentToBraille(music21Instrument):
     >>> print(instrumentToBraille(instrument.BassClarinet()))
     ⠠⠃⠁⠎⠎⠀⠉⠇⠁⠗⠊⠝⠑⠞
     '''
-    music21Instrument.editorial.brailleEnglish = []
-    allWords = music21Instrument.bestName().split()
-    try:
-        trans = [wordToBraille(word) for word in allWords]
-    except BrailleBasicException as wordException:  # pragma: no cover
-        environRules.warn(f'Instrument {music21Instrument}: {wordException}')
-        music21Instrument.editorial.brailleEnglish.append(
-            f'Instrument {music21Instrument.bestName()} None')
-        return symbols['basic_exception']
-
-    brailleInst = symbols['space'].join(trans)
-    music21Instrument.editorial.brailleEnglish.append(
-        f'Instrument {music21Instrument.bestName()} {brailleInst}')
-    return brailleInst
+    pass
 
 
 def keySigToBraille(music21KeySignature, outgoingKeySig=None):
@@ -599,10 +526,7 @@ def yieldBrailleArticulations(noteEl):
 
     '''
     def _brailleArticulationsSortKey(inner_articulation):
-        isBowing = isinstance(inner_articulation, articulations.Bowing)
-        isStaccato = isinstance(inner_articulation, articulations.Staccato)
-        # need True to sort before False (reverse alphabetical)
-        return (not isBowing, not isStaccato, inner_articulation.name)
+        pass
 
     if hasattr(noteEl, 'articulations'):  # should be True, but safe side.
         for art in sorted(noteEl.articulations, key=_brailleArticulationsSortKey):
@@ -1529,20 +1453,7 @@ def brailleAsciiToBrailleUnicode(brailleAscii: str) -> str:
     >>> t1 == t2
     True
     '''
-    braille_chars = {}
-    for key in ascii_chars:
-        braille_chars[ascii_chars[key]] = key
-
-    asciiLines = brailleAscii.splitlines()
-    brailleLines = []
-
-    for sampleLine in asciiLines:
-        allChars = []
-        for char in sampleLine:
-            allChars.append(braille_chars[char.upper()])
-        brailleLines.append(''.join(allChars))
-
-    return '\n'.join(brailleLines)
+    pass
 
 
 def brailleUnicodeToSymbols(brailleUnicode, filledSymbol='o', emptySymbol='\u00B7'):
@@ -1554,29 +1465,7 @@ def brailleUnicodeToSymbols(brailleUnicode, filledSymbol='o', emptySymbol='\u00B
     ·o
     o·
     '''
-    symbolTrans = {'00': f'{emptySymbol}{emptySymbol}',
-                   '01': f'{emptySymbol}{filledSymbol}',
-                   '10': f'{filledSymbol}{emptySymbol}',
-                   '11': f'{filledSymbol}{filledSymbol}'}
-
-    brailleLines = brailleUnicode.splitlines()
-    binaryLines = []
-
-    for sampleLine in brailleLines:
-        binaryLine1 = []
-        binaryLine2 = []
-        binaryLine3 = []
-        for char in sampleLine:
-            (dots14, dots25, dots36) = lookup.binary_dots[char]
-            binaryLine1.append(symbolTrans[dots14])
-            binaryLine2.append(symbolTrans[dots25])
-            binaryLine3.append(symbolTrans[dots36])
-        binaryLines.append('  '.join(binaryLine1))
-        binaryLines.append('  '.join(binaryLine2))
-        binaryLines.append('  '.join(binaryLine3))
-        binaryLines.append('')
-
-    return '\n'.join(binaryLines[0:-1])
+    pass
 
 
 def yieldDots(brailleCharacter):

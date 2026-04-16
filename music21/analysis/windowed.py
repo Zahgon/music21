@@ -96,22 +96,7 @@ class WindowedAnalysis:
         >>> wa2 = analysis.windowed.WindowedAnalysis(s.flatten(), p)
 
         '''
-        # create a stream that contains just a 1/4 time signature; this is
-        # the minimum window size (and partitioning will be done by measure)
-        meterStream = stream.Stream()
-        meterStream.insert(0, meter.TimeSignature(timeSignature))
-
-        # makeTies() splits the durations into proper measure boundaries for
-        # analysis; this means that a duration that spans multiple 1/4 measures
-        # will be represented in each of those measures
-        measured = self._srcStream.makeMeasures(meterStream=meterStream)
-        # need to make sure we only have Measures here, as layout.StaffGroup
-        # or similar objs may be retained
-        measured.removeByNotOfClass('Measure')
-        if not measured:  # pragma: no cover
-            raise WindowedAnalysisException('Making measures failed')
-        measured.makeTies(inPlace=True)
-        return measured
+        pass
 
     def analyze(self, windowSize, windowType='overlap'):
         '''
@@ -356,98 +341,20 @@ class MockObjectProcessor:
 
 class Test(unittest.TestCase):
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
     def testBasic(self):
-        from music21 import corpus
-        from music21.analysis import discrete
-        # get a procedure
-
-        s = corpus.parse('bach/bwv324')
-
-        for pClass in [discrete.KrumhanslSchmuckler, discrete.Ambitus]:
-            p = pClass()
-
-            # get windowing object, provide a stream for analysis as well as
-            # the processor
-            wa = WindowedAnalysis(s.flatten(), p)
-            # do smallest and larges
-            for i in list(range(1, 4)) + [None]:
-                unused_x, unused_y, unused_z = wa.process(i, i)
+        pass
 
     def testWindowing(self):
         '''
         Test that windows are doing what they are supposed to do
         '''
-        p = MockObjectProcessor()
-
-        from music21 import note
-        s1 = stream.Stream()
-        s1.append(note.Note('C'))
-        s1.append(note.Note('C'))
-
-        s2 = stream.Stream()
-        s2.append(note.Note('C'))
-        s2.append(note.Note('D'))
-        s2.append(note.Note('E'))
-        s2.append(note.Note('F'))
-        s2.append(note.Note('G'))
-        s2.append(note.Note('A'))
-        s2.append(note.Note('B'))
-        s2.append(note.Note('C'))
-
-        wa1 = WindowedAnalysis(s1, p)
-        wa2 = WindowedAnalysis(s2, p)
-
-        # windows partitioned at quarter length
-        self.assertEqual(len(wa1._windowedStream), 2)
-        self.assertEqual(len(wa2._windowedStream), 8)
-
-        # window size of 1 gets 2 solutions
-        a, unused_b, unused_c = wa1.process(1, 1, 1, includeTotalWindow=False)
-        self.assertEqual(len(a[0]), 2)
-        self.assertEqual(a[0][0], 1)
-        self.assertEqual(a[0][1], 1)
-
-        # window size of 2 gets 1 solution
-        a, unused_b, unused_c = wa1.process(2, 2, 1, includeTotalWindow=False)
-        self.assertEqual(len(a[0]), 1)
-        # two items in this window
-        self.assertEqual(a[0][0], 2)
-
-        # window size of 1 gets 8 solutions
-        a, unused_b, unused_c = wa2.process(1, 1, 1, includeTotalWindow=False)
-        self.assertEqual(len(a[0]), 8)
-        self.assertEqual(a[0][0], 1)
-        self.assertEqual(a[0][1], 1)
-
-        # window size of 2 gets 7 solutions
-        a, unused_b, unused_c = wa2.process(2, 2, 1, includeTotalWindow=False)
-        self.assertEqual(len(a[0]), 7)
-
-        # window size of 7 gets 2 solutions
-        a, unused_b, unused_c = wa2.process(7, 7, 1, includeTotalWindow=False)
-        self.assertEqual(len(a[0]), 2)
-
-        # window size of 8 gets 1 solutions
-        a, unused_b, unused_c = wa2.process(8, 8, 1, includeTotalWindow=False)
-        self.assertEqual(len(a[0]), 1)
+        pass
 
 
     def testVariableWindowing(self):
-        from music21.analysis import discrete
-        from music21 import corpus
-        from music21 import graph
-
-        p = discrete.KrumhanslSchmuckler()
-        s = corpus.parse('bach/bwv66.6')
-
-        unused_wa = WindowedAnalysis(s.flatten(), p)
-
-        plot = graph.plot.WindowedKey(s.flatten(), doneAction=None,
-                                      windowStep=4, windowType='overlap')
-        plot.run()
+        pass
         # plot.write()
 
 

@@ -156,43 +156,7 @@ def removeDuplicates(thisStream: stream.Stream,
     True
 
     '''
-
-    supportedClasses = (meter.TimeSignature, key.KeySignature, clef.Clef)
-
-    removalDict: dict[stream.Stream, list[Music21Object]] = {}
-
-    if not inPlace:
-        thisStream = thisStream.coreCopyAsDerivation('removeDuplicates')
-
-    if isinstance(thisStream, stream.Score):
-        if len(thisStream.parts) > 0:
-            for p in thisStream.parts:
-                removeDuplicates(p, classesToRemove=classesToRemove, inPlace=True)
-
-    for thisClass in classesToRemove:
-
-        if not any(issubclass(thisClass, supportedClass) for supportedClass in supportedClasses):
-            raise ValueError(f'Invalid class. Only {supportedClasses} are supported.')
-
-        allStates = thisStream.recurse().getElementsByClass(thisClass)
-
-        if len(allStates) < 2:  # Not used, or doesn't change
-            continue
-
-        currentState = allStates[0]  # First to initialize: can't be a duplicate
-        for thisState in allStates[1:]:
-            if thisState == currentState:
-                if thisState.activeSite in removalDict:  # May be several in same (e.g., measure)
-                    removalDict[thisState.activeSite].append(thisState)
-                else:
-                    removalDict[thisState.activeSite] = [thisState]
-            else:
-                currentState = thisState
-
-    for activeSiteKey, valuesToRemove in removalDict.items():
-        activeSiteKey.remove(valuesToRemove, recurse=True)
-
-    return thisStream
+    pass
 
 
 # -----------------------------------------------------------------------------

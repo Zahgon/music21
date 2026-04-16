@@ -378,16 +378,7 @@ def safePitch(
     >>> safePitch('D', '#')
     <music21.pitch.Pitch D#>
     '''
-    if not name:
-        return pitch.Pitch()
-    if octave and accidental is not None:
-        return pitch.Pitch(name, octave=int(octave), accidental=accidental)
-    if octave:
-        return pitch.Pitch(name, octave=int(octave))
-    if accidental is not None:
-        return pitch.Pitch(name, accidental=accidental)
-    else:
-        return pitch.Pitch(name)
+    pass
 
 
 def makeDuration(
@@ -417,9 +408,7 @@ def makeDuration(
     >>> mei.base.makeDuration(Fraction(1, 3), 1).quarterLength
     0.5
     '''
-    returnDuration = duration.Duration(base)
-    returnDuration.dots = dots
-    return returnDuration
+    pass
 
 
 def allPartsPresent(scoreElem) -> tuple[str, ...]:
@@ -582,7 +571,7 @@ def _accidGesFromAttr(attr):
     >>> mei.base._accidGesFromAttr('s')
     '#'
     '''
-    return _attrTranslator(attr, 'accid.ges', _ACCID_GES_ATTR_DICT)
+    pass
 
 
 def _qlDurationFromAttr(attr):
@@ -594,7 +583,7 @@ def _qlDurationFromAttr(attr):
 
     .. note:: This function only handles data.DURATION.cmn, not data.DURATION.mensural.
     '''
-    return _attrTranslator(attr, 'dur', _DUR_ATTR_DICT)
+    pass
 
 
 def _articulationFromAttr(attr):
@@ -608,12 +597,7 @@ def _articulationFromAttr(attr):
         ``'ten-stacc'``. These return ``(StrongAccent, Staccato)`` and ``(Tenuto, Staccato)``,
         respectively.
     '''
-    if 'marc-stacc' == attr:
-        return (articulations.StrongAccent(), articulations.Staccato())
-    elif 'ten-stacc' == attr:
-        return (articulations.Tenuto(), articulations.Staccato())
-    else:
-        return (_attrTranslator(attr, 'artic', _ARTIC_ATTR_DICT)(),)
+    pass
 
 
 def _makeArticList(attr):
@@ -621,10 +605,7 @@ def _makeArticList(attr):
     Use :func:`_articulationFromAttr` to convert the actual value of an MEI "artic" attribute
     (including multiple items) into a list suitable for :attr:`GeneralNote.articulations`.
     '''
-    articList = []
-    for eachArtic in attr.split(' '):
-        articList.extend(_articulationFromAttr(eachArtic))
-    return articList
+    pass
 
 
 def _getOctaveShift(dis: t.Literal['8', '15', '22']|None,
@@ -1141,12 +1122,7 @@ def _tieFromAttr(attr):
     :return: The relevant :class:`Tie` object.
     :rtype: :class:`music21.tie.Tie`
     '''
-    if 'm' in attr or ('t' in attr and 'i' in attr):
-        return tie.Tie('continue')
-    elif 'i' in attr:
-        return tie.Tie('start')
-    else:
-        return tie.Tie('stop')
+    pass
 
 
 def addSlurs(elem, obj, slurBundle):
@@ -1182,39 +1158,7 @@ def addSlurs(elem, obj, slurBundle):
     .. caution:: If an ``elem`` has an @m21SlurStart or @m21SlurEnd attribute that refer to an
         object not found in the ``slurBundle``, the slur is silently dropped.
     '''
-    addedSlur = False
-
-    def wrapGetByIdLocal(theId):
-        '''
-        Avoid crashing when getByIdLocl() doesn't find the slur
-        '''
-        try:
-            slurBundle.getByIdLocal(theId)[0].addSpannedElements(obj)
-            return True
-        except IndexError:
-            # when getByIdLocal() couldn't find the Slur
-            return False
-
-    if elem.get('m21SlurStart') is not None:
-        addedSlur = wrapGetByIdLocal(elem.get('m21SlurStart'))
-    if elem.get('m21SlurEnd') is not None:
-        addedSlur = wrapGetByIdLocal(elem.get('m21SlurEnd'))
-
-    if elem.get('slur') is not None:
-        theseSlurs = elem.get('slur').split(' ')
-        for eachSlur in theseSlurs:
-            slurNum, slurType = eachSlur
-            if 'i' == slurType:
-                newSlur = spanner.Slur()
-                newSlur.idLocal = slurNum
-                slurBundle.append(newSlur)
-                newSlur.addSpannedElements(obj)
-                addedSlur = True
-            elif 't' == slurType:
-                addedSlur = wrapGetByIdLocal(slurNum)
-            # 'm' is currently ignored; we may need it for cross-staff slurs
-
-    return addedSlur
+    pass
 
 
 def beamTogether(someThings):
@@ -1227,27 +1171,7 @@ def beamTogether(someThings):
     :returns: ``someThings`` with relevant objects beamed together.
     :rtype: same as ``someThings``
     '''
-    # Index of the most recent beamedNote/Chord in someThings. Not all Note/Chord objects will
-    # necessarily be beamed (especially when this is called from tupletFromElement()), so we have
-    # to make that distinction.
-    iLastBeamedNote = -1
-
-    for i, thing in enumerate(someThings):
-        if hasattr(thing, 'beams'):
-            if iLastBeamedNote == -1:
-                beamType = 'start'
-            else:
-                beamType = 'continue'
-
-            # checking for len(thing.beams) avoids clobbering beams that were set with a nested
-            # <beam> element, like a grace note
-            if duration.convertTypeToNumber(thing.duration.type) > 4 and not thing.beams:
-                thing.beams.fill(thing.duration.type, beamType)
-                iLastBeamedNote = i
-
-    someThings[iLastBeamedNote].beams.setAll('stop')
-
-    return someThings
+    pass
 
 
 def removeOctothorpe(xmlid):
@@ -1383,11 +1307,7 @@ def getVoiceId(fromThese):
     :returns: The ``id`` of the :class:`Voice` instance.
     :raises: :exc:`RuntimeError` if zero or many :class:`Voice` objects are found.
     '''
-    fromThese = [item for item in fromThese if isinstance(item, stream.Voice)]
-    if len(fromThese) == 1:
-        return fromThese[0].id
-    else:
-        raise RuntimeError('getVoiceId: found too few or too many Voice objects')
+    pass
 
 # noinspection PyTypeChecker
 def scaleToTuplet(objs, elem):
@@ -1874,7 +1794,7 @@ def dotFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
 
     **Elements not Implemented:** none
     '''
-    return 1
+    pass
 
 
 def articFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
@@ -1930,11 +1850,7 @@ def articFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
 
     **Contained Elements not Implemented:** none
     '''
-    articElement = elem.get('artic')
-    if articElement is not None:
-        return _makeArticList(articElement)
-    else:
-        return []
+    pass
 
 
 def accidFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
@@ -1989,10 +1905,7 @@ def accidFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
 
     **Contained Elements not Implemented:** none
     '''
-    if elem.get('accid.ges') is not None:
-        return _accidGesFromAttr(elem.get('accid.ges', ''))
-    else:
-        return _accidentalFromAttr(elem.get('accid'))
+    pass
 
 
 def sylFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
@@ -2035,25 +1948,7 @@ def sylFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
     - MEI.ptrref: ptr ref
     - MEI.shared: address bibl date identifier lb name num rend repository stack title
     '''
-    wordPos = elem.get('wordpos')
-    wordPosDict = {'i': 'begin', 'm': 'middle', 't': 'end', None: None}
-
-    conDict = {'s': ' ', 'd': '-', 't': '~', 'u': '_', None: '-'}
-    if 'i' == wordPos:
-        text = elem.text + conDict[elem.get('con')]
-    elif 'm' == wordPos:
-        text = conDict[elem.get('con')] + elem.text + conDict[elem.get('con')]
-    elif 't' == wordPos:
-        text = conDict[elem.get('con')] + elem.text
-    else:
-        text = elem.text
-
-    syllabic = wordPosDict[wordPos]
-
-    if syllabic:
-        return note.Lyric(text=text, syllabic=syllabic, applyRaw=True)
-    else:
-        return note.Lyric(text=text)
+    pass
 
 
 def verseFromElement(elem, backupN=None, slurBundle=None):  # pylint: disable=unused-argument
@@ -2093,13 +1988,7 @@ def verseFromElement(elem, backupN=None, slurBundle=None):  # pylint: disable=un
 
     - MEI.shared: dir dynam lb space tempo
     '''
-    syllables = [sylFromElement(s) for s in elem.findall(f'./{MEI_NS}syl')]
-    for eachSyl in syllables:
-        try:
-            eachSyl.number = int(elem.get('n', backupN))
-        except (TypeError, ValueError):
-            environLocal.warn(_BAD_VERSE_NUMBER.format(elem.get('n', backupN)))
-    return syllables
+    pass
 
 
 def noteFromElement(elem, slurBundle=None):
@@ -2180,81 +2069,7 @@ def noteFromElement(elem, slurBundle=None):
     - MEI.critapp: app
     - MEI.edittrans: (all)
     '''
-    tagToFunction = {f'{MEI_NS}dot': dotFromElement,
-                     f'{MEI_NS}artic': articFromElement,
-                     f'{MEI_NS}accid': accidFromElement,
-                     f'{MEI_NS}syl': sylFromElement}
-
-    # start with a Note with Pitch
-    theNote = _accidentalFromAttr(elem.get('accid'))
-    theNote = safePitch(elem.get('pname', ''), theNote, elem.get('oct', ''))
-    theNote = note.Note(theNote)
-
-    # set the Note's duration
-    theDuration = _qlDurationFromAttr(elem.get('dur'))
-    theDuration = makeDuration(theDuration, int(elem.get('dots', 0)))
-    theNote.duration = theDuration
-
-    # iterate all immediate children
-    dotElements = 0  # count the number of <dot> elements
-    for subElement in _processEmbeddedElements(elem.findall('*'),
-                                               tagToFunction,
-                                               elem.tag,
-                                               slurBundle):
-        if isinstance(subElement, int):
-            dotElements += subElement
-        elif isinstance(subElement, articulations.Articulation):
-            theNote.articulations.append(subElement)
-        elif isinstance(subElement, str):
-            theNote.pitch.accidental = pitch.Accidental(subElement)
-        elif isinstance(subElement, note.Lyric):
-            theNote.lyrics = [subElement]
-
-    # adjust for @accid.ges if present
-    if elem.get('accid.ges') is not None:
-        theNote.pitch.accidental = pitch.Accidental(_accidGesFromAttr(elem.get('accid.ges', '')))
-
-    # we can only process slurs if we got a SpannerBundle as the "slurBundle" argument
-    if slurBundle is not None:
-        addSlurs(elem, theNote, slurBundle)
-
-    # id in the @xml:id attribute
-    if elem.get(_XMLID) is not None:
-        theNote.id = elem.get(_XMLID)
-
-    # articulations in the @artic attribute
-    if elem.get('artic') is not None:
-        theNote.articulations.extend(_makeArticList(elem.get('artic')))
-
-    # ties in the @tie attribute
-    if elem.get('tie') is not None:
-        theNote.tie = _tieFromAttr(elem.get('tie'))
-
-    # dots from inner <dot> elements
-    if dotElements > 0:
-        theNote.duration = makeDuration(_qlDurationFromAttr(elem.get('dur')), dotElements)
-
-    # grace note (only mark as grace note---don't worry about "time-stealing")
-    if elem.get('grace') is not None:
-        theNote.duration = duration.GraceDuration(theNote.duration.quarterLength)
-
-    # beams indicated by a <beamSpan> held elsewhere
-    if elem.get('m21Beam') is not None:
-        if duration.convertTypeToNumber(theNote.duration.type) > 4:
-            theNote.beams.fill(theNote.duration.type, elem.get('m21Beam'))
-
-    # tuplets
-    if elem.get('m21TupletNum') is not None:
-        theNote = scaleToTuplet(theNote, elem)
-
-    # lyrics indicated with <verse>
-    if elem.find(f'./{MEI_NS}verse') is not None:
-        tempLyrics = []
-        for i, eachVerse in enumerate(elem.findall(f'./{MEI_NS}verse')):
-            tempLyrics.extend(verseFromElement(eachVerse, backupN=i + 1))
-        theNote.lyrics = tempLyrics
-
-    return theNote
+    pass
 
 
 def restFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
@@ -2295,20 +2110,7 @@ def restFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
 
     **Contained Elements not Implemented:** none
     '''
-    # NOTE: keep this in sync with spaceFromElement()
-
-    theDuration = _qlDurationFromAttr(elem.get('dur'))
-    theDuration = makeDuration(theDuration, int(elem.get('dots', 0)))
-    theRest = note.Rest(duration=theDuration)
-
-    if elem.get(_XMLID) is not None:
-        theRest.id = elem.get(_XMLID)
-
-    # tuplets
-    if elem.get('m21TupletNum') is not None:
-        theRest = scaleToTuplet(theRest, elem)
-
-    return theRest
+    pass
 
 
 def mRestFromElement(elem, slurBundle=None):
@@ -2323,14 +2125,7 @@ def mRestFromElement(elem, slurBundle=None):
         duration of 1.0. This must be fixed later, so the :class:`Rest` object returned from this
         method is given the :attr:`m21wasMRest` attribute, set to True.
     '''
-    # NOTE: keep this in sync with mSpaceFromElement()
-
-    if elem.get('dur') is not None:
-        return restFromElement(elem, slurBundle)
-    else:
-        theRest = restFromElement(elem, slurBundle)
-        theRest.m21wasMRest = True
-        return theRest
+    pass
 
 
 def spaceFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
@@ -2342,21 +2137,7 @@ def spaceFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
 
     In MEI 2013: pg.440 (455 in PDF) (MEI.shared module)
     '''
-    # NOTE: keep this in sync with restFromElement()
-
-    theDuration = _qlDurationFromAttr(elem.get('dur'))
-    theDuration = makeDuration(theDuration, int(elem.get('dots', 0)))
-    theSpace = note.Rest(duration=theDuration)
-    theSpace.style.hideObjectOnPrint = True
-
-    if elem.get(_XMLID) is not None:
-        theSpace.id = elem.get(_XMLID)
-
-    # tuplets
-    if elem.get('m21TupletNum') is not None:
-        theSpace = scaleToTuplet(theSpace, elem)
-
-    return theSpace
+    pass
 
 
 def mSpaceFromElement(elem, slurBundle=None):
@@ -2371,14 +2152,7 @@ def mSpaceFromElement(elem, slurBundle=None):
         duration of 1.0. This must be fixed later, so the :class:`Space` object returned from this
         method is given the :attr:`m21wasMRest` attribute, set to True.
     '''
-    # NOTE: keep this in sync with mRestFromElement()
-
-    if elem.get('dur') is not None:
-        return spaceFromElement(elem, slurBundle)
-    else:
-        theSpace = spaceFromElement(elem, slurBundle)
-        theSpace.m21wasMRest = True
-        return theSpace
+    pass
 
 
 def chordFromElement(elem, slurBundle=None):
@@ -2439,58 +2213,7 @@ def chordFromElement(elem, slurBundle=None):
 
     - MEI.edittrans: (all)
     '''
-    tagToFunction = {f'{MEI_NS}note': lambda *x: None,
-                     f'{MEI_NS}artic': articFromElement}
-
-    # start with a Chord with a bunch of Notes
-    theChord = []
-    for eachNote in elem.iterfind(f'{MEI_NS}note'):
-        theChord.append(noteFromElement(eachNote, slurBundle))
-    theChord = chord.Chord(notes=theChord)
-
-    # set the Chord's duration
-    theDuration = _qlDurationFromAttr(elem.get('dur'))
-    theDuration = makeDuration(theDuration, int(elem.get('dots', 0)))
-    theChord.duration = theDuration
-
-    # iterate all immediate children
-    for subElement in _processEmbeddedElements(elem.findall('*'),
-                                               tagToFunction,
-                                               elem.tag,
-                                               slurBundle):
-        if isinstance(subElement, articulations.Articulation):
-            theChord.articulations.append(subElement)
-
-    # we can only process slurs if we got a SpannerBundle as the "slurBundle" argument
-    if slurBundle is not None:
-        addSlurs(elem, theChord, slurBundle)
-
-    # id in the @xml:id attribute
-    if elem.get(_XMLID) is not None:
-        theChord.id = elem.get(_XMLID)
-
-    # articulations in the @artic attribute
-    if elem.get('artic') is not None:
-        theChord.articulations.extend(_makeArticList(elem.get('artic')))
-
-    # ties in the @tie attribute
-    if elem.get('tie') is not None:
-        theChord.tie = _tieFromAttr(elem.get('tie'))
-
-    # grace note (only mark as grace note---don't worry about "time-stealing")
-    if elem.get('grace') is not None:
-        theChord.duration = duration.GraceDuration(theChord.duration.quarterLength)
-
-    # beams indicated by a <beamSpan> held elsewhere
-    if elem.get('m21Beam') is not None:
-        if duration.convertTypeToNumber(theChord.duration.type) > 4:
-            theChord.beams.fill(theChord.duration.type, elem.get('m21Beam'))
-
-    # tuplets
-    if elem.get('m21TupletNum') is not None:
-        theChord = scaleToTuplet(theChord, elem)
-
-    return theChord
+    pass
 
 
 def clefFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
@@ -2663,25 +2386,7 @@ def beamFromElement(elem, slurBundle=None):
     - MEI.mensural: ligature mensur proport
     - MEI.shared: clefGrp custos keySig pad
     '''
-    # NB: The doctest is a sufficient integration test. Since there is no logic, I don't think we
-    #     need to bother with unit testing.
-
-    # mapping from tag name to our converter function
-    tagToFunction = {
-        f'{MEI_NS}clef': clefFromElement,
-        f'{MEI_NS}chord': chordFromElement,
-        f'{MEI_NS}note': noteFromElement,
-        f'{MEI_NS}rest': restFromElement,
-        f'{MEI_NS}tuplet': tupletFromElement,
-        f'{MEI_NS}beam': beamFromElement,
-        f'{MEI_NS}space': spaceFromElement,
-        f'{MEI_NS}barLine': barLineFromElement,
-    }
-
-    beamedStuff = _processEmbeddedElements(elem.findall('*'), tagToFunction, elem.tag, slurBundle)
-    beamedStuff = beamTogether(beamedStuff)
-
-    return beamedStuff
+    pass
 
 
 def barLineFromElement(elem, slurBundle=None):  # pylint: disable=unused-argument
@@ -2733,7 +2438,7 @@ def barLineFromElement(elem, slurBundle=None):  # pylint: disable=unused-argumen
 
     **Contained Elements not Implemented:** none
     '''
-    return _barlineFromAttr(elem.get('rend', 'single'))
+    pass
 
 
 def tupletFromElement(elem, slurBundle=None):
@@ -2785,51 +2490,7 @@ def tupletFromElement(elem, slurBundle=None):
     - MEI.mensural: ligature mensur proport
     - MEI.shared: clefGrp custos keySig pad
     '''
-    # mapping from tag name to our converter function
-    tagToFunction = {
-        f'{MEI_NS}tuplet': tupletFromElement,
-        f'{MEI_NS}beam': beamFromElement,
-        f'{MEI_NS}note': noteFromElement,
-        f'{MEI_NS}rest': restFromElement,
-        f'{MEI_NS}chord': chordFromElement,
-        f'{MEI_NS}clef': clefFromElement,
-        f'{MEI_NS}space': spaceFromElement,
-        f'{MEI_NS}barLine': barLineFromElement,
-    }
-
-    # get the @num and @numbase attributes, without which we can't properly calculate the tuplet
-    if elem.get('num') is None or elem.get('numbase') is None:
-        raise MeiAttributeError(_MISSING_TUPLET_DATA)
-
-    # iterate all immediate children
-    tupletMembers = _processEmbeddedElements(elem.findall('*'), tagToFunction, elem.tag, slurBundle)
-
-    # "tuplet-ify" the duration of everything held within
-    newElem = Element('c', m21TupletNum=elem.get('num'), m21TupletNumbase=elem.get('numbase'))
-    tupletMembers = scaleToTuplet(tupletMembers, newElem)
-
-    # Set the Tuplet.type property for the first and final note in a tuplet.
-    # We have to find the first and last duration-having thing, not just the first and last objects
-    # between the <tuplet> tags.
-    firstNote = None
-    lastNote = None
-    for i, eachObj in enumerate(tupletMembers):
-        if firstNote is None and isinstance(eachObj, note.GeneralNote):
-            firstNote = i
-        elif isinstance(eachObj, note.GeneralNote):
-            lastNote = i
-
-    tupletMembers[firstNote].duration.tuplets[0].type = 'start'
-    if lastNote is None:
-        # when there is only one object in the tuplet
-        tupletMembers[firstNote].duration.tuplets[0].type = 'stop'
-    else:
-        tupletMembers[lastNote].duration.tuplets[0].type = 'stop'
-
-    # beam it all together
-    tupletMembers = beamTogether(tupletMembers)
-
-    return tuple(tupletMembers)
+    pass
 
 
 def layerFromElement(elem, overrideN=None, slurBundle=None):

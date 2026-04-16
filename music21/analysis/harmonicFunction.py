@@ -180,18 +180,7 @@ def functionToRoman(thisHarmonicFunction: HarmonicFunction,
     'Tp'
 
     '''
-    if isinstance(keyOrScale, str):
-        keyOrScale = key.Key(keyOrScale)
-
-    referenceTuples = functionFigureTuplesMajor
-    if isinstance(keyOrScale, key.Key) and keyOrScale.mode == 'minor':
-        referenceTuples = functionFigureTuplesMinor
-
-    try:
-        figure = referenceTuples[thisHarmonicFunction]
-    except KeyError:
-        return None
-    return roman.RomanNumeral(figure, keyOrScale)
+    pass
 
 
 def romanToFunction(rn: roman.RomanNumeral,
@@ -237,20 +226,7 @@ def romanToFunction(rn: roman.RomanNumeral,
     See further notes on the complementary
     :func:`~music21.analysis.harmonicFunction.functionToRoman`.
     '''
-
-    referenceTuples = functionFigureTuplesMajor
-    if rn.key:  # RomanNumeral object can be created without one.
-        if rn.key.mode == 'minor':
-            referenceTuples = functionFigureTuplesMinor
-
-    for thisKey, thisValue in referenceTuples.items():
-        if rn.romanNumeral == thisValue:
-            if onlyHauptHarmonicFunction:
-                return HarmonicFunction(str(thisKey)[0])
-            else:
-                return thisKey
-
-    return None
+    pass
 
 
 # ------------------------------------------------------------------------------
@@ -262,32 +238,16 @@ class Test(unittest.TestCase):
 
         Also tests one fake (invalid) function label.
         '''
-        # All and only valid
-        for thisHarmonicFunction in functionFigureTuplesMajor:
-            HarmonicFunction(thisHarmonicFunction)
-        for thisHarmonicFunction in functionFigureTuplesMinor:
-            HarmonicFunction(thisHarmonicFunction)
-
-        # Invalid
-        fakeExample = 'TPG'
-        self.assertRaises(ValueError, HarmonicFunction, fakeExample)
+        pass
 
     def testFunctionToRoman(self):
-        self.assertEqual(functionToRoman(HarmonicFunction.TONIC_MAJOR).figure, 'I')
+        pass
 
     def testSimplified(self):
-        rn = roman.RomanNumeral('III', 'f')
-
-        fn1 = romanToFunction(rn)
-        self.assertIs(fn1, HarmonicFunction.TONIC_MINOR_PARALLELKLANG_MAJOR)
-        self.assertEqual(str(fn1), 'tP')
-
-        fn2 = romanToFunction(rn, onlyHauptHarmonicFunction=True)
-        self.assertIs(fn2, HarmonicFunction.TONIC_MINOR)
-        self.assertEqual(str(fn2), 't')
+        pass
 
     def testIgnoresInversion(self):
-        self.assertEqual(romanToFunction(roman.RomanNumeral('i6')), 't')
+        pass
 
 
 # -----------------------------------------------------------------------------

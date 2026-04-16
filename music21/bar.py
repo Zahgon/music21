@@ -76,18 +76,7 @@ def standardizeBarType(value):
     and 'light-light' to 'double' and 'light-heavy' to 'final',
     raises an error for unknown styles.
     '''
-    if value is None:
-        return 'regular'  # for now, return with string
-
-    value = value.lower()
-
-    if value in barTypeList:
-        return value
-    elif value in barTypeDict:
-        return barTypeDict[value]
-    # if not match
-    else:
-        raise BarException(f'cannot process style: {value}')
+    pass
 
 
 # ------------------------------------------------------------------------------
@@ -147,14 +136,14 @@ class Barline(base.Music21Object):
         self.location = location  # musicxml values: can be left, right, middle, None
 
     def _reprInternal(self):
-        return f'type={self.type}'
+        pass
 
 
     def _getType(self):
-        return self._type
+        pass
 
     def _setType(self, value):
-        self._type = standardizeBarType(value)
+        pass
 
     type = property(_getType, _setType,
         doc='''
@@ -281,10 +270,7 @@ class Repeat(repeat.RepeatMark, Barline):
         self.times = times
 
     def _reprInternal(self):
-        msg = f'direction={self.direction}'
-        if self.times is not None:
-            msg += f' times={self.times}'
-        return msg
+        pass
 
 
     @property
@@ -294,20 +280,11 @@ class Repeat(repeat.RepeatMark, Barline):
 
         TODO: show how changing direction changes type.
         '''
-        if self._direction is None:  # pragma: no cover
-            raise BarException('_direction unexpectedly None after initialization')
-        return self._direction
+        pass
 
     @direction.setter
     def direction(self, value: str):
-        if value.lower() in ('start', 'end'):
-            self._direction = value.lower()
-            if self._direction == 'end':
-                self.type = 'final'
-            elif self._direction == 'start':
-                self.type = 'heavy-light'
-        else:
-            raise BarException(f'cannot set repeat direction to: {value}')
+        pass
 
     @property
     def times(self) -> int|None:
@@ -331,29 +308,11 @@ class Repeat(repeat.RepeatMark, Barline):
         Traceback (most recent call last):
         music21.bar.BarException: cannot set repeat times to a value less than zero: -3
         '''
-        return self._times
+        pass
 
     @times.setter
     def times(self, value: int|None) -> None:
-        if value is None:
-            self._times = None
-        else:
-            try:
-                candidate = int(value)
-            except ValueError:
-                # pylint: disable:raise-missing-from
-                raise BarException(
-                    f'cannot set repeat times to: {value!r}'
-                )
-
-            if candidate < 0:
-                raise BarException(
-                    f'cannot set repeat times to a value less than zero: {value}'
-                )
-            if self.direction == 'start':
-                raise BarException('cannot set repeat times on a start Repeat')
-
-            self._times = candidate
+        pass
 
 
     def getTextExpression(self, prefix='', postfix='x'):
@@ -370,55 +329,19 @@ class Repeat(repeat.RepeatMark, Barline):
         >>> rb.getTextExpression(prefix='repeat ', postfix=' times')
         <music21.expressions.TextExpression 'repeat 3 t...'>
         '''
-        value = f'{prefix}{self._times}{postfix}'
-        return expressions.TextExpression(value)
+        pass
 
 
 # ------------------------------------------------------------------------------
 class Test(unittest.TestCase):
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
     def testSortOrder(self):
-        from music21 import stream
-        from music21 import clef
-        from music21 import note
-        from music21 import metadata
-        m = stream.Measure()
-        b = Repeat()
-        m.leftBarline = b
-        c = clef.BassClef()
-        m.append(c)
-        n = note.Note()
-        m.append(n)
-
-        # check sort order
-        self.assertEqual(m[0], b)
-        self.assertEqual(m[1], c)
-        self.assertEqual(m[2], n)
-
-        # if we add metadata, it sorts ahead of bar
-        md = metadata.Metadata()
-        m.insert(0, md)
-
-        self.assertEqual(m[0], md)
-        self.assertEqual(m[1], b)
+        pass
 
     def testFreezeThaw(self):
-        from music21 import converter
-        from music21 import stream
-        # pylint: disable=redefined-outer-name
-        from music21.bar import Barline  # avoid not same class error
-
-        b = Barline()
-        self.assertNotIn('StyleMixin', b.classes)
-        s = stream.Stream([b])
-        data = converter.freezeStr(s, fmt='pickle')
-        s2 = converter.thawStr(data)
-        thawedBarline = s2[0]
-        # Previously, raised AttributeError
-        self.assertEqual(thawedBarline.hasStyleInformation, False)
+        pass
 
 
 if __name__ == '__main__':

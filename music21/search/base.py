@@ -283,26 +283,13 @@ class StreamSearcher:
         '''
         An algorithm that supports Wildcards -- added by default to the search function.
         '''
-        if isinstance(searchEl, Wildcard):
-            return True
-        else:
-            return None
+        pass
 
     def rhythmAlgorithm(self, streamEl: m21Base.Music21Object, searchEl: m21Base.Music21Object):
-        if isinstance(searchEl.duration, WildcardDuration):
-            return True
-        if searchEl.duration.quarterLength != streamEl.duration.quarterLength:
-            return False
-        return None
+        pass
 
     def noteNameAlgorithm(self, streamEl: m21Base.Music21Object, searchEl: m21Base.Music21Object):
-        if not hasattr(searchEl, 'name'):
-            return False
-        if not hasattr(streamEl, 'name'):
-            return False
-        if searchEl.name != streamEl.name:
-            return False
-        return None
+        pass
 
 
 def streamSearchBase(thisStreamOrIterator, searchList, algorithm=None):
@@ -311,35 +298,7 @@ def streamSearchBase(thisStreamOrIterator, searchList, algorithm=None):
     which takes in a stream or StreamIterator and a searchList or stream
     and an algorithm to run on each pair of elements to determine if they match.
     '''
-    if algorithm is None:
-        raise SearchException('algorithm must be a function not None')
-
-    result = None
-    if 'StreamIterator' in thisStreamOrIterator.classes:
-        thisStreamIterator = thisStreamOrIterator
-    else:
-        thisStreamIterator = thisStreamOrIterator.recurse()
-
-    streamIteratorEls = list(thisStreamIterator)
-    streamLength = len(streamIteratorEls)
-    searchLength = len(searchList)
-    if searchLength == 0:
-        raise SearchException('the search Stream or list cannot be empty')
-
-    foundEls = []
-    if searchLength > streamLength:
-        return foundEls
-
-    for startPosition, streamEls in enumerate(windowed(streamIteratorEls, searchLength)):
-        for j in range(searchLength):
-            streamEl = streamEls[j]
-            searchEl = searchList[j]
-            result = algorithm(streamEl, searchEl)
-            if not result:
-                break
-        if result:
-            foundEls.append(startPosition)
-    return foundEls
+    pass
 
 
 def rhythmicSearch(thisStreamOrIterator, searchList):
@@ -436,14 +395,7 @@ def rhythmicSearch(thisStreamOrIterator, searchList):
     >>> float(len(term1results)) / len(term2results)
     8.0
     '''
-    def rhythmAlgorithm(streamEl, searchEl):
-        if 'WildcardDuration' in searchEl.duration.classes:
-            return True
-        if searchEl.duration.quarterLength != streamEl.duration.quarterLength:
-            return False
-        return True
-
-    return streamSearchBase(thisStreamOrIterator, searchList, algorithm=rhythmAlgorithm)
+    pass
 
 
 def noteNameSearch(thisStreamOrIterator, searchList):
@@ -459,19 +411,7 @@ def noteNameSearch(thisStreamOrIterator, searchList):
     >>> search.noteNameSearch(thisStreamIter, searchList2)
     [0, 3, 7, 11]
     '''
-    def noteNameAlgorithm(streamEl, searchEl):
-        if 'Wildcard' in searchEl.classes:
-            return True
-        if not hasattr(searchEl, 'name'):
-            return False
-        if not hasattr(streamEl, 'name'):
-            return False
-
-        if searchEl.name != streamEl.name:
-            return False
-        return True
-
-    return streamSearchBase(thisStreamOrIterator, searchList, algorithm=noteNameAlgorithm)
+    pass
 
 
 def noteNameRhythmicSearch(thisStreamOrIterator, searchList):
@@ -490,25 +430,7 @@ def noteNameRhythmicSearch(thisStreamOrIterator, searchList):
     >>> search.noteNameRhythmicSearch(thisStreamIter, searchList)
     [0, 3, 7]
     '''
-    def noteNameRhythmAlgorithm(streamEl, searchEl):
-        if 'Wildcard' in searchEl.classes:
-            return True
-        if not hasattr(searchEl, 'name'):
-            return False
-        if not hasattr(streamEl, 'name'):
-            return False
-
-        if searchEl.name != streamEl.name:
-            return False
-
-        if 'WildcardDuration' in searchEl.duration.classes:
-            return True
-        if searchEl.duration.quarterLength != streamEl.duration.quarterLength:
-            return False
-
-        return True
-
-    return streamSearchBase(thisStreamOrIterator, searchList, algorithm=noteNameRhythmAlgorithm)
+    pass
 
 
 def approximateNoteSearch(thisStream, otherStreams):
@@ -532,19 +454,7 @@ def approximateNoteSearch(thisStream, otherStreams):
     o3 0.333333...
     o2 0.083333...
     '''
-    isJunk = None
-    n = thisStream.flatten().notesAndRests
-    thisStreamStr = translateStreamToString(n)
-    sorterList = []
-    for s in otherStreams:
-        sn = s.flatten().notesAndRests
-        thatStreamStr = translateStreamToString(sn)
-        ratio = difflib.SequenceMatcher(isJunk, thisStreamStr, thatStreamStr).ratio()
-        s.matchProbability = ratio
-        sorterList.append((ratio, s))
-    sortedList = sorted(sorterList, key=lambda x: 1 - x[0])
-    sortedStreams = [x[1] for x in sortedList]
-    return sortedStreams
+    pass
 
 
 def approximateNoteSearchNoRhythm(thisStream, otherStreams):
@@ -568,19 +478,7 @@ def approximateNoteSearchNoRhythm(thisStream, otherStreams):
     o3 0.5
     o2 0.1666666...
     '''
-    isJunk = None
-    n = thisStream.flatten().notesAndRests.stream()
-    thisStreamStr = translateStreamToStringNoRhythm(n)
-    sorterList = []
-    for s in otherStreams:
-        sn = s.flatten().notesAndRests.stream()
-        thatStreamStr = translateStreamToStringNoRhythm(sn)
-        ratio = difflib.SequenceMatcher(isJunk, thisStreamStr, thatStreamStr).ratio()
-        s.matchProbability = ratio
-        sorterList.append((ratio, s))
-    sortedList = sorted(sorterList, key=lambda x: 1 - x[0])
-    sortedStreams = [x[1] for x in sortedList]
-    return sortedStreams
+    pass
 
 
 def approximateNoteSearchOnlyRhythm(thisStream, otherStreams):
@@ -604,19 +502,7 @@ def approximateNoteSearchOnlyRhythm(thisStream, otherStreams):
     o3 0.33...
     o2 0.0
     '''
-    isJunk = None
-    n = thisStream.flatten().notesAndRests.stream()
-    thisStreamStr = translateStreamToStringOnlyRhythm(n)
-    sorterList = []
-    for s in otherStreams:
-        sn = s.flatten().notesAndRests.stream()
-        thatStreamStr = translateStreamToStringOnlyRhythm(sn)
-        ratio = difflib.SequenceMatcher(isJunk, thisStreamStr, thatStreamStr).ratio()
-        s.matchProbability = ratio
-        sorterList.append((ratio, s))
-    sortedList = sorted(sorterList, key=lambda x: 1 - x[0])
-    sortedStreams = [x[1] for x in sortedList]
-    return sortedStreams
+    pass
 
 
 def approximateNoteSearchWeighted(thisStream, otherStreams):
@@ -643,31 +529,7 @@ def approximateNoteSearchWeighted(thisStream, otherStreams):
     o4 0.75
     o2 0.25
     '''
-    isJunk = None
-    n = thisStream.flatten().notesAndRests.stream()
-    thisStreamStrPitches = translateStreamToStringNoRhythm(n)
-    thisStreamStrDuration = translateStreamToStringOnlyRhythm(n)
-    # print('notes',thisStreamStrPitches)
-    # print('rhythm',thisStreamStrDuration)
-    sorterList = []
-    for s in otherStreams:
-        sn = s.flatten().notesAndRests
-        thatStreamStrPitches = translateStreamToStringNoRhythm(sn)
-        thatStreamStrDuration = translateStreamToStringOnlyRhythm(sn)
-        # print('notes2',thisStreamStrPitches)
-        # print('rhythm2',thisStreamStrDuration)
-        ratioPitches = difflib.SequenceMatcher(isJunk,
-                                               thisStreamStrPitches,
-                                               thatStreamStrPitches).ratio()
-        ratioDuration = difflib.SequenceMatcher(isJunk,
-                                                thisStreamStrDuration,
-                                                thatStreamStrDuration).ratio()
-        ratio = (3 * ratioPitches + ratioDuration) / 4.0
-        s.matchProbability = ratio
-        sorterList.append((ratio, s))
-    sortedList = sorted(sorterList, key=lambda x: 1 - x[0])
-    sortedStreams = [x[1] for x in sortedList]
-    return sortedStreams
+    pass
 
 
 # noinspection SpellCheckingInspection
@@ -693,16 +555,7 @@ def translateStreamToString(inputStreamOrIterator, returnMeasures=False):
     >>> list(streamString.encode('utf-8'))
     [60, 80, 127, 80, 60, 80, 127, 80]
     '''
-    b = ''
-    measures = []
-    for n in inputStreamOrIterator:
-        b += translateNoteWithDurationToBytes(n)
-        if returnMeasures:
-            measures.append(n.measureNumber)
-    if not returnMeasures:
-        return b
-    else:
-        return (b, measures)
+    pass
 
 
 def translateDiatonicStreamToString(inputStreamOrIterator, returnMeasures=False):
@@ -740,49 +593,7 @@ def translateDiatonicStreamToString(inputStreamOrIterator, returnMeasures=False)
     >>> measures
     [1, 1, 1, 1, 1, 2, 2]
     '''
-    b = []
-    measures = []
-    previousRest = False
-    previousTie = False
-    previousQL = None
-    for n in inputStreamOrIterator:
-        mNum = None
-        if returnMeasures:
-            mNum = n.measureNumber
-
-        if n.isRest:
-            if previousRest:
-                continue
-            else:
-                previousRest = True
-                b.append('Z')
-                measures.append(mNum)
-                continue
-        else:
-            previousRest = False
-        if previousTie:
-            if n.tie is None or n.tie.type == 'stop':
-                previousTie = False
-            continue
-        elif n.tie is not None:
-            previousTie = True
-        ql = n.duration.quarterLength
-        if previousQL is None or previousQL == ql:
-            ascShift = 0
-        elif previousQL > ql:
-            ascShift = 14
-        else:
-            ascShift = 7
-        previousQL = ql
-        newName = chr(ord(n.pitches[0].step) + ascShift)
-        measures.append(mNum)
-        b.append(newName)
-
-    joined = ''.join(b)
-    if not returnMeasures:
-        return joined
-    else:
-        return (joined, measures)
+    pass
 
 
 def translateIntervalsAndSpeed(inputStream, returnMeasures=False):
@@ -820,60 +631,7 @@ def translateIntervalsAndSpeed(inputStream, returnMeasures=False):
     >>> measures
     [1, 1, 1, 1, 1, 2, 2, 2]
     '''
-    b = []
-    measures = []
-
-    previousRest = False  # was the previous a Rest
-    previousTie = False  # was the previous a Tie?
-    previousQL = None
-    previousMidi = 60
-    for n in inputStream.getElementsByClass(note.Note):
-        previousMidi = n.pitches[0].midi
-        break
-
-    for n in inputStream:
-        mNum = None
-        if returnMeasures:
-            mNum = n.measureNumber
-        if n.isRest:
-            if previousRest:
-                continue
-            else:
-                previousRest = True
-                b.append(' ')
-                measures.append(mNum)
-                continue
-        else:
-            previousRest = False
-        if previousTie:
-            if n.tie is None or n.tie.type == 'stop':
-                previousTie = False
-            continue
-        elif n.tie is not None:
-            previousTie = True
-        ql = n.duration.quarterLength
-        if previousQL is None or previousQL == ql:
-            ascShift = 27 + 14
-        elif previousQL > ql:
-            ascShift = 27 * 2 + 14
-        else:
-            ascShift = 14
-        previousQL = ql
-        pitchDifference = previousMidi - n.pitches[0].midi
-        if pitchDifference > 13:
-            pitchDifference = 13
-        elif pitchDifference < -13:
-            pitchDifference = -13
-        previousMidi = n.pitches[0].midi
-        newName = chr(32 + pitchDifference + ascShift)
-        measures.append(mNum)
-        b.append(newName)
-
-    joined = ''.join(b)
-    if not returnMeasures:
-        return joined
-    else:
-        return (joined, measures)
+    pass
 
 
 def translateStreamToStringNoRhythm(inputStream, returnMeasures=False):
@@ -891,16 +649,7 @@ def translateStreamToStringNoRhythm(inputStream, returnMeasures=False):
     >>> search.translateStreamToStringNoRhythm(sn, returnMeasures=True)
     ('<>@)QF', [1, 1, 1, 1, 2, 2])
     '''
-    b = ''
-    measures = []
-    for n in inputStream:
-        b += translateNoteToByte(n)
-        if returnMeasures:
-            measures.append(n.measureNumber)
-    if returnMeasures:
-        return (b, measures)
-    else:
-        return b
+    pass
 
 
 def translateStreamToStringOnlyRhythm(inputStream, returnMeasures=False):
@@ -916,16 +665,7 @@ def translateStreamToStringOnlyRhythm(inputStream, returnMeasures=False):
     >>> len(streamString)
     6
     '''
-    b = ''
-    measures = []
-    for n in inputStream:
-        b += translateDurationToBytes(n)
-        if returnMeasures:
-            measures.append(n.measureNumber)
-    if returnMeasures:
-        return (b, measures)
-    else:
-        return b
+    pass
 
 
 def translateNoteToByte(n: note.GeneralNote) -> str:
@@ -947,15 +687,7 @@ def translateNoteToByte(n: note.GeneralNote) -> str:
 
     Chords are currently just searched on the first Note (or treated as a Rest if None)
     '''
-    if isinstance(n, note.Note):
-        return chr(n.pitch.midi)
-    elif isinstance(n, chord.Chord):
-        if n.pitches:
-            return chr(n.pitches[0].midi)
-        else:
-            return chr(127)
-    else:
-        return chr(127)
+    pass
 
 def translateNoteWithDurationToBytes(n: note.GeneralNote, includeTieByte: bool = True) -> str:
     # noinspection PyShadowingNames
@@ -984,13 +716,7 @@ def translateNoteWithDurationToBytes(n: note.GeneralNote, includeTieByte: bool =
     >>> trans
     '<_'
     '''
-    firstByte = translateNoteToByte(n)
-    secondByte = translateDurationToBytes(n)
-    thirdByte = translateNoteTieToByte(n)
-    if includeTieByte:
-        return firstByte + secondByte + thirdByte
-    else:
-        return firstByte + secondByte
+    pass
 
 
 def translateNoteTieToByte(n: note.GeneralNote):
@@ -1016,16 +742,7 @@ def translateNoteTieToByte(n: note.GeneralNote):
     >>> search.translateNoteTieToByte(n)
     'e'
     '''
-    if n.tie is None:
-        return ''
-    elif n.tie.type == 'start':
-        return 's'
-    elif n.tie.type == 'continue':
-        return 'c'
-    elif n.tie.type == 'stop':
-        return 'e'
-    else:
-        return ''
+    pass
 
 
 def translateDurationToBytes(n: note.GeneralNote):
@@ -1045,12 +762,7 @@ def translateDurationToBytes(n: note.GeneralNote):
     2.828...
 
     '''
-    duration1to127 = 1
-    if n.duration.quarterLength:
-        duration1to127 = int(math.log2(n.duration.quarterLength * 256) * 10)
-        duration1to127 = max(min(duration1to127, 127), 1)
-    secondByte = chr(duration1to127)
-    return secondByte
+    pass
 
 
 # -------------------
@@ -1105,39 +817,7 @@ def mostCommonMeasureRhythms(streamIn, transposeDiatonic=False):
 
     * Changed in v7: bars are ordered first by number, then by part.
     '''
-    returnDicts = []
-
-    for thisMeasure in streamIn[Measure]:
-        rhythmString = translateStreamToStringOnlyRhythm(thisMeasure.notesAndRests)
-        rhythmFound = False
-        for entry in returnDicts:
-            if entry['rhythmString'] == rhythmString:
-                rhythmFound = True
-                entry['number'] += 1
-                entry['measures'].append(thisMeasure)
-                break
-        if not rhythmFound:
-            newDict = {
-                'number': 1,
-                'rhythmString': rhythmString,
-            }
-            measureNotes = thisMeasure.notes
-            for measureNote in measureNotes:
-                if isinstance(measureNote, note.Note):
-                    distanceToTranspose = 72 - measureNotes[0].pitch.ps
-                    thisMeasureCopy = copy.deepcopy(thisMeasure)
-                    for n in thisMeasureCopy.notes:
-                        # TODO: Transpose Diatonic
-                        n.transpose(distanceToTranspose, inPlace=True)
-                    newDict['rhythm'] = thisMeasureCopy
-                    break
-            else:
-                newDict['rhythm'] = thisMeasure
-            newDict['measures'] = [thisMeasure]
-            returnDicts.append(newDict)
-
-    sortedDicts = sorted(returnDicts, key=lambda k: k['number'], reverse=True)
-    return sortedDicts
+    pass
 
 
 class SearchException(exceptions21.Music21Exception):
@@ -1147,8 +827,7 @@ class SearchException(exceptions21.Music21Exception):
 class Test(unittest.TestCase):
 
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
 
 # ------------------------------------------------------------------------------

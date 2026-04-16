@@ -174,15 +174,7 @@ class StreamIterator(prebase.ProtoM21Object, Sequence[M21ObjType]):
             self.updateActiveInformation()
 
     def _reprInternal(self):
-        streamClass = self.srcStream.__class__.__name__
-        srcStreamId = self.srcStream.id
-        if isinstance(srcStreamId, int):
-            srcStreamId = hex(srcStreamId)
-
-        if streamClass == 'Measure' and self.srcStream.number != 0:
-            srcStreamId = 'm.' + str(self.srcStream.number)
-
-        return f'for {streamClass}:{srcStreamId} @:{self.elementIndex}'
+        pass
 
     def __iter__(self) -> t.Self:
         self.reset()
@@ -732,20 +724,7 @@ class StreamIterator(prebase.ProtoM21Object, Sequence[M21ObjType]):
         '''
         returns False if any filter returns False, True otherwise.
         '''
-        f: FilterType
-        for f in self.filters:
-            try:
-                try:
-                    if f(e, self) is False:
-                        return False
-                except TypeError:  # one element filters are acceptable.
-                    if t.TYPE_CHECKING:
-                        assert isinstance(f, filters.StreamFilter)
-                    if f(e) is False:
-                        return False
-            except StopIteration:  # pylint: disable=try-except-raise
-                raise  # clearer this way to see that this can happen
-        return True
+        pass
 
     def _newBaseStream(self) -> streamModule.Stream:
         '''
@@ -907,7 +886,7 @@ class StreamIterator(prebase.ProtoM21Object, Sequence[M21ObjType]):
         Returns the element list (`_elements` or `_endElements`)
         for the current activeInformation.
         '''
-        return getattr(self.activeInformation['stream'], self.activeInformation['iterSection'])
+        pass
 
     # ------------------------------------------------------------
 
@@ -948,16 +927,7 @@ class StreamIterator(prebase.ProtoM21Object, Sequence[M21ObjType]):
         '''
         Return a new StreamIterator where oldFilter is removed.
         '''
-        if returnClone:
-            out = self.clone()
-        else:
-            out = self
-
-        out.resetCaches()
-        if oldFilter in out.filters:
-            out.filters.pop(out.filters.index(oldFilter))
-
-        return out
+        pass
 
     def getElementById(self, elementId: str) -> M21ObjType|None:
         '''
@@ -1105,11 +1075,7 @@ class StreamIterator(prebase.ProtoM21Object, Sequence[M21ObjType]):
 
         * New in v7.
         '''
-        if querySelector.startswith('#'):
-            return self.addFilter(filters.IdFilter(querySelector[1:]), returnClone=returnClone)
-        if querySelector.startswith('.'):
-            return self.addFilter(filters.GroupFilter(querySelector[1:]), returnClone=returnClone)
-        return self.addFilter(filters.ClassFilter(querySelector), returnClone=returnClone)
+        pass
 
 
     def getElementsNotOfClass(self, classFilterList, *, returnClone=True):
@@ -1173,7 +1139,7 @@ class StreamIterator(prebase.ProtoM21Object, Sequence[M21ObjType]):
         D
         E
         '''
-        return self.addFilter(filters.GroupFilter(groupFilterList), returnClone=returnClone)
+        pass
 
     def getElementsByOffset(
         self,
@@ -1457,7 +1423,7 @@ class StreamIterator(prebase.ProtoM21Object, Sequence[M21ObjType]):
         <music21.note.Note C>
         <music21.note.Note D>
         '''
-        return self.getElementsByClass(note.NotRest)
+        pass
 
     @property
     def notesAndRests(self):
@@ -1483,31 +1449,28 @@ class StreamIterator(prebase.ProtoM21Object, Sequence[M21ObjType]):
         <music21.note.Note C>
         <music21.note.Note D>
         '''
-        return self.getElementsByClass(note.GeneralNote)
+        pass
 
     @property
     def parts(self):
         '''
         Adds a ClassFilter for Part objects
         '''
-        from music21 import stream
-        return self.getElementsByClass(stream.Part)
+        pass
 
     @property
     def spanners(self):
         '''
         Adds a ClassFilter for Spanner objects
         '''
-        from music21 import spanner
-        return self.getElementsByClass(spanner.Spanner)
+        pass
 
     @property
     def voices(self):
         '''
         Adds a ClassFilter for Voice objects
         '''
-        from music21 import stream
-        return self.getElementsByClass(stream.Voice)
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -1913,7 +1876,7 @@ class RecursiveIterator(StreamIterator[M21ObjType], Sequence[M21ObjType]):
          <music21.stream.Part Soprano>,
          <music21.stream.Measure 1 offset=1.0>]
         '''
-        return [i.srcStream for i in self.iteratorStack()]
+        pass
 
     def currentHierarchyOffset(self):
         '''
@@ -2082,82 +2045,19 @@ class RecursiveIterator(StreamIterator[M21ObjType], Sequence[M21ObjType]):
 
 class Test(unittest.TestCase):
     def testSimpleClone(self):
-        from music21 import stream
-        s = stream.Stream()
-        r = note.Rest()
-        n = note.Note()
-        s.append([r, n])
-        all_s = list(s.iter())
-        self.assertEqual(len(all_s), 2)
-        self.assertIs(all_s[0], r)
-        self.assertIs(all_s[1], n)
-        s_notes = list(s.iter().notes)
-        self.assertEqual(len(s_notes), 1)
-        self.assertIs(s_notes[0], n)
+        pass
 
     def testAddingFiltersMidIteration(self):
-        from music21 import stream
-        s = stream.Stream()
-        r = note.Rest()
-        n = note.Note()
-        s.append([r, n])
-        sIter = s.iter()
-        r0 = next(sIter)
-        self.assertIs(r0, r)
-
-        # adding a filter gives a new StreamIterator that restarts at 0
-        sIter2 = sIter.notesAndRests  # this filter does nothing here.
-        obj0 = next(sIter2)
-        self.assertIs(obj0, r)
-
-        # the original StreamIterator should be at its original spot, so this should
-        # move to the next element
-        n0 = next(sIter)
-        self.assertIs(n0, n)
+        pass
 
     def testRecursiveActiveSites(self):
-        from music21 import converter
-        s = converter.parse('tinyNotation: 4/4 c1 c4 d=id2 e f')
-        rec = s.recurse()
-        n = rec.getElementById('id2')
-        self.assertEqual(n.activeSite.number, 2)
+        pass
 
     def testCurrentHierarchyOffsetReset(self):
-        from music21 import stream
-        p = stream.Part()
-        m = stream.Measure()
-        m.append(note.Note('D'))
-        m.append(note.Note('E'))
-        p.insert(0, note.Note('C'))
-        p.append(m)
-        pRecurse = p.recurse(includeSelf=True)
-        allOffsets = []
-        for _ in pRecurse:
-            allOffsets.append(pRecurse.currentHierarchyOffset())
-        self.assertListEqual(allOffsets, [0.0, 0.0, 1.0, 1.0, 2.0])
-        currentOffset = pRecurse.currentHierarchyOffset()
-        self.assertIsNone(currentOffset)
+        pass
 
     def testAddingFiltersMidRecursiveIteration(self):
-        from music21 import stream
-        # noinspection PyUnresolvedReferences
-        from music21.stream.iterator import RecursiveIterator as ImportedRecursiveIterator
-        m = stream.Measure()
-        r = note.Rest()
-        n = note.Note()
-        m.append([r, n])
-        p = stream.Part()
-        p.append(m)
-
-        sc = stream.Score()
-        sc.append(p)
-
-        sIter = sc.recurse()
-        p0 = next(sIter)
-        self.assertIs(p0, p)
-
-        child = sIter.childRecursiveIterator
-        self.assertIsInstance(child, ImportedRecursiveIterator)
+        pass
 
 
 

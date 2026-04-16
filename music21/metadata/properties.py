@@ -1158,12 +1158,10 @@ STANDARD_PROPERTY_DESCRIPTIONS: tuple[PropertyDescription, ...] = (
 
 # Utility routines to help with the dictionary generation
 def _uniqueName(prop: PropertyDescription) -> str:
-    if prop.uniqueName:
-        return prop.uniqueName
-    return prop.name
+    pass
 
 def _namespaceName(prop: PropertyDescription) -> str:
-    return f'{prop.namespace}:{prop.name}'
+    pass
 
 
 # The dictionaries:

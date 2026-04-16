@@ -49,52 +49,7 @@ def samplesFromRecording(seconds=10.0, storeFile=True,
 
     Returns a list of samples.
     '''
-    # noinspection PyPackageRequirements
-    import pyaudio  # type: ignore  # pylint: disable=import-error
-    recordFormatDefault = pyaudio.paInt16
-
-    if recordFormat is None:
-        recordFormat = recordFormatDefault
-
-    if recordFormat == pyaudio.paInt8:
-        raise RecordingException('cannot perform samplesFromRecording on 8-bit samples')
-
-    p_audio = pyaudio.PyAudio()
-    st = p_audio.open(format=recordFormat,
-                      channels=recordChannels,
-                      rate=recordSampleRate,
-                      input=True,
-                      frames_per_buffer=recordChunkLength)
-
-    recordingLength = int(recordSampleRate * float(seconds) / recordChunkLength)
-
-    storedWaveSampleList = []
-
-    # time_start = time.time()
-    for i in range(recordingLength):
-        data = st.read(recordChunkLength)
-        storedWaveSampleList.append(data)
-    st.close()
-    p_audio.terminate()
-
-    if storeFile is not False:
-        if isinstance(storeFile, str):
-            waveFilename = storeFile
-        else:
-            waveFilename = str(environLocal.getRootTempDir() / 'recordingTemp.wav')
-        # write recording to disk
-        data = b''.join(storedWaveSampleList)
-        try:
-            # wave.open does not take a path-like object as of 3.12
-            wf = wave.open(waveFilename, 'wb')
-            wf.setnchannels(recordChannels)
-            wf.setsampwidth(p_audio.get_sample_size(recordFormat))
-            wf.setframerate(recordSampleRate)
-            wf.writeframes(data)
-            wf.close()
-        except IOError:
-            raise RecordingException(f'Cannot open {waveFilename} for writing.')
-    return storedWaveSampleList
+    pass
 
 
 class RecordingException(exceptions21.Music21Exception):
@@ -117,8 +72,7 @@ class TestExternal(unittest.TestCase):  # pragma: no cover
         '''
         record one second of data and print 10 records
         '''
-        sampleList = samplesFromRecording(seconds=1, storeFile=False)
-        print(sampleList[30:40])
+        pass
 
 
 # ------------------------------------------------------------------------------

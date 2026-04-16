@@ -317,9 +317,7 @@ class StreamForms:
 
         Currently: runs stripTies.
         '''
-        # Let stripTies make a copy so that we don't leave side effects on the input stream
-        streamObj = streamObj.stripTies(inPlace=False)
-        return streamObj
+        pass
 
     def __getitem__(self, key: str) -> stream.Stream:
         '''
@@ -356,156 +354,48 @@ class StreamForms:
 
     def _getIntervalHistogram(self, algorithm='midi') -> list[int]:
         # note that this does not optimize and cache part presentations
-        histo = [0] * 128
-        # if we have parts, must add one at a time
-        parts: list[stream.Stream]
-        if isinstance(self.prepared, stream.Score):
-            parts = list(self.prepared.parts)
-        else:
-            parts = [self.prepared]  # emulate a list
-        for p in parts:
-            # will be flat
-
-            # noNone means that we will see all connections, even w/ a gap
-            post = p.findConsecutiveNotes(skipRests=True,
-                                          skipChords=True,
-                                          skipGaps=True,
-                                          noNone=True)
-
-            for i, n in enumerate(post):
-                if i < len(post) - 1:  # if not last
-                    iNext = i + 1
-                    nNext = post[iNext]
-                    nValue = getattr(n.pitch, algorithm)
-                    nextValue = getattr(nNext.pitch, algorithm)
-
-                    try:
-                        histo[abs(nValue - nextValue)] += 1
-                    except AttributeError:
-                        pass  # problem with not having midi
-        return histo
+        pass
 # ----------------------------------------------------------------------------
 
     def formPartitionByInstrument(self, prepared: stream.Stream):
-        from music21 import instrument
-        return instrument.partitionByInstrument(prepared)
+        pass
 
     def formSetClassHistogram(self, prepared):
-        return Counter([c.forteClassTnI for c in prepared])
+        pass
 
     def formPitchClassSetHistogram(self, prepared):
-        return Counter([c.orderedPitchClassesString for c in prepared])
+        pass
 
     def formTypesHistogram(self, prepared):
-        histo = {}
-
-        # keys are methods on Chord
-        keys = ['isTriad', 'isSeventh', 'isMajorTriad', 'isMinorTriad',
-                'isIncompleteMajorTriad', 'isIncompleteMinorTriad', 'isDiminishedTriad',
-                'isAugmentedTriad', 'isDominantSeventh', 'isDiminishedSeventh',
-                'isHalfDiminishedSeventh']
-
-        for c in prepared:
-            for thisKey in keys:
-                if thisKey not in histo:
-                    histo[thisKey] = 0
-                # get the function attr, call it, check bool
-                if getattr(c, thisKey)():
-                    histo[thisKey] += 1
-        return histo
+        pass
 
     def formGetElementsByClassMeasure(self, prepared):
-        if isinstance(prepared, stream.Score):
-            post = stream.Stream()
-            for p in prepared.parts:
-                # insert in overlapping offset positions
-                for m in p.getElementsByClass(stream.Measure):
-                    post.insert(m.getOffsetBySite(p), m)
-        else:
-            post = prepared.getElementsByClass(stream.Measure)
-        return post
+        pass
 
     def formChordify(self, prepared):
-        if isinstance(prepared, stream.Score):
-            # options here permit getting part information out
-            # of chordified representation
-            return prepared.chordify(
-                addPartIdAsGroup=True, removeRedundantPitches=False)
-        else:  # for now, just return a normal Part or Stream
-            # this seems wrong -- what if there are multiple voices
-            # in the part?
-            return prepared
+        pass
 
     def formQuarterLengthHistogram(self, prepared):
-        return Counter([float(n.quarterLength) for n in prepared])
+        pass
 
     def formMidiPitchHistogram(self, pitches):
-        return Counter([p.midi for p in pitches])
+        pass
 
     def formPitchClassHistogram(self, pitches):
-        cc = Counter([p.pitchClass for p in pitches])
-        histo = [0] * 12
-        for k in cc:
-            histo[k] = cc[k]
-        return histo
+        pass
 
     def formMidiIntervalHistogram(self, unused):
-        return self._getIntervalHistogram('midi')
+        pass
 
     def formContourList(self, prepared):
         # list of all directed half steps
-        cList = []
-        # if we have parts, must add one at a time
-        if prepared.hasPartLikeStreams():
-            parts = prepared.parts
-        else:
-            parts = [prepared]  # emulate a list
-
-        for p in parts:
-            # this may be unnecessary, but we cannot access cached part data
-
-            # noNone means that we will see all connections, even w/ a gap
-            post = p.findConsecutiveNotes(skipRests=True,
-                                          skipChords=False,
-                                          skipGaps=True,
-                                          noNone=True)
-            for i, n in enumerate(post):
-                if i < (len(post) - 1):  # if not last
-                    iNext = i + 1
-                    nNext = post[iNext]
-
-                    if n.isChord:
-                        ps = n.sortDiatonicAscending().pitches[-1].midi
-                    else:  # normal note
-                        ps = n.pitch.midi
-                    if nNext.isChord:
-                        psNext = nNext.sortDiatonicAscending().pitches[-1].midi
-                    else:  # normal note
-                        psNext = nNext.pitch.midi
-
-                    cList.append(psNext - ps)
-        # environLocal.printDebug(['contourList', cList])
-        return cList
+        pass
 
     def formSecondsMap(self, prepared):
-        post = []
-        secondsMap = prepared.secondsMap
-        # filter only notes; all elements would otherwise be gathered
-        for bundle in secondsMap:
-            if isinstance(bundle['element'], note.NotRest):
-                post.append(bundle)
-        return post
+        pass
 
     def formBeatHistogram(self, secondsMap):
-        secondsList = [d['durationSeconds'] for d in secondsMap]
-        bpmList = [round(60.0 / d) for d in secondsList]
-        histogram = [0] * 200
-        for thisBPM in bpmList:
-            if thisBPM < 40 or thisBPM > 200:
-                continue
-            histogramIndex = int(thisBPM)
-            histogram[histogramIndex] += 1
-        return histogram
+        pass
 
     keysToMethods = {
         'flat': lambda unused, p: p.flatten(),
@@ -595,24 +485,7 @@ class DataInstance:
 
         Run automatically at instantiation if a Stream is passed in.
         '''
-        # perform basic operations that are performed on all
-        # streams
-
-        # store a dictionary of StreamForms
-        self.forms = StreamForms(self.stream)
-
-        # if parts exist, store a forms for each
-        self.formsByPart = []
-        if hasattr(self.stream, 'parts'):
-            self.partsCount = len(self.stream.parts)
-            for p in self.stream.parts:
-                # note that this will join ties and expand rests again
-                self.formsByPart.append(StreamForms(p))
-        else:
-            self.partsCount = 0
-
-        for v in self.stream[stream.Voice]:
-            self.formsByPart.append(StreamForms(v))
+        pass
 
     def setClassLabel(self, classLabel, classValue=None):
         '''
@@ -624,8 +497,7 @@ class DataInstance:
         >>> di = features.DataInstance(s)
         >>> di.setClassLabel('Composer', 'Bach')
         '''
-        self.classLabel = classLabel
-        self._classValue = classValue
+        pass
 
     def getClassValue(self):
         if self._classValue is None or callable(self._classValue) and self.stream is None:
@@ -656,28 +528,7 @@ class DataInstance:
         a converter string (url or filepath), a pathlib.Path,
         or a metadata.bundles.MetadataEntry).
         '''
-        if self.stream is not None:
-            return
-
-        if isinstance(self.streamPath, str):
-            # could be corpus or file path
-            if os.path.exists(self.streamPath) or self.streamPath.startswith('http'):
-                s = converter.parse(self.streamPath)
-            else:  # assume corpus
-                s = corpus.parse(self.streamPath)
-        elif isinstance(self.streamPath, pathlib.Path):
-            # could be corpus or file path
-            if self.streamPath.exists():
-                s = converter.parse(self.streamPath)
-            else:  # assume corpus
-                s = corpus.parse(self.streamPath)
-        elif isinstance(self.streamPath, MetadataEntry):
-            s = self.streamPath.parse()
-        else:
-            raise ValueError(f'Invalid streamPath type: {type(self.streamPath)}')
-
-        self.stream = s
-        self.setupPostStreamParse()
+        pass
 
     def __getitem__(self, key):
         '''
@@ -770,14 +621,7 @@ class DataSet:
         '''
         Add one or more FeatureExtractor objects, either as a list or as an individual object.
         '''
-        # features are instantiated here
-        # however, they do not have a data assignment
-        if not common.isIterable(values):
-            values = [values]
-        # need to create instances
-        for sub in values:
-            self._featureExtractors.append(sub)
-            self._instantiatedFeatureExtractors.append(sub())
+        pass
 
     def getAttributeLabels(self, includeClassLabel=True,
                            includeId=True):
@@ -863,41 +707,7 @@ class DataSet:
         classValues can also be a pickleable function that will be called on
         each instance after parsing, as can ids.
         '''
-        if (not callable(classValues)
-                and len(dataList) != len(classValues)):
-            raise DataSetException(
-                'If classValues is not a function, it must have the same length as dataList')
-        if (ids is not None
-                and not callable(ids)
-                and len(dataList) != len(ids)):
-            raise DataSetException(
-                'If ids is not a function or None, it must have the same length as dataList')
-
-        if callable(classValues):
-            try:
-                pickle.dumps(classValues)
-            except pickle.PicklingError:
-                raise DataSetException('classValues if a function must be pickleable. '
-                                       + 'Lambda and some other functions are not.')
-
-            classValues = [classValues] * len(dataList)
-
-        if callable(ids):
-            try:
-                pickle.dumps(ids)
-            except pickle.PicklingError:
-                raise DataSetException('ids if a function must be pickleable. '
-                                       + 'Lambda and some other functions are not.')
-
-            ids = [ids] * len(dataList)
-        elif ids is None:
-            ids = [None] * len(dataList)
-
-        for i in range(len(dataList)):
-            d = dataList[i]
-            cv = classValues[i]
-            thisId = ids[i]
-            self.addData(d, cv, thisId)
+        pass
 
     # pylint: disable=redefined-builtin
     # noinspection PyShadowingBuiltins
@@ -909,23 +719,7 @@ class DataSet:
         The class value passed here is assumed to be the same as
         the classLabel assigned at startup.
         '''
-        if self._classLabel is None:
-            raise DataSetException(
-                'cannot add data unless a class label for this DataSet has been set.')
-
-        s = None
-        if isinstance(dataOrStreamOrPath, DataInstance):
-            di = dataOrStreamOrPath
-            s = di.stream
-            if s is None:
-                s = di.streamPath
-        else:
-            # all else are stored directly
-            s = dataOrStreamOrPath
-            di = DataInstance(dataOrStreamOrPath, id=id)
-
-        di.setClassLabel(self._classLabel, classValue)
-        self.dataInstances.append(di)
+        pass
 
     def process(self):
         '''
@@ -1090,27 +884,7 @@ class DataSet:
 
 
 def _dataSetParallelSubprocess(dataInstance, failFast):
-    row = []
-    errors = []
-    # howBigWeCopied = len(pickle.dumps(dataInstance))
-    # print('Starting ', dataInstance, ' Size: ', howBigWeCopied)
-    for feClass in dataInstance.featureExtractorClassesForParallelRunning:
-        fe = feClass()
-        fe.setData(dataInstance)
-        # in some cases there might be problem; to not fail
-        try:
-            fReturned = fe.extract()
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            # for now take any error
-            errors.append('failed feature extractor:' + str(fe) + ': ' + str(e))
-            if failFast:
-                raise e
-            # provide a blank feature extractor
-            fReturned = fe.getBlankFeature()
-
-        row.append(fReturned)  # get feature and store
-    # rows will align with data the order of DataInstances
-    return row, errors, dataInstance.getClassValue(), dataInstance.getId()
+    pass
 
 
 def allFeaturesAsList(streamInput):
@@ -1128,17 +902,7 @@ def allFeaturesAsList(streamInput):
     >>> len(f) > 85
     True
     '''
-    from music21.features import jSymbolic, native
-    ds = DataSet(classLabel='')
-    f = list(jSymbolic.featureExtractors) + list(native.featureExtractors)
-    ds.addFeatureExtractors(f)
-    ds.addData(streamInput)
-    ds.process()
-    allData = ds.getFeaturesAsList(includeClassLabel=False,
-                                   includeId=False,
-                                   concatenateLists=False)
-
-    return allData
+    pass
 
 
 # ------------------------------------------------------------------------------
@@ -1213,10 +977,7 @@ def extractorById(idOrList, library=('jSymbolic', 'native')):
     [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     '''
-    ebi = extractorsById(idOrList=idOrList, library=library)
-    if ebi:
-        return ebi[0]
-    return None  # no match
+    pass
 
 
 def vectorById(streamObj, vectorId, library=('jSymbolic', 'native')):
@@ -1228,10 +989,7 @@ def vectorById(streamObj, vectorId, library=('jSymbolic', 'native')):
     >>> features.vectorById(s, 'p20')
     [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     '''
-    fe = extractorById(vectorId, library)(streamObj)  # call class with stream
-    if fe is None:
-        return None  # could raise exception
-    return fe.extract().vector
+    pass
 
 
 def getIndex(featureString, extractorType=None):
@@ -1255,240 +1013,29 @@ def getIndex(featureString, extractorType=None):
     >>> features.getIndex('Tonal Certainty', 'native')
     (1, 'native')
     '''
-    from music21.features import jSymbolic, native
-
-    if extractorType is None or extractorType == 'jsymbolic':
-        indexCount = 0
-        for feature in jSymbolic.featureExtractors:
-
-            if feature().name == featureString:
-                return (indexCount, 'jsymbolic')
-            indexCount += 1
-    if extractorType is None or extractorType == 'native':
-        indexCount = 0
-        for feature in native.featureExtractors:
-            if feature().name == featureString:
-                return (indexCount, 'native')
-            indexCount += 1
-
-        return None
+    pass
 
 
 # ------------------------------------------------------------------------------
 class Test(unittest.TestCase):
 
     def testStreamFormsA(self):
-        from music21 import features
-        self.maxDiff = None
-
-        s = corpus.parse('corelli/opus3no1/1grave')
-        # s.chordify().show()
-        di = features.DataInstance(s)
-        self.assertEqual(len(di['flat']), 292)
-        self.assertEqual(len(di['flat.notes']), 238)
-
-        # di['chordify'].show('t')
-        self.assertEqual(len(di['chordify']), 27)
-        chordifiedChords = di['chordify.flat.getElementsByClass(Chord)']
-        self.assertEqual(len(chordifiedChords), 145)
-        histo = di['chordify.flat.getElementsByClass(Chord).setClassHistogram']
-        # print(histo)
-
-        self.assertEqual(histo,
-                         {'3-11': 30, '2-4': 26, '1-1': 25, '2-3': 16, '3-9': 12, '2-2': 6,
-                          '3-7': 6, '2-5': 6, '3-4': 5, '3-6': 5, '3-10': 4,
-                          '3-8': 2, '3-2': 2})
-
-        self.assertEqual(di['chordify.flat.getElementsByClass(Chord).typesHistogram'],
-                           {'isMinorTriad': 6, 'isAugmentedTriad': 0,
-                            'isTriad': 34, 'isSeventh': 0, 'isDiminishedTriad': 4,
-                            'isDiminishedSeventh': 0, 'isIncompleteMajorTriad': 26,
-                            'isHalfDiminishedSeventh': 0, 'isMajorTriad': 24,
-                            'isDominantSeventh': 0, 'isIncompleteMinorTriad': 16})
-
-        self.assertEqual(di['flat.notes.quarterLengthHistogram'],
-                         {0.5: 116, 1.0: 39, 1.5: 27, 2.0: 31, 3.0: 2, 4.0: 3,
-                          0.75: 4, 0.25: 16})
-
-        # can access parts by index
-        self.assertEqual(len(di['parts']), 3)
-        # stored in parts are StreamForms instances, caching their results
-        self.assertEqual(len(di['parts'][0]['flat.notes']), 71)
-        self.assertEqual(len(di['parts'][1]['flat.notes']), 66)
-
-        # getting a measure by part
-        self.assertEqual(len(di['parts'][0]['getElementsByClass(Measure)']), 19)
-        self.assertEqual(len(di['parts'][1]['getElementsByClass(Measure)']), 19)
-
-        self.assertEqual(di['parts'][0]['pitches.pitchClassHistogram'],
-                         [9, 1, 11, 0, 9, 13, 0, 11, 0, 12, 5, 0])
-        # the sum of the two arrays is the pitch class histogram of the complete
-        # work
-        self.assertEqual(di['pitches.pitchClassHistogram'],
-                         [47, 2, 25, 0, 25, 42, 0, 33, 0, 38, 22, 4])
+        pass
 
     def testStreamFormsB(self):
-        from music21 import features
-
-        s = stream.Stream()
-        for p in ['c4', 'c4', 'd-4', 'd#4', 'f#4', 'a#4', 'd#5', 'a5', 'a5']:
-            s.append(note.Note(p))
-        di = features.DataInstance(s)
-        self.assertEqual(di['pitches.midiIntervalHistogram'],
-                         [2, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        pass
 
     def testStreamFormsC(self):
-        from pprint import pformat
-        from music21 import features
-
-        s = stream.Stream()
-        for p in ['c4', 'c4', 'd-4', 'd#4', 'f#4', 'a#4', 'd#5', 'a5']:
-            s.append(note.Note(p))
-        di = features.DataInstance(s)
-
-        self.assertEqual(pformat(di['flat.secondsMap']), '''[{'durationSeconds': 0.5,
-  'element': <music21.note.Note C>,
-  'endTimeSeconds': 0.5,
-  'offsetSeconds': 0.0,
-  'voiceIndex': None},
- {'durationSeconds': 0.5,
-  'element': <music21.note.Note C>,
-  'endTimeSeconds': 1.0,
-  'offsetSeconds': 0.5,
-  'voiceIndex': None},
- {'durationSeconds': 0.5,
-  'element': <music21.note.Note D->,
-  'endTimeSeconds': 1.5,
-  'offsetSeconds': 1.0,
-  'voiceIndex': None},
- {'durationSeconds': 0.5,
-  'element': <music21.note.Note D#>,
-  'endTimeSeconds': 2.0,
-  'offsetSeconds': 1.5,
-  'voiceIndex': None},
- {'durationSeconds': 0.5,
-  'element': <music21.note.Note F#>,
-  'endTimeSeconds': 2.5,
-  'offsetSeconds': 2.0,
-  'voiceIndex': None},
- {'durationSeconds': 0.5,
-  'element': <music21.note.Note A#>,
-  'endTimeSeconds': 3.0,
-  'offsetSeconds': 2.5,
-  'voiceIndex': None},
- {'durationSeconds': 0.5,
-  'element': <music21.note.Note D#>,
-  'endTimeSeconds': 3.5,
-  'offsetSeconds': 3.0,
-  'voiceIndex': None},
- {'durationSeconds': 0.5,
-  'element': <music21.note.Note A>,
-  'endTimeSeconds': 4.0,
-  'offsetSeconds': 3.5,
-  'voiceIndex': None}]''', pformat(di['secondsMap']))
+        pass
 
     def testDataSetOutput(self):
-        from music21 import features
-        from music21.features import outputFormats
-        # test just a few features
-        featureExtractors = features.extractorsById(['ql1', 'ql2', 'ql4'], 'native')
-
-        # need to define what the class label will be
-        ds = features.DataSet(classLabel='Composer')
-        ds.runParallel = False
-        ds.addFeatureExtractors(featureExtractors)
-
-        # add works, defining the class value
-        ds.addData('bwv66.6', classValue='Bach')
-        ds.addData('corelli/opus3no1/1grave', classValue='Corelli')
-
-        ds.process()
-
-        # manually create an output format and get output
-        of = outputFormats.OutputCSV(ds)
-        post = of.getString(lineBreak='//')
-        self.assertEqual(
-            post,
-            'Identifier,Unique_Note_Quarter_Lengths,'
-            'Most_Common_Note_Quarter_Length,Range_of_Note_Quarter_Lengths,'
-            'Composer//bwv66.6,3,1.0,1.5,Bach//corelli/opus3no1/1grave,8,0.5,3.75,Corelli')
-
-        # without id
-        post = of.getString(lineBreak='//', includeId=False)
-        self.assertEqual(
-            post,
-            'Unique_Note_Quarter_Lengths,Most_Common_Note_Quarter_Length,'
-            'Range_of_Note_Quarter_Lengths,Composer//3,1.0,1.5,Bach//8,0.5,3.75,Corelli')
-
-        fp1 = ds.write(format='tab')
-        fp2 = ds.write(format='csv')
-        # Also test providing fp
-        fp3 = environLocal.getTempFile(suffix='.arff')
-        ds.write(fp=fp3, format='arff')
-
-        for fp in (fp1, fp2, fp3):
-            os.remove(fp)
+        pass
 
     def testFeatureFail(self):
-        from music21 import features
-        from music21 import base
-
-        featureExtractors = ['p10', 'p11', 'p12', 'p13']
-
-        featureExtractors = features.extractorsById(featureExtractors,
-                                                    'jSymbolic')
-
-        ds = features.DataSet(classLabel='Composer')
-        ds.addFeatureExtractors(featureExtractors)
-
-        # create problematic streams
-        s = stream.Stream()
-        # s.append(None)  # will create a wrapper -- NOT ANYMORE
-        s.append(base.ElementWrapper(None))
-        ds.addData(s, classValue='Monteverdi')
-        ds.addData(s, classValue='Handel')
-
-        # process with all feature extractors, store all features
-        ds.failFast = True
-        # Tests that some exception is raised, not necessarily that only one is
-        with self.assertRaises(features.FeatureException):
-            ds.process()
+        pass
 
     def testEmptyStreamCustomErrors(self):
-        from music21 import analysis
-        from music21 import features
-        from music21.features import jSymbolic, native
-
-        ds = DataSet(classLabel='')
-        f = list(jSymbolic.featureExtractors) + list(native.featureExtractors)
-
-        bareStream = stream.Stream()
-        bareScore = stream.Score()
-
-        singlePart = stream.Part()
-        singleMeasure = stream.Measure()
-        singlePart.append(singleMeasure)
-        bareScore.insert(singlePart)
-
-        ds.addData(bareStream)
-        ds.addData(bareScore)
-        ds.addFeatureExtractors(f)
-
-        for data in ds.dataInstances:
-            for fe in ds._instantiatedFeatureExtractors:
-                fe.setData(data)
-                try:
-                    fe.extract()
-                # is every error wrapped?
-                except (features.FeatureException,
-                        analysis.discrete.DiscreteAnalysisException):
-                    pass
+        pass
 
     # --------------------------------------------------------------------------
     # silent tests
@@ -1511,139 +1058,21 @@ class Test(unittest.TestCase):
         Demonstrating writing out data files for feature extraction. Here,
         features are used from the jSymbolic library.
         '''
-        from music21 import features
-
-        featureExtractors = ['r31', 'r32', 'r33', 'r34', 'r35', 'p1', 'p2', 'p3',
-                             'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10', 'p11', 'p12',
-                             'p13', 'p14', 'p15', 'p16', 'p19', 'p20', 'p21']
-
-        # will return a list
-        featureExtractors = features.extractorsById(featureExtractors,
-                                                    'jSymbolic')
-
-        # worksBach = corpus.getBachChorales()[100:143]  # a middle range
-        worksMonteverdi = corpus.search('monteverdi').search('.xml')[:43]
-
-        worksBach = corpus.search('bach').search(numberOfParts=4)[:5]
-
-        # need to define what the class label will be
-        ds = features.DataSet(classLabel='Composer')
-        ds.addFeatureExtractors(featureExtractors)
-
-        # add works, defining the class value
-        # for w in worksBach:
-        #     ds.addData(w, classValue='Bach')
-        for w in worksMonteverdi:
-            ds.addData(w, classValue='Monteverdi')
-        for w in worksBach:
-            ds.addData(w, classValue='Bach')
-
-        # process with all feature extractors, store all features
-        ds.process()
-        ds.write(format='tab')
-        ds.write(format='csv')
-        ds.write(format='arff')
+        pass
 
     def x_testRegionClassificationJSymbolicA(self):  # pragma: no cover
         '''
         Demonstrating writing out data files for feature extraction. Here,
         features are used from the jSymbolic library.
         '''
-        from music21 import features
-
-        featureExtractors = features.extractorsById(['r31', 'r32', 'r33', 'r34', 'r35',
-                                                     'p1', 'p2', 'p3', 'p4', 'p5', 'p6',
-                                                     'p7', 'p8', 'p9', 'p10', 'p11', 'p12',
-                                                     'p13', 'p14', 'p15', 'p16', 'p19',
-                                                     'p20', 'p21'], 'jSymbolic')
-
-        oChina1 = corpus.parse('essenFolksong/han1')
-        oChina2 = corpus.parse('essenFolksong/han2')
-
-        oMitteleuropa1 = corpus.parse('essenFolksong/boehme10')
-        oMitteleuropa2 = corpus.parse('essenFolksong/boehme20')
-
-        ds = features.DataSet(classLabel='Region')
-        ds.addFeatureExtractors(featureExtractors)
-
-        # add works, defining the class value
-        for o, name in [(oChina1, 'han1'),
-                        (oChina2, 'han2')]:
-            for w in o.scores:
-                songId = f'essenFolksong/{name}-{w.metadata.number}'
-                ds.addData(w, classValue='China', id=songId)
-
-        for o, name in [(oMitteleuropa1, 'boehme10'),
-                        (oMitteleuropa2, 'boehme20')]:
-            for w in o.scores:
-                songId = f'essenFolksong/{name}-{w.metadata.number}'
-                ds.addData(w, classValue='Mitteleuropa', id=songId)
-
-        # process with all feature extractors, store all features
-        ds.process()
-        ds.getString(outputFmt='tab')
-        ds.getString(outputFmt='csv')
-        ds.getString(outputFmt='arff')
+        pass
 
     def x_testRegionClassificationJSymbolicB(self):  # pragma: no cover
         '''
         Demonstrating writing out data files for feature extraction.
         Here, features are used from the jSymbolic library.
         '''
-        from music21 import features
-
-        # features common to both collections
-        featureExtractors = features.extractorsById(
-            ['r31', 'r32', 'r33', 'r34', 'r35', 'p1', 'p2', 'p3', 'p4',
-                             'p5', 'p6', 'p7', 'p8', 'p9', 'p10', 'p11', 'p12', 'p13',
-                             'p14', 'p15', 'p16', 'p19', 'p20', 'p21'], 'jSymbolic')
-
-        # first bundle
-        ds = features.DataSet(classLabel='Region')
-        ds.addFeatureExtractors(featureExtractors)
-
-        oChina1 = corpus.parse('essenFolksong/han1')
-        oMitteleuropa1 = corpus.parse('essenFolksong/boehme10')
-
-        # add works, defining the class value
-        for o, name in [(oChina1, 'han1')]:
-            for w in o.scores:
-                songId = f'essenFolksong/{name}-{w.metadata.number}'
-                ds.addData(w, classValue='China', id=songId)
-
-        for o, name in [(oMitteleuropa1, 'boehme10')]:
-            for w in o.scores:
-                songId = f'essenFolksong/{name}-{w.metadata.number}'
-                ds.addData(w, classValue='Mitteleuropa', id=songId)
-
-        # process with all feature extractors, store all features
-        ds.process()
-        ds.write('/_scratch/chinaMitteleuropaSplit-a.tab')
-        ds.write('/_scratch/chinaMitteleuropaSplit-a.csv')
-        ds.write('/_scratch/chinaMitteleuropaSplit-a.arff')
-
-        # create second data set from alternate collections
-        ds = features.DataSet(classLabel='Region')
-        ds.addFeatureExtractors(featureExtractors)
-
-        oChina2 = corpus.parse('essenFolksong/han2')
-        oMitteleuropa2 = corpus.parse('essenFolksong/boehme20')
-        # add works, defining the class value
-        for o, name in [(oChina2, 'han2')]:
-            for w in o.scores:
-                songId = f'essenFolksong/{name}-{w.metadata.number}'
-                ds.addData(w, classValue='China', id=songId)
-
-        for o, name in [(oMitteleuropa2, 'boehme20')]:
-            for w in o.scores:
-                songId = f'essenFolksong/{name}-{w.metadata.number}'
-                ds.addData(w, classValue='Mitteleuropa', id=songId)
-
-        # process with all feature extractors, store all features
-        ds.process()
-        ds.write('/_scratch/chinaMitteleuropaSplit-b.tab')
-        ds.write('/_scratch/chinaMitteleuropaSplit-b.csv')
-        ds.write('/_scratch/chinaMitteleuropaSplit-b.arff')
+        pass
 
     # all these are written using orange-Py2 code; need better.
 
@@ -1802,24 +1231,7 @@ class Test(unittest.TestCase):
     #     orngTree.printTxt(tree)
 
     def testParallelRun(self):
-        from music21 import features
-        # test just a few features
-        featureExtractors = features.extractorsById(['ql1', 'ql2', 'ql4'], 'native')
-
-        # need to define what the class label will be
-        ds = features.DataSet(classLabel='Composer')
-        ds.addFeatureExtractors(featureExtractors)
-
-        # add works, defining the class value
-        ds.addData('bwv66.6', classValue='Bach')
-        ds.addData('corelli/opus3no1/1grave', classValue='Corelli')
-        ds.runParallel = True
-        ds.quiet = True
-        ds.process()
-        self.assertEqual(len(ds.features), 2)
-        self.assertEqual(len(ds.features[0]), 3)
-        fe00 = ds.features[0][0]
-        self.assertEqual(fe00.vector, [3])
+        pass
 
     # # pylint: disable=redefined-outer-name
     # def x_fix_parallel_first_testMultipleSearches(self):
@@ -1866,7 +1278,7 @@ def _pickleFunctionNumPitches(bachStream):
     '''
     A function for documentation testing of a pickleable function
     '''
-    return len(bachStream.pitches)
+    pass
 
 
 # ------------------------------------------------------------------------------

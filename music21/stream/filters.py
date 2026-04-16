@@ -266,10 +266,7 @@ class ClassFilter(StreamFilter):
         return not item.classSet.isdisjoint(self.classList)
 
     def _reprInternal(self):
-        if len(self.classList) == 1:
-            return str(self.classList[0])
-        else:
-            return str(self.classList)
+        pass
 
 
 class ClassNotFilter(ClassFilter):
@@ -380,10 +377,7 @@ class OffsetFilter(StreamFilter):
         self.stopAfterEnd = stopAfterEnd
 
     def _reprInternal(self) -> str:
-        if self.zeroLengthSearch:
-            return str(self.offsetStart)
-        else:
-            return str(self.offsetStart) + '-' + str(self.offsetEnd)
+        pass
 
 
     def __call__(self, e, iterator=None):
@@ -411,61 +405,7 @@ class OffsetFilter(StreamFilter):
         Factored out from __call__ to be used by OffsetHierarchyFilter, and it's just
         a beast.  :-)
         '''
-        if offset > self.offsetEnd:  # anything that begins after the span is definitely out
-            if stopAfterEnd:
-                # if sorted, optimize by breaking after exceeding offsetEnd
-                # eventually we could do a binary search to speed up
-                raise StopIteration()
-            return False
-
-        dur = e.duration
-
-        elementEnd = opFrac(offset + dur.quarterLength)
-        if elementEnd < self.offsetStart:
-            # anything that finishes before the span ends is definitely out
-            return False
-
-        # some part of the element is at least touching some part of span.
-        # all the simple cases done! Now need to filter out those that
-        # are border cases depending on settings
-
-        if dur.quarterLength == 0:
-            elementIsZeroLength = True
-        else:
-            elementIsZeroLength = False
-
-        if self.zeroLengthSearch is True and elementIsZeroLength is True:
-            # zero Length Searches -- include all zeroLengthElements
-            return True
-
-
-        if self.mustFinishInSpan is True:
-            if elementEnd > self.offsetEnd:
-                # environLocal.warn([elementEnd, offsetEnd, e])
-                return False
-            if self.includeEndBoundary is False:
-                # we include the end boundary if the search is zeroLength --
-                # otherwise nothing can be retrieved
-                if elementEnd == self.offsetEnd:
-                    return False
-
-        if self.mustBeginInSpan is True:
-            if offset < self.offsetStart:
-                return False
-            if self.includeEndBoundary is False and offset == self.offsetEnd:
-                return False
-        elif (elementIsZeroLength is False
-                and elementEnd == self.offsetEnd
-                and self.zeroLengthSearch is True):
-            return False
-
-        if self.includeEndBoundary is False and offset == self.offsetEnd:
-            return False
-
-        if self.includeElementsThatEndAtStart is False and elementEnd == self.offsetStart:
-            return False
-
-        return True
+        pass
 
 
 class OffsetHierarchyFilter(OffsetFilter):

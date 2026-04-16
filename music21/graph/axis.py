@@ -123,13 +123,7 @@ class Axis(prebase.ProtoM21Object):
         <music21.graph.axis.DynamicsAxis: y axis for Part>
 
         '''
-        c = self.client
-        if c is not None:
-            clientName = c.__class__.__name__
-        else:
-            clientName = '(no client)'
-
-        return f': {self.axisName} axis for {clientName}'
+        pass
 
     @property
     def label(self):
@@ -143,14 +137,11 @@ class Axis(prebase.ProtoM21Object):
         >>> ax.label
         'velocity'
         '''
-        if self._label is not None:
-            return self._label
-        else:
-            return self.labelDefault
+        pass
 
     @label.setter
     def label(self, value):
-        self._label = value
+        pass
 
     @property
     def client(self):
@@ -161,11 +152,11 @@ class Axis(prebase.ProtoM21Object):
         (Like all music21 clients, It is normally stored internally as a weakref,
         so no need for garbage collecting)
         '''
-        return common.unwrapWeakref(self._client)
+        pass
 
     @client.setter
     def client(self, referent):
-        self._client = common.wrapWeakref(referent)
+        pass
 
     @property
     def stream(self):
@@ -379,16 +370,10 @@ class PitchAxis(Axis):
             A.  That's the only "out of order" item we need to be
             concerned with since we are only comparing enharmonics.
             '''
-            weight, sort_name = x
-            if sort_name.startswith('A'):
-                sort_name = 'H' + sort_name[1:]
-            return (-1 * weight, sort_name)
+            pass
 
         def unweightedSortHelper(x):
-            weight, sort_name = x
-            if sort_name.startswith('A'):
-                sort_name = 'H' + sort_name[1:]
-            return (weight, sort_name)
+            pass
 
         for i in range(int(self.minValue), int(self.maxValue) + 1):
             p = pitch.Pitch()
@@ -812,21 +797,11 @@ class OffsetAxis(PositionAxis):
         >>> a.label
         'Measure Number'
         '''
-        if self._label is not None:
-            return self._label
-
-        useMeasures = self.useMeasures
-        if useMeasures is None:
-            useMeasures = self.setUseMeasuresFromOffsetMap()
-
-        if useMeasures:
-            return 'Measure Number'
-        else:
-            return 'Offset'
+        pass
 
     @label.setter
     def label(self, value):
-        self._label = value
+        pass
 
     def setBoundariesFromData(self, values=None):
         try:
@@ -1232,20 +1207,15 @@ class QuarterLengthAxis(PositionAxis):
         >>> a.labelLogTag()
         ' ($log_10$)'
         '''
-        if self.useLogScale is False:
-            return ''
-        elif self.useLogScale is True:
-            return ' ($log_2$)'
-        else:
-            return f' ($log_{self.useLogScale:d}$)'
+        pass
 
     @property
     def label(self):
-        return super().label + self.labelLogTag()
+        pass
 
     @label.setter
     def label(self, value):
-        super().label = value
+        pass
 
     def remapQuarterLength(self, x):
         '''
@@ -1420,22 +1390,7 @@ class CountingAxis(Axis):
 class Test(unittest.TestCase):
 
     def testCountingAxisFormat(self):
-        def countingAxisFormatter(n, formatDict):
-            if n.pitch.accidental is not None:
-                formatDict['color'] = 'red'
-            return n.pitch.diatonicNoteNum
-
-        from music21.graph.plot import Histogram
-        from music21 import converter
-        s = converter.parse('tinynotation: 4/4 C4 D E F C D# E F#')
-        hist = Histogram(s)
-        hist.doneAction = None
-        hist.axisX = Axis(hist, 'x')
-        hist.axisX.extractOneElement = countingAxisFormatter
-        hist.run()
-        self.assertEqual(hist.data,
-                         [(1, 2, {}), (2, 2, {'color': 'red'}),
-                          (3, 2, {}), (4, 2, {'color': 'red'})])
+        pass
 
 
 # -----------------------------------------------------------------------------

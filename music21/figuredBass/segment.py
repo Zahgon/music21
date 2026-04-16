@@ -407,66 +407,7 @@ class Segment:
         >>> domResPairsList[5]
         ((<...D5>, <...B4>, <...F4>, <...G2>), (<...C5>, <...C5>, <...E4>, <...C3>))
         '''
-        domChord = self.segmentChord
-        if not domChord.isDominantSeventh():
-            # Put here for stand-alone purposes.
-            raise SegmentException('Dominant seventh resolution: Not a dominant seventh Segment.')
-        domChordInfo = _unpackSeventhChord(domChord)
-        dominantScale = scale.MajorScale().derive(domChord)
-        minorScale = dominantScale.getParallelMinor()
-
-        tonic = dominantScale.getTonic()
-        subdominant = dominantScale.pitchFromDegree(4)
-        majSubmediant = dominantScale.pitchFromDegree(6)
-        minSubmediant = minorScale.pitchFromDegree(6)
-
-        resChord = segmentB.segmentChord
-        domInversion = (domChord.inversion() == 2)
-        resInversion = (resChord.inversion())
-        resolveV43toI6 = domInversion and resInversion == 1
-
-        if (domChord.inversion() == 0
-                and resChord.root().name == tonic.name
-                and (resChord.isMajorTriad() or resChord.isMinorTriad())):
-            # "V7 to I" resolutions are always incomplete, with a missing fifth.
-            segmentB.fbRules.forbidIncompletePossibilities = False
-
-        dominantResolutionMethods = [
-            (resChord.root().name == tonic.name and resChord.isMajorTriad(),
-             resolution.dominantSeventhToMajorTonic,
-             [resolveV43toI6, domChordInfo]),
-            (resChord.root().name == tonic.name and resChord.isMinorTriad(),
-                resolution.dominantSeventhToMinorTonic,
-                [resolveV43toI6, domChordInfo]),
-            ((resChord.root().name == majSubmediant.name
-              and resChord.isMinorTriad()
-              and domInversion == 0),
-                resolution.dominantSeventhToMinorSubmediant,
-                [domChordInfo]),
-            ((resChord.root().name == minSubmediant.name
-                and resChord.isMajorTriad()
-                and domInversion == 0),
-                resolution.dominantSeventhToMajorSubmediant,
-                [domChordInfo]),
-            ((resChord.root().name == subdominant.name
-                and resChord.isMajorTriad()
-                and domInversion == 0),
-                resolution.dominantSeventhToMajorSubdominant,
-                [domChordInfo]),
-            ((resChord.root().name == subdominant.name
-                and resChord.isMinorTriad()
-                and domInversion == 0),
-                resolution.dominantSeventhToMinorSubdominant,
-                [domChordInfo])
-        ]
-
-        try:
-            return self._resolveSpecialSegment(segmentB, dominantResolutionMethods)
-        except SegmentException:
-            self._environRules.warn(
-                'Dominant seventh resolution: No proper resolution available. '
-                + 'Executing ordinary resolution.')
-            return self._resolveOrdinarySegment(segmentB)
+        pass
 
     def resolveDiminishedSeventhSegment(self, segmentB, doubledRoot=False):
         # noinspection PyShadowingNames
@@ -497,47 +438,7 @@ class Segment:
         >>> dimResPairsList[6]
         ((<...A-5>, <...F5>, <...D5>, <...B2>), (<...G5>, <...E5>, <...E5>, <...C3>))
         '''
-        dimChord = self.segmentChord
-        if not dimChord.isDiminishedSeventh():
-            # Put here for stand-alone purposes.
-            raise SegmentException(
-                'Diminished seventh resolution: Not a diminished seventh Segment.')
-        dimChordInfo = _unpackSeventhChord(dimChord)
-        dimScale = scale.HarmonicMinorScale().deriveByDegree(7, dimChord.root())
-        # minorScale = dimScale.getParallelMinor()
-
-        tonic = dimScale.getTonic()
-        subdominant = dimScale.pitchFromDegree(4)
-
-        resChord = segmentB.segmentChord
-        if dimChord.inversion() == 1:  # Doubled root in context
-            if resChord.inversion() == 0:
-                doubledRoot = True
-            elif resChord.inversion() == 1:
-                doubledRoot = False
-
-        diminishedResolutionMethods = [
-            (resChord.root().name == tonic.name and resChord.isMajorTriad(),
-             resolution.diminishedSeventhToMajorTonic,
-             [doubledRoot, dimChordInfo]),
-            (resChord.root().name == tonic.name and resChord.isMinorTriad(),
-                resolution.diminishedSeventhToMinorTonic,
-                [doubledRoot, dimChordInfo]),
-            (resChord.root().name == subdominant.name and resChord.isMajorTriad(),
-                resolution.diminishedSeventhToMajorSubdominant,
-                [dimChordInfo]),
-            (resChord.root().name == subdominant.name and resChord.isMinorTriad(),
-                resolution.diminishedSeventhToMinorSubdominant,
-                [dimChordInfo])
-        ]
-
-        try:
-            return self._resolveSpecialSegment(segmentB, diminishedResolutionMethods)
-        except SegmentException:
-            self._environRules.warn(
-                'Diminished seventh resolution: No proper resolution available. '
-                + 'Executing ordinary resolution.')
-            return self._resolveOrdinarySegment(segmentB)
+        pass
 
     def resolveAugmentedSixthSegment(self, segmentB):
         # noinspection PyShadowingNames
@@ -577,53 +478,7 @@ class Segment:
         >>> allAugResPossibPairsList[4]
         ((<...C5>, <...F#4>, <...E-4>, <...A-2>), (<...B4>, <...G4>, <...D4>, <...G2>))
         '''
-        augSixthChord = self.segmentChord
-        if not augSixthChord.isAugmentedSixth():
-            # Put here for stand-alone purposes.
-            raise SegmentException('Augmented sixth resolution: Not an augmented sixth Segment.')
-        if augSixthChord.isItalianAugmentedSixth():
-            return self._resolveOrdinarySegment(segmentB)
-        elif augSixthChord.isFrenchAugmentedSixth():
-            augSixthType = 1
-        elif augSixthChord.isGermanAugmentedSixth():
-            augSixthType = 2
-        elif augSixthChord.isSwissAugmentedSixth():
-            augSixthType = 3
-        else:
-            self._environRules.warn(
-                'Augmented sixth resolution: '
-                + 'Augmented sixth type not supported. Executing ordinary resolution.')
-            return self._resolveOrdinarySegment(segmentB)
-
-        tonic = resolution._transpose(augSixthChord.bass(), 'M3')
-        majorScale = scale.MajorScale(tonic)
-        # minorScale = scale.MinorScale(tonic)
-        resChord = segmentB.segmentChord
-        augSixthChordInfo = _unpackSeventhChord(augSixthChord)
-
-        augmentedSixthResolutionMethods = [
-            ((resChord.inversion() == 2
-                and resChord.root().name == tonic.name
-                and resChord.isMajorTriad()),
-             resolution.augmentedSixthToMajorTonic, [augSixthType, augSixthChordInfo]),
-            ((resChord.inversion() == 2
-                and resChord.root().name == tonic.name
-                and resChord.isMinorTriad()),
-                resolution.augmentedSixthToMinorTonic,
-                [augSixthType, augSixthChordInfo]),
-            ((majorScale.pitchFromDegree(5).name == resChord.bass().name
-                and resChord.isMajorTriad()),
-                resolution.augmentedSixthToDominant,
-                [augSixthType, augSixthChordInfo])
-        ]
-
-        try:
-            return self._resolveSpecialSegment(segmentB, augmentedSixthResolutionMethods)
-        except SegmentException:
-            self._environRules.warn(
-                'Augmented sixth resolution: No proper resolution available. '
-                + 'Executing ordinary resolution.')
-            return self._resolveOrdinarySegment(segmentB)
+        pass
 
     def allSinglePossibilities(self):
         '''
@@ -818,31 +673,7 @@ class Segment:
                        correctAB)
 
     def _resolveSpecialSegment(self, segmentB, specialResolutionMethods):
-        resolutionMethodExecutor = _compileRules(specialResolutionMethods, 3)
-        for (resolutionMethod, args) in resolutionMethodExecutor[True]:
-            iterables = []
-            for arg in args:
-                iterables.append(itertools.repeat(arg))
-            resolutions = map(resolutionMethod, self.allCorrectSinglePossibilities(), *iterables)
-            correctAB = zip(self.allCorrectSinglePossibilities(), resolutions)
-            correctAB = filter(lambda possibAB: possibility.pitchesWithinLimit(
-                possibA=possibAB[1],
-                maxPitch=segmentB._maxPitch),
-                correctAB)
-            if self.fbRules.applyConsecutivePossibRulesToResolution:
-                correctAB = filter(lambda possibAB: self._isCorrectConsecutivePossibility(
-                    possibA=possibAB[0],
-                    possibB=possibAB[1]),
-                    correctAB)
-            if self.fbRules.applySinglePossibRulesToResolution:
-                segmentB._singlePossibilityRuleChecking = _compileRules(
-                    segmentB.singlePossibilityRules(segmentB.fbRules))
-                correctAB = filter(lambda possibAB: segmentB._isCorrectSinglePossibility(
-                    possibA=possibAB[1]),
-                    correctAB)
-            return correctAB
-
-        raise SegmentException('No standard resolution available.')
+        pass
 
 
 class OverlaidSegment(Segment):
@@ -903,13 +734,7 @@ def getPitches(pitchNames=('C', 'E', 'G'),
 
 
 def _unpackSeventhChord(seventhChord):
-    bass = seventhChord.bass()
-    root = seventhChord.root()
-    third = seventhChord.getChordStep(3)
-    fifth = seventhChord.getChordStep(5)
-    seventh = seventhChord.getChordStep(7)
-    seventhChordInfo = [bass, root, third, fifth, seventh]
-    return seventhChordInfo
+    pass
 
 
 def _unpackTriad(threePartChord):
@@ -949,45 +774,7 @@ def printRules(rulesList, maxLength=4):
     maxLength is the maximum length of a rule, a rule which includes arguments,
     because arguments are optional.
     '''
-    MAX_SIZE = 30
-    for rule in rulesList:
-        if len(rule[1].__name__) >= MAX_SIZE:
-            MAX_SIZE = len(rule[1].__name__) + 2
-
-    def padMethod(m):
-        methodName = m.__name__[0:MAX_SIZE]
-        if len(methodName) < MAX_SIZE:
-            methodName += ' ' * (MAX_SIZE - len(methodName))
-        return methodName
-
-    methodStr = 'Method:' + ' ' * (MAX_SIZE - 7)
-    if maxLength == 4:
-        print(f'Will run:  {methodStr}Keep solutions which return:  Arguments:')
-    elif maxLength == 3:
-        print(f'Will run:  {methodStr}Arguments:')
-
-    for ruleIndex in range(len(rulesList)):
-        ruleToPrint = None
-        args = []
-        if len(rulesList[ruleIndex]) == maxLength:
-            args = rulesList[ruleIndex][-1]
-        if not args:
-            argsString = 'None'
-        else:
-            argsString = ''
-            for itemIndex in range(len(args)):
-                argsString += str(args[itemIndex])
-                if not itemIndex == len(args) - 1:
-                    argsString += ', '
-        if maxLength == 4:
-            (shouldRunMethod, method, isCorrect) = rulesList[ruleIndex][0:3]
-            method = padMethod(method)
-            ruleToPrint = f'{str(shouldRunMethod):11}{method}{str(isCorrect):30}{argsString}'
-        elif maxLength == 3:
-            (shouldRunMethod, method) = rulesList[ruleIndex][0:2]
-            method = padMethod(method)
-            ruleToPrint = f'{str(shouldRunMethod):11}{method}{argsString}'
-        print(ruleToPrint)
+    pass
 
 
 class SegmentException(exceptions21.Music21Exception):

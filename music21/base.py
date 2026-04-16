@@ -319,24 +319,7 @@ def _getEqualityAttributes(cls) -> frozenset[str]:
     False
 
     '''
-    equalityAttributes = set()
-    # equalityAttributesIgnore works, but not yet needed.
-    # equalityAttributesIgnore = set()
-    # for klass in [cls, *cls.mro()]:
-    #     if hasattr(klass, 'equalityAttributesIgnore'):
-    #         ka = klass.equalityAttributesIgnore
-    #         if isinstance(ka, str):  # mistake.  Happens TOO often:
-    #             ka = (ka,)
-    #         equalityAttributesIgnore |= set(ka)
-
-    for klass in [cls, *cls.mro()]:
-        if hasattr(klass, 'equalityAttributes'):
-            ka = klass.equalityAttributes
-            if isinstance(ka, str):  # mistake.  Happens TOO often:
-                ka = (ka,)
-            equalityAttributes |= set(ka)
-    # equalityAttributes.difference_update(equalityAttributesIgnore)
-    return frozenset(equalityAttributes)
+    pass
 
 
 class Music21Object(prebase.ProtoM21Object):
@@ -579,17 +562,11 @@ class Music21Object(prebase.ProtoM21Object):
         instance, the `.id` of a Voice should be unique in any single Measure,
         but the id's may reset from measure to measure across a Part.
         '''
-        if self._id is not None:
-            return self._id
-        return builtins.id(self)
+        pass
 
     @id.setter
     def id(self, new_id: int|str):
-        if isinstance(new_id, int) and new_id > defaults.minIdNumberToConsiderMemoryLocation:
-            msg = 'Setting an ID that could be mistaken for a memory location '
-            msg += f'is discouraged: got {new_id}'
-            warnings.warn(msg, stacklevel=2)
-        self._id = new_id
+        pass
 
     def mergeAttributes(self, other: Music21Object) -> None:
         '''
@@ -626,35 +603,7 @@ class Music21Object(prebase.ProtoM21Object):
         * Changed in v9: removeFromIgnore removed;
           never used and this is performance critical.
         '''
-        defaultIgnoreSet = {'_derivation', '_activeSite', '_sites', '_cache'}
-        if not self.groups:
-            defaultIgnoreSet.add('groups')
-        # duration is smart enough to do itself.
-        # sites is smart enough to do itself
-
-        if ignoreAttributes is None:
-            ignoreAttributes = defaultIgnoreSet
-        else:
-            ignoreAttributes = ignoreAttributes | defaultIgnoreSet
-
-        new = common.defaultDeepcopy(self, memo, ignoreAttributes=ignoreAttributes)
-        new._cache = {}
-        new._sites = Sites()
-        if 'groups' in defaultIgnoreSet:
-            new.groups = Groups()
-
-        # was: keep the old ancestor but need to update the client
-        # 2.1 : NO, add a derivation of __deepcopy__ to the client
-        newDerivation = Derivation(client=new)
-        newDerivation.origin = self
-        newDerivation.method = '__deepcopy__'
-        new._derivation = newDerivation
-        # None activeSite is correct for new value
-
-        # must do this after copying
-        new.purgeOrphans()
-
-        return new
+        pass
 
     def __deepcopy__(self, memo: dict[int, t.Any]|None = None) -> t.Self:
         '''
@@ -718,15 +667,7 @@ class Music21Object(prebase.ProtoM21Object):
         >>> b._reprInternal()
         'id=hi'
         '''
-        # hasattr is here because of Metadata.__getattr__()
-        if not hasattr(self, 'id') or self.id == id(self):
-            return super()._reprInternal()
-        reprId = self.id
-        try:
-            reprId = hex(int(reprId))
-        except (ValueError, TypeError):
-            pass
-        return f'id={reprId}'
+        pass
 
     # --------------------------------------------------------------------------
 
@@ -749,8 +690,7 @@ class Music21Object(prebase.ProtoM21Object):
         >>> mObj.hasEditorialInformation
         True
         '''
-        # any time something is changed here, change in style.StyleMixin and vice versa
-        return self._editorial is not None
+        pass
 
     @property
     def editorial(self) -> Editorial:
@@ -800,8 +740,7 @@ class Music21Object(prebase.ProtoM21Object):
         >>> mObj.hasStyleInformation
         True
         '''
-        # anytime something is changed here, change in style.StyleMixin and vice versa
-        return self._style is not None
+        pass
 
     @property
     def style(self) -> Style:
@@ -854,11 +793,11 @@ class Music21Object(prebase.ProtoM21Object):
         >>> n.quarterLength
         Fraction(1, 3)
         '''
-        return self.duration.quarterLength
+        pass
 
     @quarterLength.setter
     def quarterLength(self, value: OffsetQLIn):
-        self.duration.quarterLength = value
+        pass
 
     @property
     def derivation(self) -> Derivation:
@@ -1285,29 +1224,7 @@ class Music21Object(prebase.ProtoM21Object):
 
         The `excludeStorageStreams` are SpannerStorage and VariantStorage.
         '''
-        # environLocal.printDebug(['purging orphans'])
-        orphans = []
-        # TODO: how can this be optimized to not use getSites, to
-        # not unwrap weakrefs?
-        for s in self.sites.yieldSites(excludeNone=True):
-            # of the site does not actually have this Music21Object in
-            # its elements list, it is an orphan and should be removed
-            # note: this permits non-site context Streams to continue
-            if s.isStream and self not in s:
-                if excludeStorageStreams:
-                    # only get those that are not Storage Streams
-                    if ('SpannerStorage' not in s.classes
-                            and 'VariantStorage' not in s.classes):
-                        # environLocal.printDebug(['removing orphan:', s])
-                        orphans.append(id(s))
-                else:  # get all
-                    orphans.append(id(s))
-        for i in orphans:
-            self.sites.removeById(i)
-            p = self._getActiveSite()  # this can be simplified.
-            if p is not None and id(p) == i:
-                # noinspection PyArgumentList
-                self._setActiveSite(None)
+        pass
 
     def purgeLocations(self, rescanIsDead=False) -> None:
         '''
@@ -2195,10 +2112,7 @@ class Music21Object(prebase.ProtoM21Object):
         at the same offset. with sortTuple
 
         '''
-        el = self.getContextByClass(className)
-        while el is not None:
-            yield el
-            el = el.getContextByClass(className, getElementMethod=ElementSearch.BEFORE_OFFSET)
+        pass
 
     # -------------------------------------------------------------------------
 
@@ -2421,45 +2335,13 @@ class Music21Object(prebase.ProtoM21Object):
 
     def _getActiveSite(self):
         # can be None
-        if WEAKREF_ACTIVE:
-            if self._activeSite is None:  # leave None
-                return None
-            else:  # even if current activeSite is not a weakref, this will work
-                # environLocal.printDebug(['_getActiveSite() called:',
-                #                          'self._activeSite', self._activeSite])
-                return common.unwrapWeakref(self._activeSite)
-        else:  # pragma: no cover
-            return self._activeSite
+        pass
 
     def _setActiveSite(self, site: stream.Stream|None):
         # environLocal.printDebug(['_setActiveSite() called:', 'self', self, 'site', site])
 
         # NOTE: this is a performance intensive call
-        if site is not None:
-            try:
-                storedOffset = site.elementOffset(self)
-            except SitesException as se:
-                raise SitesException(
-                    'activeSite cannot be set for '
-                    f'object {self} not in the Stream {site}'
-                ) from se
-
-            self._activeSiteStoredOffset = storedOffset
-            # siteId = id(site)
-            # if not self.sites.hasSiteId(siteId):  # This should raise a warning, should not happen
-            #    # environLocal.warn('Adding a siteDict entry for a ' +
-            #    #                        'site that should already be there!')
-            #    self.sites.add(site, idKey=siteId)
-        else:
-            self._activeSiteStoredOffset = None
-
-        if WEAKREF_ACTIVE:
-            if site is None:  # leave None alone
-                self._activeSite = None
-            else:
-                self._activeSite = common.wrapWeakref(site)
-        else:  # pragma: no cover
-            self._activeSite = site
+        pass
 
     activeSite = property(_getActiveSite,
                           _setActiveSite,
@@ -2587,47 +2469,13 @@ class Music21Object(prebase.ProtoM21Object):
 
         * Changed in v8: using a Duration object as an offset is not allowed.
         '''
-        # There is a branch that does slow searches.
-        # See test/testSerialization to have it active.
-
-        # there is a problem if a new activeSite is being set and no offsets have
-        # been provided for that activeSite; when self.offset is called,
-        # the first case here would match
-        # environLocal.printDebug(['Music21Object._getOffset', 'self.id',
-        #                           self.id, 'id(self)', id(self), self.__class__])
-        activeSiteWeakRef = self._activeSite
-        if activeSiteWeakRef is not None:
-            activeSite = self.activeSite
-            if activeSite is None:
-                # it has died since last visit, as is the case with short-lived streams like
-                # .getElementsByClass, so we will return the most recent position
-                return self._activeSiteStoredOffset or 0.0
-
-            try:
-                o = activeSite.elementOffset(self)
-            except SitesException:
-                environLocal.printDebug(
-                    'Not in Stream: changing activeSite to None and returning _naiveOffset')
-                self.activeSite = None
-                o = self._naiveOffset
-        else:
-            o = self._naiveOffset
-
-        return o
+        pass
 
     @offset.setter
     def offset(self, value: OffsetQLIn):
         # assume that most times this is a number; in that case, the fastest
         # thing to do is simply try to set the offset w/ float(value)
-        try:
-            offset = opFrac(value)
-        except TypeError:
-            offset = value
-
-        if self.activeSite is not None:
-            self.activeSite.setElementOffset(self, offset)
-        else:
-            self._naiveOffset = offset
+        pass
 
     def sortTuple(self,
                   useSite: t.Literal[False]|stream.Stream|None = False,
@@ -2828,7 +2676,7 @@ class Music21Object(prebase.ProtoM21Object):
                 s.coreElementsChanged(updateIsFlat=False, keepIndex=True)
 
     def _getPriority(self):
-        return self._priority
+        pass
 
     def _setPriority(self, value):
         '''
@@ -2836,11 +2684,7 @@ class Music21Object(prebase.ProtoM21Object):
 
         Informs all sites of the change.
         '''
-        if not isinstance(value, int):
-            raise ElementException('priority values must be integers.')
-        if self._priority != value:
-            self._priority = value
-            self.informSites({'changedElement': 'priority', 'priority': value})
+        pass
 
     priority = property(_getPriority,
                         _setPriority,
@@ -3065,31 +2909,7 @@ class Music21Object(prebase.ProtoM21Object):
         * Changed in v5.7: `followDerivation` and
           `includeNonStreamDerivations` are now keyword only
         '''
-        post = []
-        focus = self
-        endMe = 200
-        while endMe > 0:
-            endMe = endMe - 1  # do not go forever
-            # collect activeSite unless activeSite is None;
-            # if so, try to get rootDerivation
-            candidate = focus.activeSite
-            # environLocal.printDebug(['containerHierarchy(): activeSite found:', candidate])
-            if candidate is None:  # nothing more to derive
-                # if this is a Stream, we might find a root derivation
-                if followDerivation is True and hasattr(focus, 'derivation'):
-                    # environLocal.printDebug(['containerHierarchy():
-                    # found rootDerivation:', focus.rootDerivation])
-                    alt = focus.derivation.rootDerivation
-                    if alt is None:
-                        return post
-                    else:
-                        candidate = alt
-                else:
-                    return post
-            if includeNonStreamDerivations is True or candidate.isStream:
-                post.append(candidate)
-            focus = candidate
-        return post
+        pass
 
     def splitAtQuarterLength(
         self,
@@ -3587,18 +3407,7 @@ class Music21Object(prebase.ProtoM21Object):
         >>> nCopy.measureNumber
         4
         '''
-        mNumber = None  # default for not defined
-        if self.activeSite is not None and self.activeSite.isMeasure:
-            mNumber = self.activeSite.number
-        else:
-            # testing sortByCreationTime == true; this may be necessary
-            # as we often want the most recent measure
-            for cs in self.contextSites():
-                m = cs[0]
-                if m.isMeasure:
-                    # mypy does not know that isMeasure is a typeGuard.
-                    mNumber = m.number  # type: ignore
-        return mNumber
+        pass
 
     def _getMeasureOffset(self, includeMeasurePadding=True) -> float|fractions.Fraction:
         # noinspection PyShadowingNames
@@ -3667,14 +3476,7 @@ class Music21Object(prebase.ProtoM21Object):
 
         extracted to make sure that all three of the routines use the same one.
         '''
-        from music21 import meter
-        ts: meter.TimeSignature|None = self.getContextByClass(
-            meter.TimeSignature,
-            getElementMethod=ElementSearch.AT_OR_BEFORE_OFFSET
-        )
-        if ts is None:
-            raise Music21ObjectException('this object does not have a TimeSignature in Sites')
-        return ts
+        pass
 
     @property
     def beat(self) -> fractions.Fraction|float:
@@ -3763,11 +3565,7 @@ class Music21Object(prebase.ProtoM21Object):
           there is no TimeSignature in sites.
           Previously raised an exception.
         '''
-        try:
-            ts = self._getTimeSignatureForBeat()
-            return ts.getBeatProportion(ts.getMeasureOffsetOrMeterModulusOffset(self))
-        except Music21ObjectException:
-            return float('nan')
+        pass
 
     @property
     def beatStr(self) -> str:
@@ -3806,11 +3604,7 @@ class Music21Object(prebase.ProtoM21Object):
           there is no TimeSignature in sites.
           Previously raised an exception.
         '''
-        try:
-            ts = self._getTimeSignatureForBeat()
-            return ts.getBeatProportionStr(ts.getMeasureOffsetOrMeterModulusOffset(self))
-        except Music21ObjectException:
-            return 'nan'
+        pass
 
     @property
     def beatDuration(self) -> Duration:
@@ -3863,11 +3657,7 @@ class Music21Object(prebase.ProtoM21Object):
         * Changed in v6.3: returns a duration.Duration object of length 0 if
           there is no TimeSignature in sites.  Previously raised an exception.
         '''
-        try:
-            ts = self._getTimeSignatureForBeat()
-            return ts.getBeatDuration(ts.getMeasureOffsetOrMeterModulusOffset(self))
-        except Music21ObjectException:
-            return Duration(0)
+        pass
 
     @property
     def beatStrength(self) -> float:
@@ -3958,39 +3748,13 @@ class Music21Object(prebase.ProtoM21Object):
 
         * Changed in v6.3: return 'nan' instead of raising an exception.
         '''
-        try:
-            ts = self._getTimeSignatureForBeat()
-            meterModulus = ts.getMeasureOffsetOrMeterModulusOffset(self)
-
-            return ts.getAccentWeight(meterModulus,
-                                      forcePositionMatch=True,
-                                      permitMeterModulus=False)
-        except Music21ObjectException:
-            return float('nan')
+        pass
 
     def _getSeconds(self) -> float:
-        from music21 import tempo
-        # do not search of duration is zero
-        if self.duration.quarterLength == 0.0:
-            return 0.0
-
-        ti = self.getContextByClass(tempo.TempoIndication)
-        if ti is None:
-            return float('nan')
-        mm = ti.getSoundingMetronomeMark()
-        # once we have mm, simply pass in this duration
-        return mm.durationToSeconds(self.duration)
+        pass
 
     def _setSeconds(self, value: int|float) -> None:
-        from music21 import tempo
-        ti = self.getContextByClass(tempo.TempoIndication)
-        if ti is None:
-            raise Music21ObjectException('this object does not have a TempoIndication in Sites')
-        mm = ti.getSoundingMetronomeMark()
-        self.duration = mm.secondsToDuration(value)
-        for s in self.sites.get(excludeNone=True):
-            if self in s.elements:
-                s.coreElementsChanged()  # highest time is changed.
+        pass
 
     seconds = property(_getSeconds, _setSeconds, doc='''
         Get or set the duration of this object in seconds, assuming
@@ -4191,16 +3955,7 @@ class ElementWrapper(Music21Object):
     # -------------------------------------------------------------------------
 
     def _reprInternal(self):
-        shortObj = (str(self.obj))[0:30]
-        if len(str(self.obj)) > 30:
-            shortObj += '...'
-            if shortObj[0] == '<':
-                shortObj += '>'
-
-        if self._id is not None:
-            return f'id={self.id} offset={self.offset} obj={shortObj!r}'
-        else:
-            return f'offset={self.offset} obj={shortObj!r}'
+        pass
 
     def __setattr__(self, name: str, value: t.Any) -> None:
         if name == 'obj':
@@ -4242,8 +3997,7 @@ class Test(unittest.TestCase):
     All other tests moved to test/test_base.py
     '''
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
 
 # ------------------------------------------------------------------------------

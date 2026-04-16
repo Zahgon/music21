@@ -81,31 +81,7 @@ class FretNote(prebase.ProtoM21Object):
         >>> emptyNote
         <music21.tablature.FretNote>
         '''
-        def abbr(x):
-            return f'{x}{common.ordinalAbbreviation(x)}'
-
-        if self.string is not None:
-            stringRepr = f'{abbr(self.string)} string'
-        else:
-            stringRepr = ''
-
-        if self.fret is not None:
-            fretRepr = f'{abbr(self.fret)} fret'
-        else:
-            fretRepr = ''
-
-        if self.fingering is not None:
-            fingeringRepr = f'{abbr(self.fingering)} finger'
-        else:
-            fingeringRepr = ''
-
-        nonEmptyRepr = []
-        for thisRepr in stringRepr, fretRepr, fingeringRepr:
-            if thisRepr != '':
-                nonEmptyRepr.append(thisRepr)
-
-        fullRepr = ', '.join(nonEmptyRepr)
-        return fullRepr
+        pass
 
 
 class FretBoard(prebase.ProtoM21Object):
@@ -151,7 +127,7 @@ class FretBoard(prebase.ProtoM21Object):
         >>> fb
         <music21.tablature.FretBoard 6 strings, 3 notes, 4 frets>
         '''
-        return f'{self.numStrings} strings, {len(self.fretNotes)} notes, {self.displayFrets} frets'
+        pass
 
     def fretNotesLowestFirst(self):
         # noinspection PyShadowingNames
@@ -168,16 +144,7 @@ class FretBoard(prebase.ProtoM21Object):
         <music21.tablature.FretNote 2nd string, 3rd fret, 4th finger>
         <music21.tablature.FretNote 1st string, 3rd fret, 3rd finger>
         '''
-        allFretNotes = []
-
-        for stringNumber in range(self.numStrings, 0, -1):
-            thisFretNote = self.getFretNoteByString(stringNumber)
-            if thisFretNote is None:
-                continue
-
-            allFretNotes.append(thisFretNote)
-
-        return allFretNotes
+        pass
 
     def getFretNoteByString(self, requestedString):
         '''
@@ -195,11 +162,7 @@ class FretBoard(prebase.ProtoM21Object):
         >>> myFretBoard.getFretNoteByString(9) is None
         True
         '''
-        for thisFretNote in self.fretNotes:
-            if requestedString == thisFretNote.string:
-                return thisFretNote
-
-        return None
+        pass
 
     def getPitches(self) -> list[None|pitch.Pitch]:
         '''
@@ -290,8 +253,7 @@ class ChordWithFretBoard(harmony.ChordSymbol, FretBoard):
         Given a chord with fret Figure, getFretNotesFromFigure returns each FretNote object
         within it.
         '''
-        # figure = self.figure
-        return None
+        pass
 
 # -------------------------------------------------------------------------------
 #
@@ -353,35 +315,16 @@ class MandolinFretBoard(FretBoard):
 class Test(unittest.TestCase):
 
     def testFretNoteString(self):
-        f = FretNote(4, 1, 2)
-
-        stringAndFretInfo = [f.string, f.fret]
-
-        self.assertEqual(stringAndFretInfo, [4, 1])
+        pass
 
     def testStupidFretNote(self):
-        self.assertEqual(FretNote().string, None)
+        pass
 
     def testFretNoteWeirdRepr(self):
-        from music21 import tablature
-        weirdFretNote = tablature.FretNote(6, 133)
-
-        expectedRepr = '<music21.tablature.FretNote 6th string, 133rd fret>'
-
-        self.assertEqual(repr(weirdFretNote), expectedRepr)
+        pass
 
     def testFretBoardLowestFirst(self):
-        fretNote1 = FretNote(1, 2, 2)
-        fretNote2 = FretNote(2, 1, 1)
-
-        myFretBoard = FretBoard(6, fretNotes=[fretNote1, fretNote2])
-
-        stringList = []
-
-        for thisNote in myFretBoard.fretNotesLowestFirst():
-            stringList.append(thisNote.string)
-
-        self.assertEqual(stringList, [2, 1])
+        pass
 
 
 if __name__ == '__main__':

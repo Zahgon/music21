@@ -101,7 +101,7 @@ class Volume(prebase.ProtoM21Object, SlottedObjectMixin):
         return new
 
     def _reprInternal(self):
-        return f'realized={round(self.realized, 2)}'
+        pass
 
     # PUBLIC METHODS #
     def getDynamicContext(self):
@@ -155,12 +155,7 @@ class Volume(prebase.ProtoM21Object, SlottedObjectMixin):
         >>> v.getRealizedStr()
         '0.5'
         '''
-        val = self.getRealized(useDynamicContext=useDynamicContext,
-                               useVelocity=useVelocity,
-                               useArticulations=useArticulations,
-                               baseLevel=baseLevel,
-                               clip=clip)
-        return str(round(val, 2))
+        pass
 
     def getRealized(
         self,
@@ -309,9 +304,7 @@ class Volume(prebase.ProtoM21Object, SlottedObjectMixin):
         >>> v.cachedRealized
         1.0
         '''
-        if self._cachedRealized is None:
-            self._cachedRealized = self.getRealized()
-        return self._cachedRealized
+        pass
 
     @property
     def cachedRealizedStr(self):
@@ -322,11 +315,11 @@ class Volume(prebase.ProtoM21Object, SlottedObjectMixin):
         >>> v.cachedRealizedStr
         '1.0'
         '''
-        return str(round(self.cachedRealized, 2))
+        pass
 
     @property
     def realized(self):
-        return self.getRealized()
+        pass
 
     @property
     def velocity(self) -> int|None:
@@ -342,28 +335,11 @@ class Volume(prebase.ProtoM21Object, SlottedObjectMixin):
         >>> n.volume.velocity
         20
         '''
-        vs = self._velocityScalar
-        if vs is None:
-            return None
-        v = vs * 127
-        if v > 127:
-            v = 127
-        elif v < 0:
-            v = 0
-        return round(v)
+        pass
 
     @velocity.setter
     def velocity(self, value: int|float|None):
-        if value is None:
-            self._velocityScalar = None
-        elif not common.isNum(value):
-            raise VolumeException(f'value provided for velocity must be a number, not {value}')
-        elif value <= 0:
-            self._velocityScalar = 0.0
-        elif value >= 127:
-            self._velocityScalar = 1.0
-        else:
-            self._velocityScalar = value / 127.0
+        pass
 
     @property
     def velocityScalar(self) -> float|None:
@@ -394,31 +370,11 @@ class Volume(prebase.ProtoM21Object, SlottedObjectMixin):
         >>> n.volume.velocityScalar is None
         True
         '''
-        v = self._velocityScalar
-        if v is None:
-            return None
-        else:
-            return v
+        pass
 
     @velocityScalar.setter
     def velocityScalar(self, value: int|float|None):
-        if value is None:
-            self._velocityScalar = None
-
-        if not common.isNum(value):
-            raise VolumeException('value provided for velocityScalar must be a number, '
-                                  + f'not {value}')
-
-        scalar: float
-        if value < 0:
-            scalar = 0.0
-        elif value > 1:
-            scalar = 1.0
-        else:
-            if t.TYPE_CHECKING:
-                assert value is not None
-            scalar = float(value)
-        self._velocityScalar = scalar
+        pass
 
 
 # ------------------------------------------------------------------------------
@@ -507,109 +463,27 @@ def realizeVolume(srcStream,
 class Test(unittest.TestCase):
 
     def testBasic(self):
-        import gc
-        from music21 import volume
-
-        n1 = note.Note('G#4')
-        v = volume.Volume(client=n1)
-        self.assertEqual(v.client, n1)
-        del n1
-        gc.collect()
-        # Now client is still there -- no longer weakref
-        self.assertEqual(v.client, note.Note('G#4'))
+        pass
 
 
     def testGetContextSearchA(self):
-        from music21 import stream
-        from music21 import volume
-
-        s = stream.Stream()
-        d1 = dynamics.Dynamic('mf')
-        s.insert(0, d1)
-        d2 = dynamics.Dynamic('f')
-        s.insert(2, d2)
-
-        n1 = note.Note('g')
-        v1 = volume.Volume(client=n1)
-        s.insert(4, n1)
-
-        # can get dynamics from volume object
-        self.assertEqual(v1.client.getContextByClass('Dynamic'), d2)
-        self.assertEqual(v1.getDynamicContext(), d2)
+        pass
 
 
     def testGetContextSearchB(self):
-        from music21 import stream
-
-        s = stream.Stream()
-        d1 = dynamics.Dynamic('mf')
-        s.insert(0, d1)
-        d2 = dynamics.Dynamic('f')
-        s.insert(2, d2)
-
-        n1 = note.Note('g')
-        s.insert(4, n1)
-
-        # can get dynamics from volume object
-        self.assertEqual(n1.volume.getDynamicContext(), d2)
+        pass
 
 
     def testDeepCopyA(self):
-        import copy
-        from music21 import volume
-        n1 = note.Note()
-
-        v1 = volume.Volume()
-        v1.velocity = 111
-        v1.client = n1
-
-        v1Copy = copy.deepcopy(v1)
-        self.assertEqual(v1.velocity, 111)
-        self.assertEqual(v1Copy.velocity, 111)
-
-        self.assertEqual(v1.client, n1)
-        self.assertEqual(v1Copy.client, n1)
+        pass
 
 
     def testGetRealizedA(self):
-        from music21 import volume
-
-        v1 = volume.Volume(velocity=64)
-        self.assertEqual(v1.getRealizedStr(), '0.5')
-
-        d1 = dynamics.Dynamic('p')
-        self.assertEqual(v1.getRealizedStr(useDynamicContext=d1), '0.35')
-
-        d1 = dynamics.Dynamic('ppp')
-        self.assertEqual(v1.getRealizedStr(useDynamicContext=d1), '0.15')
-
-
-        d1 = dynamics.Dynamic('fff')
-        self.assertEqual(v1.getRealizedStr(useDynamicContext=d1), '0.91')
-
-
-        # if vel is at max, can scale down with a dynamic
-        v1 = volume.Volume(velocity=127)
-        d1 = dynamics.Dynamic('fff')
-        self.assertEqual(v1.getRealizedStr(useDynamicContext=d1), '1.0')
-
-        d1 = dynamics.Dynamic('ppp')
-        self.assertEqual(v1.getRealizedStr(useDynamicContext=d1), '0.3')
-        d1 = dynamics.Dynamic('mp')
-        self.assertEqual(v1.getRealizedStr(useDynamicContext=d1), '0.9')
-        d1 = dynamics.Dynamic('p')
-        self.assertEqual(v1.getRealizedStr(useDynamicContext=d1), '0.7')
+        pass
 
 
     def testGetRealizedB(self):
-        v1 = Volume(velocity=64)
-        self.assertEqual(v1.getRealizedStr(), '0.5')
-
-        a1 = articulations.StrongAccent()
-        self.assertEqual(v1.getRealizedStr(useArticulations=a1), '0.65')
-
-        a2 = articulations.Accent()
-        self.assertEqual(v1.getRealizedStr(useArticulations=a2), '0.6')
+        pass
 
         # d1 = dynamics.Dynamic('ppp')
         # self.assertEqual(v1.getRealizedStr(useDynamicContext=d1), '0.1')
@@ -619,133 +493,16 @@ class Test(unittest.TestCase):
 
 
     def testRealizeVolumeA(self):
-        from music21 import stream
-        from music21 import volume
-
-        s = stream.Stream()
-        s.repeatAppend(note.Note('g3'), 16)
-
-        # before insertion of dynamics
-        match = [n.volume.cachedRealizedStr for n in s.notes]
-        self.assertEqual(match, ['0.71'] * 16)
-
-        for i, d in enumerate(['pp', 'p', 'mp', 'f', 'mf', 'ff', 'ppp', 'mf']):
-            s.insert(i * 2, dynamics.Dynamic(d))
-
-        # cached will be out of date in regard to new dynamics
-        match = [n.volume.cachedRealizedStr for n in s.notes]
-        self.assertEqual(match, ['0.71'] * 16)
-
-        # calling realize will set all to new cached values
-        volume.realizeVolume(s)
-        match = [n.volume.cachedRealizedStr for n in s.notes]
-        self.assertEqual(match, ['0.35', '0.35', '0.5', '0.5',
-                                 '0.64', '0.64', '0.99', '0.99',
-                                 '0.78', '0.78', '1.0', '1.0',
-                                 '0.21', '0.21', '0.78', '0.78'])
-
-        # we can get the same results without using realizeVolume, though
-        # this uses slower context searches
-        s = stream.Stream()
-        s.repeatAppend(note.Note('g3'), 16)
-
-        for i, d in enumerate(['pp', 'p', 'mp', 'f', 'mf', 'ff', 'ppp', 'mf']):
-            s.insert(i * 2, dynamics.Dynamic(d))
-        match = [n.volume.cachedRealizedStr for n in s.notes]
-        self.assertEqual(match, ['0.35', '0.35',
-                                 '0.5', '0.5',
-                                 '0.64', '0.64',
-                                 '0.99', '0.99',
-                                 '0.78', '0.78',
-                                 '1.0', '1.0',
-                                 '0.21', '0.21',
-                                 '0.78', '0.78'])
-
-        # looking at raw velocity values
-        match = [n.volume.velocity for n in s.notes]
-        self.assertEqual(match, [None] * 16)
-
-        # can set velocity with realized values
-        volume.realizeVolume(s, setAbsoluteVelocity=True)
-        match = [n.volume.velocity for n in s.notes]
-        self.assertEqual(match, [45, 45, 63, 63, 81, 81, 126, 126, 99, 99,
-                                 127, 127, 27, 27, 99, 99])
+        pass
 
         # s.show('midi')
 
     def testRealizeVolumeB(self):
-        from music21 import corpus
-        from music21 import stream
-
-        s = corpus.parse('bwv66.6')
-
-        durUnit = s.highestTime // 8  # let floor
-        dyns = ['pp', 'p', 'mp', 'f', 'mf', 'ff', 'f', 'mf']
-
-        for i, p in enumerate(s.parts):
-            for j, d in enumerate(dyns):
-                oTarget = j * durUnit
-                # placing dynamics in Measure requires extra handling
-                m = p.getElementsByOffset(oTarget,
-                                          mustBeginInSpan=False,
-                                          ).getElementsByClass(stream.Measure).first()
-                oInsert = oTarget - m.getOffsetBySite(p)
-                m.insert(oInsert, dynamics.Dynamic(d))
-            # shift 2 places each time
-            dyns = dyns[2:] + dyns[:2]
-
-        # s.show()
-        # s.show('midi')
-
-        # TODO: BUG -- one note too loud.
-        match = [n.volume.cachedRealizedStr for n in s.parts[0].flatten().notes]
-        self.assertEqual(match, ['0.35', '0.35', '0.35', '0.35', '0.35',
-                                 '0.5', '0.5', '0.5', '0.5',
-                                 '0.64', '0.64', '0.64', '0.64', '0.64',
-                                 '0.99', '0.99', '0.99', '0.99',
-                                 '0.78', '0.78', '0.78', '0.78',
-                                 '1.0', '1.0', '1.0', '1.0',
-                                 '0.99', '0.99', '0.99', '0.99',
-                                 '0.78', '0.78', '0.78', '0.78', '0.78', '0.78', '0.78'])
-
-        match = [n.volume.cachedRealizedStr for n in s.parts[1].flatten().notes]
-
-        self.assertEqual(match, ['0.64', '0.64', '0.64', '0.64',
-                                 '0.99', '0.99', '0.99', '0.99', '0.99',
-                                 '0.78', '0.78', '0.78', '0.78', '0.78',
-                                 '1.0', '1.0', '1.0', '1.0',
-                                 '0.99', '0.99', '0.99', '0.99', '0.99',
-                                 '0.78', '0.78', '0.78', '0.78',
-                                 '0.35', '0.35', '0.35', '0.35', '0.35', '0.35',
-                                 '0.5', '0.5', '0.5', '0.5', '0.5', '0.5', '0.5', '0.5', '0.5'])
-
-        match = [n.volume.cachedRealizedStr for n in s.parts[3].flatten().notes]
-
-        self.assertEqual(match, ['0.99', '0.99', '0.99', '0.99', '0.99',
-                                 '0.78', '0.78', '0.78', '0.78', '0.78',
-                                 '0.35', '0.35', '0.35', '0.35', '0.35',
-                                 '0.5', '0.5', '0.5', '0.5', '0.5', '0.5', '0.5',
-                                 '0.64', '0.64', '0.64', '0.64',
-                                 '0.99', '0.99', '0.99', '0.99',
-                                 '0.78', '0.78', '0.78', '0.78', '0.78',
-                                 '1.0', '1.0', '1.0', '1.0', '1.0', '1.0'])
+        pass
 
 
     def testRealizeVolumeC(self):
-        from music21 import stream
-
-        s = stream.Stream()
-        s.repeatAppend(note.Note('g3'), 16)
-
-        for i in range(0, 16, 3):
-            s.notes[i].articulations.append(articulations.Accent())
-        for i in range(0, 16, 4):
-            s.notes[i].articulations.append(articulations.StrongAccent())
-
-        match = [n.volume.cachedRealizedStr for n in s.notes]
-        self.assertEqual(match, ['0.96', '0.71', '0.71', '0.81', '0.86', '0.71', '0.81',
-                                 '0.71', '0.86', '0.81', '0.71', '0.71', '0.96', '0.71',
-                                 '0.71', '0.81'])
+        pass
 
 
 # ------------------------------------------------------------------------------

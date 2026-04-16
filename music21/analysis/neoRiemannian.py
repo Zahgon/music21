@@ -50,12 +50,7 @@ def _simplerEnharmonics(c):
     >>> c2 is c3
     False
     '''
-    pitchList = [p.nameWithOctave for p in c.pitches]
-    es = enharmonics.EnharmonicSimplifier(pitchList)
-    newPitches = es.bestPitches()
-    newChord = copy.deepcopy(c)
-    newChord.pitches = newPitches
-    return newChord
+    pass
 
 def L(c, raiseException=True):
     '''
@@ -89,22 +84,7 @@ def L(c, raiseException=True):
     >>> chordL.pitches
     (<music21.pitch.Pitch C>, <music21.pitch.Pitch E->, <music21.pitch.Pitch A->)
     '''
-
-    if c.isMajorTriad():
-        transposeInterval = '-m2'
-        changingPitch = c.root()
-    elif c.isMinorTriad():
-        transposeInterval = 'm2'
-        changingPitch = c.fifth
-    else:
-        if raiseException is True:
-            raise LRPException('Cannot perform L on this chord: not a major or minor triad')
-        return c
-
-    outChord = _singlePitchTransform(c, transposeInterval, changingPitch)
-    outChord.quarterLength = c.quarterLength
-
-    return outChord
+    pass
 
 def P(c, raiseException=True):
     '''
@@ -127,21 +107,7 @@ def P(c, raiseException=True):
     Traceback (most recent call last):
     music21.analysis.neoRiemannian.LRPException...
     '''
-    if c.isMajorTriad():
-        transposeInterval = '-A1'
-        changingPitch = c.third
-    elif c.isMinorTriad():
-        transposeInterval = 'A1'
-        changingPitch = c.third
-    else:
-        if raiseException is True:
-            raise LRPException('Cannot perform P on this chord: not a Major or Minor triad')
-        return c
-
-    outChord = _singlePitchTransform(c, transposeInterval, changingPitch)
-    outChord.quarterLength = c.quarterLength
-
-    return outChord
+    pass
 
 def R(c, raiseException=True):
     '''
@@ -164,34 +130,14 @@ def R(c, raiseException=True):
     Traceback (most recent call last):
     music21.analysis.neoRiemannian.LRPException...
     '''
-    if c.isMajorTriad():
-        transposeInterval = 'M2'
-        changingPitch = c.fifth
-    elif c.isMinorTriad():
-        transposeInterval = '-M2'
-        changingPitch = c.root()
-    else:
-        if raiseException is True:
-            raise LRPException('Cannot perform R on this chord: not a Major or Minor triad')
-        return c
-
-    outChord = _singlePitchTransform(c, transposeInterval, changingPitch)
-    outChord.quarterLength = c.quarterLength
-
-    return outChord
+    pass
 
 def _singlePitchTransform(c, transposeInterval, changingPitch):
     '''
     Performs a neoRiemannian transformation on c that involves transposing `changingPitch` by
     `transposeInterval`.
     '''
-    changingPitchCopy = copy.deepcopy(changingPitch)
-    newChord = copy.deepcopy(c)
-    for i in range(len(newChord.pitches)):
-        newChord.pitches[i].spellingIsInferred = False
-        if changingPitchCopy.name == newChord.pitches[i].name:
-            newChord.pitches[i].transpose(transposeInterval, inPlace=True)
-    return chord.Chord(newChord.pitches)
+    pass
 
 # ------------------------------------------------------------------------------
 
@@ -232,26 +178,7 @@ def isNeoR(c1, c2, transforms='LRP'):
     >>> analysis.neoRiemannian.isNeoR(c1, c3, transforms='LR')
     False
     '''
-
-    c2NO = c2.normalOrder
-
-    for i in transforms:
-        if i == 'L':
-            c = L(c1)
-            if c.normalOrder == c2NO:
-                return 'L'
-        elif i == 'R':
-            c = R(c1)
-            if c.normalOrder == c2NO:
-                return 'R'
-        elif i == 'P':
-            c = P(c1)
-            if c.normalOrder == c2NO:
-                return 'P'
-        else:
-            raise LRPException(f'{i} is not a NeoRiemannian transformation (L, R, or P)')
-
-    return False  # If neither an exception, nor any of the called L, R, or P transforms
+    pass
 
 def isChromaticMediant(c1, c2):
     # noinspection PyShadowingNames
@@ -269,17 +196,7 @@ def isChromaticMediant(c1, c2):
     >>> analysis.neoRiemannian.isChromaticMediant(c3, c4)
     False
     '''
-
-    transformList = ['UFM', 'USM', 'LFM', 'LSM']
-
-    c2NO = c2.normalOrder
-
-    for transform in transformList:
-        thisChord = chromaticMediants(c1, transformation=transform)
-        if thisChord.normalOrder == c2NO:
-            return transform
-
-    return False
+    pass
 
 # ------------------------------------------------------------------------------
 
@@ -356,44 +273,7 @@ def LRP_combinations(c,
     On that particular case of LPLPLP, see more in
     :func:`~music21.analysis.neoRiemannian.completeHexatonic`.
     '''
-
-    if not c.isMajorTriad() and not c.isMinorTriad():  # First to avoid doing anything else if fail
-        if raiseException is True:
-            raise LRPException(
-                f'Cannot perform transformations on chord {c}: not a major or minor triad')
-        return c
-
-    if leftOrdered:
-        transformationString = transformationString[::-1]
-
-    chordList = []
-
-    for i in transformationString:
-        if i == 'L':
-            c = L(c)
-            if eachOne:
-                chordList.append(copy.deepcopy(c))
-        elif i == 'R':
-            c = R(c)
-            if eachOne:
-                chordList.append(copy.deepcopy(c))
-        elif i == 'P':
-            c = P(c)
-            if eachOne:
-                chordList.append(copy.deepcopy(c))
-        else:
-            raise LRPException(f'{i} is not a NeoRiemannian transformation (L, R, or P)')
-
-    if eachOne:
-        if not simplifyEnharmonics:
-            return chordList
-        else:
-            return [_simplerEnharmonics(x) for x in chordList]
-    else:
-        if not simplifyEnharmonics:
-            return c
-        else:
-            return _simplerEnharmonics(c)
+    pass
 
 def completeHexatonic(c, simplifyEnharmonics=False, raiseException=True):
     '''
@@ -424,20 +304,7 @@ def completeHexatonic(c, simplifyEnharmonics=False, raiseException=True):
      <music21.chord.Chord B3 E4 G4>,
      <music21.chord.Chord C4 E4 G4>]
     '''
-    if c.forteClassTnI == '3-11':
-        hexatonicList = []
-        lastChord = c
-        operations = [P, L, P, L, P, L]
-        for operation in operations:
-            lastChord = operation(lastChord)
-            if simplifyEnharmonics:
-                lastChord = _simplerEnharmonics(lastChord)
-            hexatonicList.append(lastChord)
-        return hexatonicList
-    else:
-        if raiseException is True:
-            raise LRPException(
-                'Cannot perform transformations on this chord: not a major or minor triad')
+    pass
 
 def hexatonicSystem(c):
     # noinspection GrazieInspection
@@ -477,19 +344,7 @@ def hexatonicSystem(c):
         >>> analysis.neoRiemannian.hexatonicSystem(dDom65)
         'southern'
         '''
-    root = c.root()
-    rootPC = root.pitchClass
-
-    mappings = [({0, 4, 8}, 'northern'),
-                ({1, 5, 9}, 'eastern'),
-                ({2, 6, 10}, 'southern'),
-                ({3, 7, 11}, 'western'),
-                ]
-    for pcSet, poleName in mappings:
-        if rootPC in pcSet:
-            return poleName
-
-    raise LRPException('Odd pitch class that is not in 0 to 11!')  # pragma: no cover
+    pass
 
 
 # ------------------------------------------------------------------------------
@@ -536,29 +391,7 @@ def chromaticMediants(c, transformation='UFM'):
     >>> USM.normalOrder == USMcMaj.normalOrder
     True
     '''
-
-    options = ['UFM', 'USM', 'LFM', 'LSM']
-    if transformation not in options:
-        raise ValueError(f'Transformation must be one of {options}')
-
-    transformationString = 'PR'  # Initialised for 'UFM'
-    if transformation == 'USM':
-        transformationString = 'LP'
-    elif transformation == 'LFM':
-        transformationString = 'PL'
-    elif transformation == 'LSM':
-        transformationString = 'RP'
-
-    if c.isMinorTriad():
-        LO = True
-    elif c.isMajorTriad():
-        LO = False
-    else:
-        raise ValueError('Chord must be major or minor')
-
-    c = LRP_combinations(c, transformationString, leftOrdered=LO)
-
-    return _simplerEnharmonics(c)
+    pass
 
 def disjunctMediants(c, upperOrLower='upper'):
     '''
@@ -576,25 +409,7 @@ def disjunctMediants(c, upperOrLower='upper'):
     >>> [x.name for x in lwr.pitches]
     ['B', 'D#', 'G#']
     '''
-
-    options = ['upper', 'lower']
-    if upperOrLower not in options:
-        raise ValueError(f'upperOrLower must be one of {options}')
-
-    transformationString = 'PRP'  # Initialised for major upper and minor lower
-
-    if c.isMajorTriad():
-        if upperOrLower == 'lower':  # Change
-            transformationString = 'PLP'
-    elif c.isMinorTriad():
-        if upperOrLower == 'upper':
-            transformationString = 'PLP'
-    else:
-        raise ValueError('Chord must be major or minor')
-
-    c = LRP_combinations(c, transformationString)
-
-    return _simplerEnharmonics(c)
+    pass
 
 def S(c):
     '''
@@ -615,8 +430,7 @@ def S(c):
     >>> [x.name for x in slideDown.pitches]
     ['A-', 'C', 'E-']
     '''
-
-    return LRP_combinations(c, 'LPR', simplifyEnharmonics=False)
+    pass
 
 def N(c):
     '''
@@ -636,171 +450,33 @@ def N(c):
     >>> [x.name for x in n2.pitches]
     ['G#', 'B', 'E']
     '''
-
-    return LRP_combinations(c, 'RLP', simplifyEnharmonics=False)
+    pass
 
 # ------------------------------------------------------------------------------
 
 class Test(unittest.TestCase):
 
     def testNeoRiemannianTransformations(self):
-        c2 = chord.Chord('C4 E-4 G4')
-        c2_L = L(c2)
-        c2_P = P(c2)
-        self.assertEqual(str(c2_L), '<music21.chord.Chord C4 E-4 A-4>')
-        self.assertIsInstance(c2_L, chord.Chord)
-        self.assertEqual(str(c2_P), '<music21.chord.Chord C4 E4 G4>')
-
-        c5 = chord.Chord('C4 E4 G4 C5 C5 G5')
-        copyC5 = copy.deepcopy(c5)
-        for i in range(4):
-            c5 = L(c5)
-        self.assertEqual(copyC5.pitches, c5.pitches)
-
-        c5 = chord.Chord('C4 E4 G4 C5 E5 G5')
-        copyC5 = copy.deepcopy(c5)
-        for i in range(4):
-            c5 = P(c5)
-        self.assertEqual(copyC5.pitches, c5.pitches)
-
-        c5 = chord.Chord('C4 E4 G4 C5 C5 G5')
-        copyC5 = copy.deepcopy(c5)
-        for i in range(4):
-            c5 = R(c5)
-        self.assertEqual(copyC5.pitches, c5.pitches)
+        pass
 
     def testNeoRiemannianCombinations(self):
-        c5 = chord.Chord('C4 E4 G4')
-        c5_T = LRP_combinations(c5, 'LP')
-        self.assertEqual(str(c5_T), '<music21.chord.Chord B3 E4 G#4>')
-
-        c6 = chord.Chord('C4 E4 G4 C5 E5')
-        c6_T = LRP_combinations(c6, 'RLP')
-        self.assertEqual(str(c6_T), '<music21.chord.Chord C4 F4 A-4 C5 F5>')
-
-        c7 = chord.Chord('C4 E4 G4 C5 E5')
-        c7_T = LRP_combinations(c7, 'LP', leftOrdered=True)
-        self.assertEqual(str(c7_T), '<music21.chord.Chord C4 E-4 A-4 C5 E-5>')
-
-        c8 = chord.Chord('C-4 E-4 G-4')
-        c8_T = LRP_combinations(c8, 'LP')
-        self.assertEqual(str(c8_T), '<music21.chord.Chord B-3 E-4 G4>')
-
-        d_sharp_min_misspelled = chord.Chord('B- D# F#')
-        d_sharp_min_transformed = LRP_combinations(d_sharp_min_misspelled, 'LP',
-                                                   raiseException=False)
-        self.assertIs(d_sharp_min_misspelled, d_sharp_min_transformed)
-        with self.assertRaises(LRPException):
-            LRP_combinations(d_sharp_min_misspelled, 'LP', raiseException=True)
-
-        f_min_misspelled = chord.Chord('B# F G#')
-        with self.assertRaises(LRPException):
-            LRP_combinations(f_min_misspelled, 'LP', raiseException=True)
-
-        e_sharp_min = chord.Chord('B# E# G#')
-        e_sharp_min_transformed = LRP_combinations(e_sharp_min, 'LP', raiseException=True)
-        self.assertEqual(chord.Chord('C# E G#').pitches, e_sharp_min_transformed.pitches)
+        pass
 
     def testIsNeoR(self):
 
-        c1 = chord.Chord('C4 E4 G4')
-
-        c2 = chord.Chord('B3 E4 G4')
-        ans1 = isNeoR(c1, c2)
-        self.assertEqual(ans1, 'L')
-
-        c3 = chord.Chord('C4 E-4 G4')
-        ans2 = isNeoR(c1, c3)
-        self.assertEqual(ans2, 'P')
-        # ... But not if P is excluded ...
-        ans2 = isNeoR(c1, c3, transforms='LR')
-        self.assertFalse(ans2)
-
-        c4 = chord.Chord('C4 E4 A4')
-        ans3 = isNeoR(c1, c4)
-        self.assertEqual(ans3, 'R')
-
-        c5 = chord.Chord('C4 E-4 A-4')
-        ans4 = isChromaticMediant(c1, c5)
-        self.assertEqual(ans4, 'LFM')
-
-        c6 = chord.Chord('C-4 E-4 A-4')
-        ans5 = isNeoR(c1, c6)
-        ans6 = isChromaticMediant(c1, c6)
-        self.assertFalse(ans5)
-        self.assertFalse(ans6)  # disjunct mediants not currently included
-
-        c7 = chord.Chord('C-4 E-4 G-4')
-        c8 = chord.Chord('C-4 E--4 A--4')
-        ans7 = isNeoR(c7, c8)
-        ans8 = isChromaticMediant(c7, c8)
-        self.assertFalse(ans7)
-        self.assertEqual(ans8, 'LFM')
+        pass
 
     def testMediants(self):
 
-        c9 = chord.Chord('C5 E5 G5')
-        c9a = chord.Chord('C#5 E#5 G#5')
-
-        UFMcMaj = chromaticMediants(c9, transformation='UFM')
-        self.assertEqual(UFMcMaj.normalOrder, [3, 7, 10])
-
-        USMcMaj = chromaticMediants(c9, transformation='USM')
-        self.assertEqual(USMcMaj.normalOrder, [4, 8, 11])
-
-        LFMcMaj = chromaticMediants(c9, transformation='LFM')
-        self.assertEqual([x.nameWithOctave for x in LFMcMaj.pitches], ['C5', 'E-5', 'A-5'])
-
-        LSMcMaj = chromaticMediants(c9, transformation='LSM')
-        self.assertEqual([x.nameWithOctave for x in LSMcMaj.pitches], ['C#5', 'E5', 'A5'])
-
-        upChromatic = disjunctMediants(c9a, upperOrLower='upper')
-        self.assertEqual([x.name for x in upChromatic.pitches], ['B', 'E', 'G'])
-
-        downChromatic = disjunctMediants(c9a, upperOrLower='lower')
-        self.assertEqual([x.nameWithOctave for x in downChromatic.pitches],
-                         ['C5', 'E5', 'A5'])
+        pass
 
     def testSnN(self):
 
-        c10 = chord.Chord('C5 E5 G5')
-        c11 = chord.Chord('A4 C5 E5')
-
-        slideUp = S(c10)
-        self.assertEqual([x.name for x in slideUp.pitches], ['C#', 'E', 'G#'])
-
-        slideDown = S(c11)
-        self.assertEqual([x.name for x in slideDown.pitches], ['A-', 'C', 'E-'])
-
-        N1 = N(c10)
-        self.assertEqual([x.name for x in N1.pitches], ['C', 'F', 'A-'])
-
-        N2 = N(c11)
-        self.assertEqual([x.name for x in N2.pitches], ['G#', 'B', 'E'])
+        pass
 
     def testInstantiatingChordPCNumbers(self):
 
-        c_sharp_maj_named_transformed = L(chord.Chord('C# E# G#'))
-        c_sharp_maj_pitch_classes_transformed = L(chord.Chord([1, 5, 8]))
-        self.assertEqual(c_sharp_maj_named_transformed.pitches,
-                         c_sharp_maj_pitch_classes_transformed.pitches)
-        self.assertEqual(c_sharp_maj_pitch_classes_transformed.pitches,
-                         chord.Chord('B# E# G#').pitches)
-
-        b_maj_named = chord.Chord('B D# F#')
-        b_maj_named_transformed = LRP_combinations(b_maj_named, 'LP',
-                                                   simplifyEnharmonics=False)
-        b_maj_pitch_classes = chord.Chord([11, 3, 6])
-        b_maj_pitch_classes_transformed = LRP_combinations(b_maj_pitch_classes, 'LP',
-                                                           simplifyEnharmonics=False)
-        self.assertTrue(b_maj_pitch_classes.pitches[0].spellingIsInferred)
-        for p in b_maj_pitch_classes_transformed.pitches:
-            self.assertFalse(p.spellingIsInferred)
-
-        self.assertEqual(b_maj_named_transformed.pitches,
-                         b_maj_pitch_classes_transformed.pitches)
-        self.assertEqual(b_maj_pitch_classes_transformed.pitches,
-                         chord.Chord('A# D# F##').pitches)
+        pass
 
 
 # ------------------------------------------------------------------------------

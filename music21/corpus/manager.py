@@ -347,18 +347,7 @@ def getMetadataBundleByCorpus(corpusObject: corpora.Corpus) -> bundles.MetadataB
     >>> mdb1
     <music21.metadata.bundles.MetadataBundle 'junk': {0 entries}>
     '''
-    cacheMetadataBundleFromDisk(corpusObject)
-    corpusName = corpusObject.name
-    if corpusName in _metadataBundles:
-        mdb = _metadataBundles[corpusName]
-        if t.TYPE_CHECKING:
-            assert mdb is not None  # cacheMetadataBundleFromDisk makes None impossible
-        return mdb
-    else:  # pragma: no cover
-        raise CorpusException(
-            f'No metadata bundle found for corpus {corpusObject} '
-            f'with name {corpusName}'
-        )
+    pass
 
 def cacheMetadataBundleFromDisk(corpusObject: corpora.Corpus) -> None:
     r'''
@@ -428,7 +417,7 @@ def listSearchFields():
     'title'
     ...
     '''
-    return metadata.bundles.MetadataBundle.listSearchFields()
+    pass
 
 # -----------------------------------------------------------------------------
 

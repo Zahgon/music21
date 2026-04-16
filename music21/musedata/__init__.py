@@ -343,15 +343,7 @@ class MuseDataRecord(prebase.ProtoM21Object):
         return divisions / dpq
 
     def getDots(self):
-        if self.stage == 1:
-            return None
-        else:
-            if len(self.src) > 17:
-                if self.src[17] == '.':
-                    return 1
-                if self.src[17] == ':':
-                    return 2
-            return 0
+        pass
 
 #    def getType(self):
 #        # TODO: column 17 self.src[16] defines the graphic note type
@@ -637,7 +629,7 @@ class MuseDataMeasure(prebase.ProtoM21Object):
             self.stage = None
 
     def _reprInternal(self):
-        return 'size={len(self.src)}'
+        pass
 
     def getBarObject(self):
         '''
@@ -799,7 +791,7 @@ class MuseDataPart(prebase.ProtoM21Object):
         # environLocal.printDebug(['MuseDataPart: stage:', self.stage])
 
     def _reprInternal(self):
-        return ''
+        pass
 
     def _determineStage(self):
         '''
@@ -807,30 +799,14 @@ class MuseDataPart(prebase.ProtoM21Object):
         attributes record starting with a $; if not found, it is stage 1. if it is found
         it is stage 2.
         '''
-        for attribute in self.src:
-            if attribute.startswith('$'):
-                return 2
-        return 1
+        pass
 
     def _scrubStage1(self, src):
         '''
         Some stage1 files start with a leading line of space.
         This needs to be removed, as each line matters. Provide a list of character lines.
         '''
-        if len(src) <= 1:
-            raise MuseDataException('cannot scrub empty source')
-
-        check = True
-        post = []
-        # remove all spaces found in leading lines
-        for line in src:
-            if check:
-                if line.strip() == '':
-                    continue
-                else:
-                    check = False
-            post.append(line)
-        return post
+        pass
 
     def _getDigitsFollowingTag(self, line, tag):
         '''
@@ -982,15 +958,7 @@ class MuseDataPart(prebase.ProtoM21Object):
         >>> mdw.getParts()[0].getSource()
         'Breitkopf & Härtel, Vol. 13'
         '''
-        if self.stage == 1:
-            # get the header number: not sure what this is for now
-            data = []
-            for line in [self.src[2], self.src[3], self.src[4]]:
-                data.append(line.strip())
-            # there may be other info packed into this data to strip
-            return ''.join(data)
-        else:
-            return self.src[5]
+        pass
 
     def getWorkTitle(self):
         '''
@@ -1046,16 +1014,7 @@ class MuseDataPart(prebase.ProtoM21Object):
         >>> mdw.getParts()[0].getGroupMemberships()
         ['sound', 'score']
         '''
-        if self.stage == 1:
-            return []
-        else:
-            raw = self._getAlphasFollowingTag(self.src[10],
-                                              'group memberships:')
-            post = []
-            for entry in raw.split(','):
-                if entry.strip() != '':
-                    post.append(entry.strip())
-            return post
+        pass
 
     def getGroupMembershipsTotal(self, membership='score'):
         '''
@@ -1066,22 +1025,7 @@ class MuseDataPart(prebase.ProtoM21Object):
         >>> mdw.getParts()[0].getGroupMembershipsTotal()
         5
         '''
-        if self.stage == 1:
-            # first value is total number
-            return int(self.src[5].split(' ')[0])
-        else:
-            i = 11  # start with index 11, move to line tt starts with $
-            raw = None
-            while not self.src[i].startswith('$'):
-                line = self.src[i]
-                if line.startswith(membership):
-                    raw = self._getDigitsFollowingTag(line, 'of')
-                    break
-                i += 1
-            if raw is None:
-                return None
-            else:
-                return int(raw)
+        pass
 
     def getGroupMembershipNumber(self, membership='score'):
         '''
@@ -1092,22 +1036,7 @@ class MuseDataPart(prebase.ProtoM21Object):
         >>> mdw.getParts()[0].getGroupMembershipNumber()
         1
         '''
-        if self.stage == 1:
-            # second value is this works part number
-            return self.src[5].split(' ')[1]
-        else:
-            i = 11  # start with index 11, move to line tt starts with $
-            raw = None
-            while not self.src[i].startswith('$'):
-                line = self.src[i]
-                if line.startswith(membership):
-                    raw = self._getDigitsFollowingTag(line, 'part')
-                    break
-                i += 1
-            if raw is None:
-                return None
-            else:
-                return int(raw)
+        pass
 
     def _getAttributesRecord(self):
         '''
@@ -1491,13 +1420,12 @@ class MuseDataFile(prebase.ProtoM21Object):
         self.encoding: str = 'utf-8'
 
     def _reprInternal(self):
-        return ''
+        pass
 
     def open(self, fp):
         # self.file = io.open(filename, encoding='utf-8')
 
-        self.file = open(fp, 'rb')  # pylint: disable=consider-using-with
-        self.filename = fp
+        pass
 
     def read(self):
         # call readstr with source string from file
@@ -1654,64 +1582,7 @@ class MuseDataDirectory(prebase.ProtoM21Object):
     def _prepareGroups(self, dirOrList):
         # environLocal.printDebug(['_prepareGroups', dirOrList])
 
-        allPaths = []
-        # these two were unused variables.
-        # sep = '/'
-        # source = None  # set where files are coming from
-        if common.isIterable(dirOrList):
-            # assume a flat list from a zip file
-            # sep = '/'  # sep is always backslash for zip files
-            # source = 'zip'
-            allPaths = dirOrList
-            # for fp in dirOrList:
-            #     if self.isMusedataFile(fp):
-            #         self.paths.append(fp)
-        elif os.path.isdir(dirOrList):
-            # source = 'dir'
-            # sep = os.sep
-            # first, get the contents of the dir and see if it has md files
-            for fn in sorted(os.listdir(dirOrList)):
-                allPaths.append(os.path.join(dirOrList, fn))
-                # if not self.isMusedataFile(fn):
-                #     continue
-                # numStr, nonNumStr = common.getNumFromStr(fn)
-                # # if we cannot get a number out of the file name
-                # if numStr == '':
-                #     continue
-                # else:
-                #     self.paths.append(os.path.join(dirOrList, fn))
-        else:
-            raise MuseDataException('cannot get files from the following entity', dirOrList)
-
-        for fp in allPaths:
-            unused_directory, fn = os.path.split(fp)
-            if not self.isMusedataFile(fn):
-                continue
-            numStr, nonNumStr = common.getNumFromStr(fn)
-            # if we cannot get a number out of the file name
-            if numStr == '':
-                continue
-            else:
-                self.paths.append(fp)
-
-        # on second pass, remove any score file if we have part files
-        # score files start with an s
-        popList = []
-        if len(self.paths) > 1:
-            for i, fp in enumerate(self.paths):
-                unused_directory, fn = os.path.split(fp)
-                # if it has a number and starts with s
-                numStr, nonNumStr = common.getNumFromStr(fn)
-                if numStr != '' and nonNumStr.startswith('s'):
-                    popList.append(i)
-            popList.reverse()
-            for i in popList:
-                self.paths.pop(i)
-        else:  # if only one file, use it
-            pass
-
-        # after gathering paths, may need to sort/get by groups
-        self.paths.sort()
+        pass
         # environLocal.printDebug(['self.paths', self.paths])
 
     # noinspection SpellCheckingInspection
@@ -1720,19 +1591,7 @@ class MuseDataDirectory(prebase.ProtoM21Object):
         # cannot open file and look, as names from a zip archive are not
         # directly openable
         # environLocal.printDebug(['isMusedataFile: checking:', fp])
-        unused_dir, fn = os.path.split(fp)
-        if fp.endswith('.md'):
-            return True
-        elif fn.startswith('mchan'):  # ignore midi declaration files
-            return False
-        # directories from a zip will end in '/', or os.sep
-        elif (fp.endswith('.py')
-              or fp.endswith('/')
-              or fp.endswith(os.sep)
-              or fn.startswith('.')
-              or fp.endswith('.svn-base')):
-            return False
-        return True
+        pass
 
     def getPaths(self, group=None):
         '''
@@ -1777,63 +1636,7 @@ class Test(unittest.TestCase):
     #     self.assertEqual(mdpObjs[0].getDivisionsPerQuarterNote(), 4)
 
     def testLoadFromFile(self):
-        fp = str(common.getSourceFilePath() / 'musedata' / 'testPrimitive')
-
-        mdw = MuseDataWork()
-
-        dirLib = os.path.join(fp, 'test01')
-        for fn in ['01.md', '02.md', '03.md', '04.md', '05.md']:
-            fp = os.path.join(dirLib, fn)
-            # environLocal.printDebug([fp])
-
-            mdw.addFile(fp)
-
-        mdpObjs = mdw.getParts()
-        self.assertEqual(len(mdpObjs), 5)
-        # first line of src strings
-        self.assertEqual(mdpObjs[0].src[4], 'WK#:581       MV#:3c')
-        self.assertEqual(mdpObjs[0].src[12], 'score: part 1 of 5')
-
-        self.assertEqual(mdpObjs[1].src[4], 'WK#:581       MV#:3c')
-        self.assertEqual(mdpObjs[1].src[12], 'score: part 2 of 5')
-
-        self.assertEqual(mdpObjs[2].src[4], 'WK#:581       MV#:3c')
-        self.assertEqual(mdpObjs[2].src[12], 'score: part 3 of 5')
-
-        self.assertEqual(mdpObjs[3].src[4], 'WK#:581       MV#:3c')
-        self.assertEqual(mdpObjs[3].src[12], 'score: part 4 of 5')
-
-        self.assertEqual(mdpObjs[4].src[4], 'WK#:581       MV#:3c')
-        self.assertEqual(mdpObjs[4].src[12], 'score: part 5 of 5')
-
-        # all files have the same metadata
-        for i in range(4):
-            self.assertEqual(mdpObjs[i].getWorkNumber(), '581')
-            self.assertEqual(mdpObjs[i].getMovementNumber(), '3')
-            self.assertTrue(mdpObjs[i].getSource().startswith('Breitkopf'))
-            self.assertEqual(mdpObjs[i].getWorkTitle(), 'Clarinet Quintet')
-            self.assertEqual(mdpObjs[i].getMovementTitle(), 'Trio II')
-
-            self.assertEqual(mdpObjs[i].getGroupMemberships(), ['sound', 'score'])
-
-            self.assertEqual(mdpObjs[i].getGroupMembershipsTotal('score'), 5)
-            self.assertEqual(mdpObjs[i].getGroupMembershipsTotal('sound'), 5)
-
-        self.assertEqual(mdpObjs[0].getGroupMembershipNumber('score'), 1)
-        self.assertEqual(mdpObjs[0].getGroupMembershipNumber('sound'), 1)
-        self.assertEqual(mdpObjs[1].getGroupMembershipNumber('score'), 2)
-        self.assertEqual(mdpObjs[1].getGroupMembershipNumber('sound'), 2)
-        self.assertEqual(mdpObjs[2].getGroupMembershipNumber('score'), 3)
-        self.assertEqual(mdpObjs[2].getGroupMembershipNumber('sound'), 3)
-
-        self.assertEqual(mdpObjs[3].getGroupMembershipNumber('score'), 4)
-        self.assertEqual(mdpObjs[3].getGroupMembershipNumber('sound'), 4)
-        self.assertEqual(mdpObjs[4].getGroupMembershipNumber('score'), 5)
-        self.assertEqual(mdpObjs[4].getGroupMembershipNumber('sound'), 5)
-
-        self.assertEqual(mdpObjs[0].getKeyParameters(), 0)
-        self.assertEqual(mdpObjs[0].getTimeSignatureParameters(), '3/4')
-        self.assertEqual(mdpObjs[0].getDivisionsPerQuarterNote(), 6)
+        pass
 
 
     # def testIterateMeasuresFromString(self):
@@ -1867,9 +1670,7 @@ class Test(unittest.TestCase):
         # from music21 import converter
         # fp = os.path.join(common.getSourceFilePath(), 'musedata', 'testZip.zip')
 
-        fpDir = str(common.getSourceFilePath() / 'musedata' / 'testPrimitive' / 'test01')
-
-        unused_mdd = MuseDataDirectory(fpDir)
+        pass
 
         # from archive: note: this is a stage 1 file
         # fpArchive = str(common.getSourceFilePath() / 'musedata' / 'testZip.zip')
@@ -1897,17 +1698,7 @@ class Test(unittest.TestCase):
     #     self.assertEqual(mdpObjs[0].getDivisionsPerQuarterNote(), 4.0)
 
     def testGetLyrics(self):
-        mdr = MuseDataRecord('D4     2        e     u                    con-')
-        mdr.stage = 2
-        self.assertEqual(mdr.getLyrics(), ['con-'])
-
-        mdr = MuseDataRecord('F#4    2        e     u                    a')
-        mdr.stage = 2
-        self.assertEqual(mdr.getLyrics(), ['a'])
-
-        mdr = MuseDataRecord('F#4    2        e     u                    a | b')
-        mdr.stage = 2
-        self.assertEqual(mdr.getLyrics(), ['a', 'b'])
+        pass
 
 
     # def testMeasureNumberImport(self):

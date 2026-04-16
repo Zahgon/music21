@@ -458,10 +458,7 @@ class StreamCore(Music21Object):
         '''
         A low-level object for Spanner management. This is a read-only property.
         '''
-        if 'spannerBundle' not in self._cache or self._cache['spannerBundle'] is None:
-            spanners = self.recurse(classFilter=(spanner.Spanner,), restoreActiveSites=False)
-            self._cache['spannerBundle'] = spanner.SpannerBundle(list(spanners))
-        return self._cache['spannerBundle']
+        pass
 
     def asTimespans(self, *, flatten=True, classList=None):
         r'''

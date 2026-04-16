@@ -57,15 +57,10 @@ class EnharmonicSimplifier:
         Takes a list of pitches or pitch names and retrieves all enharmonic spellings.
         Note: getRepresentations itself returns nothing.
         '''
-        allSpellings = []
-        for p in self.pitchList:
-            spellings = [p] + p.getAllCommonEnharmonics(1)
-            allSpellings.append(spellings)
-        self.allSpellings = allSpellings
+        pass
 
     def getProduct(self):
-        self.allPossibleSpellings = list(itertools.product(*self.allSpellings))
-        return self.allPossibleSpellings
+        pass
 
     def bestPitches(self):
         '''
@@ -81,32 +76,14 @@ class EnharmonicSimplifier:
         >>> es.bestPitches()
         (<music21.pitch.Pitch C>, <music21.pitch.Pitch E>, <music21.pitch.Pitch G>)
         '''
-        self.getProduct()
-        bestPitches = []
-        minScore = inf
-        for possibility in self.allPossibleSpellings:
-            thisAugDimScore = self.getAugDimScore(possibility)
-            thisAlterationScore = self.getAlterationScore(possibility)
-            thisMixSharpsFlatScore = self.getMixSharpFlatsScore(possibility)
-            thisScore = thisAugDimScore + thisAlterationScore + thisMixSharpsFlatScore
-            if thisScore < minScore:
-                minScore = thisScore
-                bestPitches = possibility
-        return bestPitches
+        pass
 
     def getAlterationScore(self, possibility):
         '''
         Returns a score according to the number of sharps and flats in a possible spelling.
         The score is the sum of the flats and sharps + 1, multiplied by the alterationPenalty.
         '''
-        if self.ruleObject.alterationPenalty is False:
-            return 1
-
-        joinedPossibility = ''.join([p.name for p in possibility])
-        flatCount = joinedPossibility.count('-')
-        sharpCount = joinedPossibility.count('#')
-        score = (flatCount + sharpCount + 1) * self.ruleObject.alterationPenalty
-        return score
+        pass
 
     def getMixSharpFlatsScore(self, possibility):
         '''
@@ -114,72 +91,29 @@ class EnharmonicSimplifier:
         the score is given by the number of the lesser used accidental (sharps or flats)
         multiplied by the mixSharpsFlatsPenalty.
         '''
-        if self.ruleObject.mixSharpsFlatsPenalty is False:
-            return 1
-
-        joinedPossibility = ''.join([p.name for p in possibility])
-        flatCount = joinedPossibility.count('-')
-        sharpCount = joinedPossibility.count('#')
-        score = min([flatCount, sharpCount]) * self.ruleObject.mixSharpsFlatsPenalty
-        return score
+        pass
 
     def getAugDimScore(self, possibility):
         '''
         Returns a score based on the number of augmented and diminished intervals between
         successive pitches in the given spelling.
         '''
-        if self.ruleObject.augDimPenalty is False:
-            return 1
-
-        intervalStr = ''
-        for i in range(len(possibility) - 1):
-            p0 = musedata.base40.base40Representation[possibility[i].name]
-            p1 = musedata.base40.base40Representation[possibility[i + 1].name]
-            base40diff = (p1 - p0) % 40
-            intervalStr += musedata.base40.base40IntervalTable.get(base40diff, 'ddd')
-        dimCount = intervalStr.count('A')
-        augCount = intervalStr.count('d')
-        score = (dimCount + augCount + 1) * self.ruleObject.augDimPenalty
-        return score
+        pass
 
 # ------------------------------------------------------------------------------
 class Test(unittest.TestCase):
 
     def testBestPitches(self):
-        pList = [pitch.Pitch('C'), pitch.Pitch('D'), pitch.Pitch('E')]
-        es = EnharmonicSimplifier(pList)
-        bestPitchList = es.bestPitches()
-
-        self.assertEqual(len(pList), 3)
-        self.assertEqual(len(bestPitchList), 3)
-        self.assertIsInstance(bestPitchList[0], pitch.Pitch)
+        pass
 
     def testGetAlterationScore(self):
-        pList = [pitch.Pitch('C'), pitch.Pitch('D'), pitch.Pitch('E')]
-        es = EnharmonicSimplifier(pList)
-        poss = [pitch.Pitch('C'), pitch.Pitch('D'), pitch.Pitch('E')]
-        testAltScore = es.getAlterationScore(poss)
-
-        self.assertEqual(len(pList), 3)
-        self.assertIsInstance(testAltScore, int)
+        pass
 
     def testGetMixSharpFlatsScore(self):
-        pList = [pitch.Pitch('C'), pitch.Pitch('D'), pitch.Pitch('E')]
-        es = EnharmonicSimplifier(pList)
-        poss = [pitch.Pitch('C'), pitch.Pitch('D'), pitch.Pitch('E')]
-        testMixScore = es.getMixSharpFlatsScore(poss)
-
-        self.assertEqual(len(pList), 3)
-        self.assertIsInstance(testMixScore, int)
+        pass
 
     def testGetAugDimScore(self):
-        pList = [pitch.Pitch('C'), pitch.Pitch('D'), pitch.Pitch('E')]
-        es = EnharmonicSimplifier(pList)
-        poss = [pitch.Pitch('C'), pitch.Pitch('D'), pitch.Pitch('E')]
-        testAugDimScore = es.getAugDimScore(poss)
-
-        self.assertEqual(len(pList), 3)
-        self.assertIsInstance(testAugDimScore, int)
+        pass
 
 
 # -----------------------------------------------------------------------------

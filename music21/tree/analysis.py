@@ -80,52 +80,21 @@ class Horizontality(collections.abc.Sequence):
 
         (TODO: better check)
         '''
-        if len(self) < 3:
-            return False
-        elif not all(len(x.pitches) for x in self):
-            return False
-        pitches = (
-            self[0].pitches[0],
-            self[1].pitches[0],
-            self[2].pitches[0],
-        )
-        if pitches[0] < pitches[1] < pitches[2]:
-            return True
-        elif pitches[0] > pitches[1] > pitches[2]:
-            return True
-        return False
+        pass
 
     @property
     def hasNeighborTone(self):
         r'''
         Is true if the Horizontality contains a neighbor tone.
         '''
-        if len(self) < 3:
-            return False
-        elif not all(len(x.pitches) for x in self):
-            return False
-
-        pitches = (
-            self[0].pitches[0],
-            self[1].pitches[0],
-            self[2].pitches[0],
-        )
-        if pitches[0] == pitches[2]:
-            if abs(pitches[1].ps - pitches[0].ps) < 3:
-                return True
-        return False
+        pass
 
     @property
     def hasNoMotion(self):
         r'''
         Is true if the Horizontality contains no motion (including enharmonic restatements)
         '''
-        pitchSets = set()
-        for x in self:
-            pitchSets.add(tuple(x.pitches))
-        if len(pitchSets) == 1:
-            return True
-        return False
+        pass
 
 
 # -----------------------------------------------------------------------------

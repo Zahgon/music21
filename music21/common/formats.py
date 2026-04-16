@@ -283,14 +283,7 @@ def findFormatExtFile(fp):
     >>> common.findFormatExtFile(r'\\long\file\path\test.krn')
     ('humdrum', '.krn')
     '''
-    if not isinstance(fp, pathlib.Path):
-        fp = pathlib.Path(fp)
-
-    fileFormat, unused_extOut = findFormat(fp.suffix)
-    if fileFormat is None:
-        return (None, None)
-    else:
-        return (fileFormat, fp.suffix)  # may be None if no match
+    pass
 
 # @deprecated('May 2014', '[soonest possible]', 'Moved to converter')
 

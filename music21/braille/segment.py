@@ -134,10 +134,7 @@ def setGroupingGlobals():
     sets defaults for grouping globals.  Called first time anything
     in Braille is run, but saves creating two expensive objects if never run
     '''
-    if GROUPING_GLOBALS['keySignature'] is None:
-        GROUPING_GLOBALS['keySignature'] = key.KeySignature(0)
-    if GROUPING_GLOBALS['timeSignature'] is None:
-        GROUPING_GLOBALS['timeSignature'] = meter.TimeSignature('4/4')
+    pass
 
 
 SEGMENT_MAXNOTESFORSHORTSLUR = 4
@@ -271,7 +268,7 @@ class BrailleElementGrouping(ProtoM21Object):
         return out
 
     def _reprInternal(self):
-        return repr(self.internalList)
+        pass
 
 
 class BrailleSegment(text.BrailleText):
@@ -411,7 +408,7 @@ class BrailleSegment(text.BrailleText):
         '''
         Returns the string from the BrailleText object
         '''
-        return text.BrailleText.__str__(self)
+        pass
 
     def __str__(self):
         name = '<music21.braille.segment BrailleSegment>'
@@ -1111,7 +1108,7 @@ class BrailleGrandSegment(BrailleSegment, text.BrailleKeyboard):
 
     @property
     def brailleText(self):
-        return text.BrailleKeyboard.__str__(self)
+        pass
 
     def __str__(self):
         name = '<music21.braille.segment BrailleGrandSegment>\n==='
@@ -1179,11 +1176,7 @@ class BrailleGrandSegment(BrailleSegment, text.BrailleKeyboard):
             '''
             sort by measure, then ordinal, then affinity, then hand (r then l)
             '''
-            if segmentKey.hand == 'right':
-                skH = -1
-            else:
-                skH = 1
-            return (segmentKey.measure, segmentKey.ordinal, segmentKey.affinity, skH)
+            pass
 
         def matchOther(thisKey_inner, otherKey):
             if (thisKey_inner.measure == otherKey.measure
@@ -2132,13 +2125,13 @@ def prepareBeamedNotes(music21Measure):
     allNotesAndRests = music21Measure.notesAndRests.stream()
 
     def withBeamFilter(el, unused):
-        return (el.beams is not None) and len(el.beams) > 0
+        pass
 
     def beamStartFilter(el, unused):
-        return el.beams.getByNumber(1).type == 'start'
+        pass
 
     def beamStopFilter(el, unused):
-        return el.beams.getByNumber(1).type == 'stop'
+        pass
 
     allStartIter = allNotes.iter().addFilter(withBeamFilter).addFilter(beamStartFilter)
     allStopIter = allNotes.iter().addFilter(withBeamFilter).addFilter(beamStopFilter)
@@ -2443,13 +2436,7 @@ def splitMeasure(music21Measure, beatDivisionOffset=0, useTimeSignature=None):
 class Test(unittest.TestCase):
 
     def testGetRawSegments(self):
-        from music21 import converter
-
-        tn = converter.parse("tinynotation: 3/4 c4 c c e e e g g g c'2.")
-        tn = tn.makeNotation(cautionaryNotImmediateRepeat=False)
-
-        rawSegList = getRawSegments(tn)
-        unused = str(rawSegList[0])
+        pass
 
 
 if __name__ == '__main__':

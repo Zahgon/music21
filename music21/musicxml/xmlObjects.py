@@ -175,7 +175,7 @@ def fractionToPercent(value):
     '25'
 
     '''
-    return str(int(value * 100))
+    pass
 
 
 _NCNAME = re.compile(r'^[a-zA-Z_][\w.-]*$')
@@ -207,16 +207,7 @@ def isValidXSDID(text):
     False
 
     '''
-    if not isinstance(text, str):
-        return False
-
-    if not text:
-        return False
-
-    if _NCNAME.match(text):
-        return True
-    else:
-        return False
+    pass
 
 
 # ------------------------------------------------------------------------------

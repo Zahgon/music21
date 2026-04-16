@@ -25,30 +25,7 @@ def optional_arg_decorator(fn):
     '''
     a decorator for decorators.  Allows them to either have or not have arguments.
     '''
-    @wraps(fn)
-    def wrapped_decorator(*arguments, **keywords):
-        is_bound_method = hasattr(arguments[0], fn.__name__) if arguments else False
-        klass = None
-
-        if is_bound_method:
-            klass = arguments[0]
-            arguments = arguments[1:]
-
-        # If no arguments were passed
-        if len(arguments) == 1 and not keywords and callable(arguments[0]):
-            if is_bound_method:
-                return fn(klass, arguments[0])
-            else:
-                return fn(arguments[0])
-
-        else:
-            def real_decorator(toBeDecorated):
-                if is_bound_method:
-                    return fn(klass, toBeDecorated, *arguments, **keywords)
-                else:
-                    return fn(toBeDecorated, *arguments, **keywords)
-            return real_decorator
-    return wrapped_decorator
+    pass
 
 
 @optional_arg_decorator
@@ -131,25 +108,7 @@ def deprecated(method, startDate=None, removeDate=None, message=None):
 
     @wraps(method)
     def func_wrapper(*arguments, **keywords):
-        if len(arguments) > 1 and arguments[1] in (
-            '_ipython_canary_method_should_not_exist_',
-            '_repr_mimebundle_',
-            '_is_coroutine'
-        ):
-            # false positive from IPython for StreamIterator.__getattr__
-            # can remove after v9.
-            falsePositive = True
-        else:
-
-            falsePositive = False
-
-        # TODO: look at sys.warnstatus.
-        if callInfo['calledAlready'] is False and not falsePositive:
-            warnings.warn(callInfo['message'],
-                          exceptions21.Music21DeprecationWarning,
-                          stacklevel=2)
-            callInfo['calledAlready'] = True
-        return method(*arguments, **keywords)
+        pass
 
     return func_wrapper
 
@@ -178,11 +137,7 @@ def cacheMethod(method):
 
     @wraps(method)
     def inner(instance, *arguments, **keywords):
-        if funcName in instance._cache:
-            return instance._cache[funcName]
-
-        instance._cache[funcName] = method(instance, *arguments, **keywords)
-        return instance._cache[funcName]
+        pass
 
     return inner
 

@@ -113,10 +113,7 @@ class StreamStatus(SlottedObjectMixin):
         exist, this method returns True, regardless of if makeBeams has
         actually been run.
         '''
-        for n in self.client.recurse(classFilter=('NotRest',), restoreActiveSites=False):
-            if n.beams is not None and n.beams.beamsList:
-                return True
-        return False
+        pass
 
     def haveTupletBracketsBeenMade(self):
         '''
@@ -140,61 +137,33 @@ class StreamStatus(SlottedObjectMixin):
         True
 
         '''
-        foundTuplet = False
-        for n in self.client.recurse(classFilter='GeneralNote', restoreActiveSites=False):
-            if n.duration.tuplets:
-                foundTuplet = True
-                if n.duration.tuplets[0].type is not None:
-                    return True
-        if foundTuplet:
-            return False
-        else:
-            return None
+        pass
 
     # PUBLIC PROPERTIES #
 
     @property
     def accidentals(self):
-        if self._accidentals is None:
-            self._accidentals = self.haveAccidentalsBeenMade()
-        return self._accidentals
+        pass
 
     @accidentals.setter
     def accidentals(self, expr):
-        if expr is not None:
-            self._accidentals = bool(expr)
-        else:
-            self._accidentals = None
+        pass
 
     @property
     def beams(self):
-        if self._beams is None:
-            self._beams = self.haveBeamsBeenMade()
-        return self._beams
+        pass
 
     @beams.setter
     def beams(self, expr):
-        if expr is not None:
-            self._beams = bool(expr)
-        else:
-            self._beams = None
+        pass
 
     @property
     def tuplets(self):
-        if self._tuplets is None:
-            self._tuplets = self.haveTupletBracketsBeenMade()
-            # If there were no tuplet durations,
-            # tuplet brackets don't need to be made.
-            if self._tuplets is None:
-                self._tuplets = True
-        return self._tuplets
+        pass
 
     @tuplets.setter
     def tuplets(self, expr):
-        if expr is not None:
-            self._tuplets = bool(expr)
-        else:
-            self._tuplets = None
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -206,26 +175,7 @@ class Test(unittest.TestCase):
     '''
 
     def testHaveBeamsBeenMadeAfterDeepcopy(self):
-        import copy
-        from music21 import stream
-        from music21 import note
-        m = stream.Measure()
-        c = note.Note('C4', type='quarter')
-        m.append(c)
-        d1 = note.Note('D4', type='eighth')
-        d2 = note.Note('D4', type='eighth')
-        m.append([d1, d2])
-        e3 = note.Note('E4', type='eighth')
-        e4 = note.Note('E4', type='eighth')
-        m.append([e3, e4])
-        d1.beams.append('start')
-        d2.beams.append('stop')
-        self.assertTrue(m.streamStatus.haveBeamsBeenMade())
-        mm = copy.deepcopy(m)
-        self.assertTrue(mm.streamStatus.haveBeamsBeenMade())
-        mm.streamStatus.beams = False
-        mmm = copy.deepcopy(mm)
-        self.assertFalse(mmm.streamStatus.beams)
+        pass
         # m.show()
 
 

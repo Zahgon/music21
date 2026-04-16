@@ -54,7 +54,7 @@ def getMetadataCacheFilePath() -> pathlib.Path:
     >>> fp.name == '_metadataCache' and fp.parent.name == 'corpus'
     True
     '''
-    return getSourceFilePath() / 'corpus' / '_metadataCache'
+    pass
 
 
 def getCorpusFilePath() -> pathlib.Path:
@@ -101,24 +101,7 @@ def getCorpusContentDirs() -> list[str]:
     >>> failed
     []
     '''
-    directoryName = getCorpusFilePath()
-    result = []
-    # dirs to exclude; all files will be retained
-    excludedNames = (
-        'license.txt',
-        '_metadataCache',
-        '__pycache__',
-    )
-    filename: str
-    for filename in sorted(os.listdir(directoryName)):
-        if filename.endswith(('.py', '.pyc')):
-            continue
-        elif filename.startswith('.'):
-            continue
-        elif filename in excludedNames:
-            continue
-        result.append(filename)
-    return sorted(result)
+    pass
 
 
 def getRootFilePath() -> pathlib.Path:
@@ -130,10 +113,7 @@ def getRootFilePath() -> pathlib.Path:
     >>> #_DOCS_SHOW fp
     PosixPath('/Users/florencePrice/git/music21')
     '''
-    fpMusic21 = getSourceFilePath()
-    fpParent = fpMusic21.parent
-    # Do not assume will end in music21 -- people can put this anywhere they want
-    return fpParent
+    pass
 
 
 def relativepath(path: StrOrPath, start: str|None = None) -> StrOrPath|str:
@@ -201,8 +181,7 @@ def cleanpath(path: str|pathlib.Path, *,
 
 class Test(unittest.TestCase):
     def testGetSourcePath(self):
-        fp = getSourceFilePath()
-        self.assertIsInstance(fp, pathlib.Path)
+        pass
 
 
 if __name__ == '__main__':

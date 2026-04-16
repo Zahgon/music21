@@ -73,59 +73,7 @@ def realizeOrnaments(
     .. image:: images/expressionsMordentRealize.*
          :width: 218
     '''
-    srcObject: note.Note|note.Unpitched|None = srcObj
-    if t.TYPE_CHECKING:
-        # it comes in as not None
-        assert srcObject is not None
-
-    if not hasattr(srcObject, 'expressions'):
-        return [srcObject]
-    elif not srcObject.expressions:
-        return [srcObject]
-    else:
-        preExpandList = []
-        postExpandList = []
-
-        loopBuster = 100
-        while loopBuster:
-            if t.TYPE_CHECKING:
-                # if it was set to None, we break out of the loop, so we won't get here
-                assert srcObject is not None
-            loopBuster -= 1
-            thisExpression = srcObject.expressions[0]
-            if hasattr(thisExpression, 'realize'):
-                preExpand, newSrcObject, postExpand = thisExpression.realize(
-                    srcObject, keySig=keySig
-                )
-                for i in preExpand:
-                    preExpandList.append(i)
-                for i in postExpand:
-                    postExpandList.append(i)
-                if newSrcObject is None:
-                    # some ornaments eat up the entire source object. Trills for instance
-                    srcObject = newSrcObject
-                    break
-                newSrcObject.expressions = srcObject.expressions[1:]
-                srcObject = newSrcObject
-                if t.TYPE_CHECKING:
-                    # if newSrcObject/srcObject were None, we would have broken out of the loop
-                    assert srcObject is not None
-                if not srcObject.expressions:
-                    break
-            else:  # cannot realize this object
-                srcObject.expressions = srcObject.expressions[1:]
-                if not srcObject.expressions:
-                    break
-
-        retList = []
-        # TODO: use extend instead of iteration
-        for i in preExpandList:
-            retList.append(i)
-        if srcObject is not None:
-            retList.append(srcObject)
-        for i in postExpandList:
-            retList.append(i)
-        return retList
+    pass
 
 
 # ------------------------------------------------------------------------------
@@ -144,7 +92,7 @@ class Expression(base.Music21Object):
         self.tieAttach = 'first'  # attach to first note of a tied group.
 
     def _reprInternal(self) -> str:
-        return ''
+        pass
 
     @property
     def name(self) -> str:
@@ -162,8 +110,7 @@ class Expression(base.Music21Object):
         >>> iTurn.name
         'inverted turn'
         '''
-        className = self.__class__.__name__
-        return common.camelCaseToHyphen(className, replacement=' ')
+        pass
 
 # ------------------------------------------------------------------------------
 
@@ -195,7 +142,7 @@ class RehearsalMark(Expression):
         self.style.alignVertical = 'middle'
 
     def _reprInternal(self):
-        return repr(self.content)
+        pass
 
     @staticmethod
     def _getNumberingFromContent(c) -> str|None:
@@ -222,36 +169,7 @@ class RehearsalMark(Expression):
         None
 
         '''
-        if c is None:
-            return None
-        if isinstance(c, int):
-            return 'number'
-        if not isinstance(c, str):
-            return None
-
-        try:
-            unused = int(c)
-            return 'number'
-        except ValueError:
-            pass
-
-        try:
-            romanValue = common.numberTools.fromRoman(c)
-            if len(c) >= 2:
-                return 'roman'  # two letters is enough
-
-            if romanValue < 50:
-                return 'roman'  # I, X, V
-            else:
-                return 'alphabetical'  # L, C, D, M
-
-        except ValueError:
-            pass
-
-        if c in string.ascii_letters:
-            return 'alphabetical'
-        else:
-            return None
+        pass
 
     def nextContent(self):
         '''
@@ -284,26 +202,7 @@ class RehearsalMark(Expression):
         >>> expressions.RehearsalMark('I', numbering='alphabetical').nextContent()
         'J'
         '''
-        numbering = self.numbering
-        if not numbering:
-            numbering = self._getNumberingFromContent(self.content)
-
-        if not numbering:
-            if self.content is None:
-                return None
-            # duplicate current content
-            return self.content * 2
-
-        if numbering == 'alphabetical':
-            nextContent = chr(ord(self.content[-1]) + 1)
-            if nextContent not in string.ascii_letters:
-                return 'A' * (len(self.content) + 1)
-            else:
-                return nextContent
-        elif numbering == 'number':
-            return int(self.content) + 1
-        elif numbering == 'roman':
-            return common.toRoman(common.fromRoman(self.content) + 1)
+        pass
 
     def nextMark(self):
         '''
@@ -321,7 +220,7 @@ class RehearsalMark(Expression):
         >>> nm.numbering
         'roman'
         '''
-        return RehearsalMark(self.nextContent(), numbering=self.numbering)
+        pass
 
 
 # ------------------------------------------------------------------------------
@@ -389,9 +288,7 @@ class PedalObject(base.Music21Object):
         self.placement: str | None = None
 
     def _reprInternal(self) -> str:
-        if self.activeSite is None:
-            return 'uninserted'
-        return f'at {self.offset}'
+        pass
 
 
 class PedalBounce(PedalObject):
@@ -471,13 +368,7 @@ class TextExpression(Expression):
         self.placement = None
 
     def _reprInternal(self):
-        if len(self._content) >= 13:
-            shortContent = self._content[:10] + '...'
-            return repr(shortContent)
-        elif self._content is not None:
-            return repr(self._content)
-        else:
-            return ''
+        pass
 
     @property
     def enclosure(self) -> style.Enclosure|None:
@@ -501,15 +392,11 @@ class TextExpression(Expression):
         >>> te.style.enclosure
         <Enclosure.RECTANGLE>
         '''
-        if not self.hasStyleInformation:
-            return None
-        return self.style.enclosure
+        pass
 
     @enclosure.setter
     def enclosure(self, value: style.Enclosure|None):
-        if not self.hasStyleInformation and value is None:
-            return
-        self.style.enclosure = value
+        pass
 
     @property
     def content(self):
@@ -523,11 +410,11 @@ class TextExpression(Expression):
         >>> te
         <music21.expressions.TextExpression 'sweeter'>
         '''
-        return self._content
+        pass
 
     @content.setter
     def content(self, value):
-        self._content = str(value)
+        pass
 
 
     # --------------------------------------------------------------------------
@@ -541,20 +428,7 @@ class TextExpression(Expression):
         return a new :class:`~music21.repeat.RepeatExpression`.
         object, otherwise, return None.
         '''
-        # use objects stored in
-        # repeat.repeatExpressionReferences for comparison to stored
-        # text; if compatible, create and return object
-        from music21 import repeat
-        for obj in repeat.repeatExpressionReference:
-            if obj.isValidText(self._content):
-                re = copy.deepcopy(obj)
-                # set the text to whatever is used here
-                # create a copy of these text expression and set it
-                # this will transfer all positional/formatting settings
-                re.setTextExpression(copy.deepcopy(self))
-                return re
-        # Return None if it cannot be expressed as a repeat expression
-        return None
+        pass
 
     def getTempoText(self):
         # TODO: if this TextExpression, once imported, can be a tempo
@@ -709,21 +583,18 @@ class GeneralMordent(Ornament):
         'inverted mordent (sharp)'
 
         '''
-        theName: str = super().name
-        if self.accidental is not None:
-            theName += ' (' + self.accidental.name + ')'
-        return theName
+        pass
 
     @property
     def accidental(self) -> pitch.Accidental|None:
         '''
         This is the GeneralMordent's accidental.
         '''
-        return self._accidental
+        pass
 
     @accidental.setter
     def accidental(self, newAccidental: pitch.Accidental|None):
-        self._accidental = newAccidental
+        pass
 
     @property
     def direction(self) -> str:
@@ -731,7 +602,7 @@ class GeneralMordent(Ornament):
         The direction of the mordent's ornamental pitch from the main note.
         Can be 'up' or 'down'.
         '''
-        return self._direction
+        pass
 
     def getSize(
         self,
@@ -858,9 +729,7 @@ class GeneralMordent(Ornament):
         Returns the mordent's ornamentalPitch.  If resolveOrnamentalPitches
         has not yet been called, None is returned.
         '''
-        if self._ornamentalPitches:
-            return self._ornamentalPitches[0]
-        return None
+        pass
 
     @property
     def ornamentalPitches(self) -> tuple[pitch.Pitch, ...]:
@@ -1090,7 +959,7 @@ class HalfStepMordent(Mordent):
 
     @property
     def accidental(self) -> pitch.Accidental|None:
-        return None
+        pass
 
     @accidental.setter
     def accidental(self, newAccidental: pitch.Accidental|None):
@@ -1124,7 +993,7 @@ class WholeStepMordent(Mordent):
 
     @property
     def accidental(self) -> pitch.Accidental|None:
-        return None
+        pass
 
     @accidental.setter
     def accidental(self, newAccidental: pitch.Accidental|None):
@@ -1202,7 +1071,7 @@ class HalfStepInvertedMordent(InvertedMordent):
 
     @property
     def accidental(self) -> pitch.Accidental|None:
-        return None
+        pass
 
     @accidental.setter
     def accidental(self, newAccidental: pitch.Accidental|None):
@@ -1237,7 +1106,7 @@ class WholeStepInvertedMordent(InvertedMordent):
 
     @property
     def accidental(self) -> pitch.Accidental|None:
-        return None
+        pass
 
     @accidental.setter
     def accidental(self, newAccidental: pitch.Accidental|None):
@@ -1309,10 +1178,7 @@ class Trill(Ornament):
         'trill (double-sharp)'
 
         '''
-        theName: str = super().name
-        if self.accidental:
-            theName += ' (' + self.accidental.name + ')'
-        return theName
+        pass
 
     @property
     def direction(self) -> str:
@@ -1320,7 +1186,7 @@ class Trill(Ornament):
         The direction of the trill's ornamental pitch from the main note.
         Can be 'up' or 'down'.
         '''
-        return self._direction
+        pass
 
     @property
     def accidental(self) -> pitch.Accidental|None:
@@ -1328,11 +1194,11 @@ class Trill(Ornament):
         This is the Trill's accidental.  Whether or not it is visible is dictated by
         the accidental's displayStatus.
         '''
-        return self._accidental
+        pass
 
     @accidental.setter
     def accidental(self, newAccidental: pitch.Accidental|None):
-        self._accidental = newAccidental
+        pass
 
     def splitClient(self, noteList):
         '''
@@ -1460,9 +1326,7 @@ class Trill(Ornament):
         Returns the trill's ornamentalPitch.  If resolveOrnamentalPitches
         has not yet been called, None is returned.
         '''
-        if self._ornamentalPitches:
-            return self._ornamentalPitches[0]
-        return None
+        pass
 
     @property
     def ornamentalPitches(self) -> tuple[pitch.Pitch, ...]:
@@ -1808,7 +1672,7 @@ class HalfStepTrill(Trill):
 
     @property
     def accidental(self) -> pitch.Accidental|None:
-        return None
+        pass
 
     @accidental.setter
     def accidental(self, newAccidental: pitch.Accidental|None):
@@ -1856,7 +1720,7 @@ class WholeStepTrill(Trill):
 
     @property
     def accidental(self) -> pitch.Accidental|None:
-        return None
+        pass
 
     @accidental.setter
     def accidental(self, newAccidental: pitch.Accidental|None):
@@ -1930,11 +1794,11 @@ class Turn(Ornament):
         This is the Turn's upperAccidental. Whether or not it is visible is dictated by
         the upperAccidental's displayStatus.
         '''
-        return self._upperAccidental
+        pass
 
     @upperAccidental.setter
     def upperAccidental(self, newUpperAccidental: pitch.Accidental|None):
-        self._upperAccidental = newUpperAccidental
+        pass
 
     @property
     def lowerAccidental(self) -> pitch.Accidental|None:
@@ -1942,11 +1806,11 @@ class Turn(Ornament):
         This is the Turn's lowerAccidental. Whether or not it is visible is dictated by
         the upperAccidental's displayStatus.
         '''
-        return self._lowerAccidental
+        pass
 
     @lowerAccidental.setter
     def lowerAccidental(self, newLowerAccidental: pitch.Accidental|None):
-        self._lowerAccidental = newLowerAccidental
+        pass
 
     @property
     def delay(self) -> OrnamentDelay|OffsetQL:
@@ -1958,14 +1822,12 @@ class Turn(Ornament):
         Note that if you set delay to OffsetQL(0), and then get the delay, you will
         get NO_DELAY, not 0.
         '''
-        return self._delay
+        pass
 
     @delay.setter
     def delay(self, newDelay: OrnamentDelay|OffsetQL):
         # we convert to OrnamentDelay if possible now, to simplify life later
-        if isinstance(newDelay, (float, Fraction)) and newDelay <= 0:
-            newDelay = OrnamentDelay.NO_DELAY
-        self._delay = newDelay
+        pass
 
     @property
     def isDelayed(self) -> bool:
@@ -1973,7 +1835,7 @@ class Turn(Ornament):
         Whether the Turn is delayed (i.e. between a specific note and the following note) or
         not (i.e. exactly on a specific note).
         '''
-        return self.delay != OrnamentDelay.NO_DELAY
+        pass
 
     @property
     def name(self) -> str:
@@ -2005,23 +1867,7 @@ class Turn(Ornament):
         'delayed(delayQL=1.0) turn (lower=double-flat)'
 
         '''
-        theName: str = super().name
-        if self.delay == OrnamentDelay.DEFAULT_DELAY:
-            theName = 'delayed ' + theName
-        elif isinstance(self.delay, (float, Fraction)):
-            theName = f'delayed(delayQL={self.delay}) ' + theName
-
-        if self.upperAccidental is not None or self.lowerAccidental is not None:
-            theName += ' ('
-            if self.upperAccidental is not None:
-                theName += 'upper=' + self.upperAccidental.name
-                if self.lowerAccidental is not None:
-                    theName += ', '
-            if self.lowerAccidental is not None:
-                theName += 'lower=' + self.lowerAccidental.name
-            theName += ')'
-
-        return theName
+        pass
 
     def getSize(
         self,
@@ -2173,9 +2019,7 @@ class Turn(Ornament):
         Returns the turn's upper ornamental pitch.  If resolveOrnamentalPitches
         has not yet been called, None is returned.
         '''
-        if len(self._ornamentalPitches) >= 1:
-            return self._ornamentalPitches[0]
-        return None
+        pass
 
     @property
     def lowerOrnamentalPitch(self) -> pitch.Pitch|None:
@@ -2183,9 +2027,7 @@ class Turn(Ornament):
         Returns the turn's lower ornamental pitch.  If resolveOrnamentalPitches
         has not yet been called, None is returned.
         '''
-        if len(self._ornamentalPitches) >= 2:
-            return self._ornamentalPitches[1]
-        return None
+        pass
 
     @property
     def ornamentalPitches(self) -> tuple[pitch.Pitch, ...]:
@@ -2600,19 +2442,11 @@ class Tremolo(Ornament):
         '''
         The number of marks on the note.  Currently, completely controls playback.
         '''
-        return self._numberOfMarks
+        pass
 
     @numberOfMarks.setter
     def numberOfMarks(self, num):
-        try:
-            num = int(num)
-            if num < 0 or num > 8:
-                raise ValueError(str(num))
-            self._numberOfMarks = num
-        except ValueError as ve:
-            raise TremoloException(
-                'Number of marks must be a number from 0 to 8'
-            ) from ve
+        pass
 
     def realize(
         self,
@@ -2744,13 +2578,10 @@ class TrillExtension(spanner.Spanner):
         self._placement = None  # can above or below or None, after musicxml
 
     def _getPlacement(self):
-        return self._placement
+        pass
 
     def _setPlacement(self, value):
-        if value is not None and value.lower() not in ['above', 'below']:
-            raise TrillExtensionException(f'incorrect placement value: {value}')
-        if value is not None:
-            self._placement = value.lower()
+        pass
 
     placement = property(_getPlacement, _setPlacement, doc='''
         Get or set the placement as either above, below, or None.
@@ -2798,17 +2629,11 @@ class TremoloSpanner(spanner.Spanner):
         '''
         The number of marks on the note.  Will eventually control playback.
         '''
-        return self._numberOfMarks
+        pass
 
     @numberOfMarks.setter
     def numberOfMarks(self, num):
-        try:
-            num = int(num)
-            if num < 0 or num > 8:
-                raise ValueError(str(num))
-            self._numberOfMarks = num
-        except ValueError as ve:
-            raise TremoloException('Number of marks must be a number from 0 to 8') from ve
+        pass
 
 
 class ArpeggioMark(Expression):
@@ -2890,15 +2715,7 @@ class ArpeggioMarkSpanner(spanner.Spanner):
         >>> nonArp.noteExtremes()
         (<music21.note.Note C#>, <music21.note.Note G>)
         '''
-        from music21 import chord
-        from music21 import note
-        notes = []
-        for n_or_ch in self:
-            if isinstance(n_or_ch, note.Note):
-                notes.append(n_or_ch)
-            elif isinstance(n_or_ch, chord.Chord):
-                notes.extend(n_or_ch.notes)
-        return (min(notes), max(notes))
+        pass
 
 
 # ------------------------------------------------------------------------------

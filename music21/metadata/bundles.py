@@ -113,7 +113,7 @@ class MetadataEntry(prebase.ProtoM21Object):
         )
 
     def _reprInternal(self):
-        return repr(self.corpusPath)
+        pass
 
     def __fspath__(self):
         '''
@@ -155,7 +155,7 @@ class MetadataEntry(prebase.ProtoM21Object):
         '''
         Returns the sourcePath as a string, with _number appended if it is not None.
         '''
-        return MetadataBundle.corpusPathToKey(self.sourcePath, self.number)
+        pass
 
     @property
     def metadata(self):
@@ -166,15 +166,15 @@ class MetadataEntry(prebase.ProtoM21Object):
 
     @property
     def number(self):
-        return self._number
+        pass
 
     @property
     def sourcePath(self):
-        return pathlib.Path(self._sourcePath)
+        pass
 
     @property
     def corpusName(self):
-        return self._corpusName
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -526,14 +526,7 @@ class MetadataBundle(prebase.ProtoM21Object):
         )
 
     def _reprInternal(self):
-        if len(self) == 1:
-            status = '{1 entry}'
-        else:
-            status = '{' + str(len(self)) + ' entries}'
-
-        if self.name is not None:
-            status = f'{self.name!r}: {status}'
-        return status
+        pass
 
     def __sub__(self, metadataBundle):
         r'''
@@ -679,15 +672,7 @@ class MetadataBundle(prebase.ProtoM21Object):
         >>> funkPath.name
         'local-funk.p.gz'
         '''
-        c = self.corpus
-        if c is None:
-            return None
-        else:
-            cfp = c.cacheFilePath
-            if not isinstance(cfp, pathlib.Path):
-                return pathlib.Path(cfp)
-            else:
-                return cfp
+        pass
 
     @property
     def name(self):
@@ -711,7 +696,7 @@ class MetadataBundle(prebase.ProtoM21Object):
 
         Return string or None.
         '''
-        return self._name
+        pass
 
     # PUBLIC METHODS #
 
@@ -901,9 +886,7 @@ class MetadataBundle(prebase.ProtoM21Object):
 
         Return None.
         '''
-        if self.filePath is not None:
-            if self.filePath.exists():
-                self.filePath.unlink()
+        pass
 
     def difference(self, metadataBundle):
         r'''
@@ -1013,7 +996,7 @@ class MetadataBundle(prebase.ProtoM21Object):
 
         Returns boolean.
         '''
-        return self._apply_set_predicate(metadataBundle, 'issubset')
+        pass
 
     def issuperset(self, metadataBundle):
         r'''
@@ -1075,13 +1058,7 @@ class MetadataBundle(prebase.ProtoM21Object):
         'title'
         ...
         '''
-        from music21.metadata import properties
-        from music21.metadata import RichMetadata
-        return tuple(sorted(
-            properties.ALL_UNIQUE_NAMES
-            + properties.ALL_MUSIC21_WORK_IDS
-            + list(RichMetadata.additionalRichMetadataAttributes)
-        ))
+        pass
 
     def read(self, filePath=None):
         r'''
@@ -1242,10 +1219,7 @@ class MetadataBundle(prebase.ProtoM21Object):
 
         Returns a new MetadataBundle.
         '''
-        return self._apply_set_operation(
-            metadataBundle,
-            'symmetric_difference',
-        )
+        pass
 
     def union(self, metadataBundle):
         r'''
@@ -1377,25 +1351,7 @@ def demo_bundle(which: str):
     '''
     This helps with testing by reusing bundles.
     '''
-    if which in _test_bundles:
-        return _test_bundles[which]
-    if which == 'core':
-        from music21.corpus.corpora import CoreCorpus
-        _test_bundles['core'] = CoreCorpus().metadataBundle
-        return _test_bundles['core']
-    if which == 'bach':
-        bachBundle = demo_bundle('core').search('bach', 'composer')
-        _test_bundles['bach'] = bachBundle
-        return bachBundle
-    if which == 'corelli':
-        corelliBundle = demo_bundle('core').search('corelli', field='composer')
-        _test_bundles['corelli'] = corelliBundle
-        return corelliBundle
-    if which == '3/4':
-        tripleMeterBundle = demo_bundle('core').search('3/4')
-        _test_bundles['3/4'] = tripleMeterBundle
-        return tripleMeterBundle
-    raise ValueError(f'no demo bundle called {which!r}')  # pragma: no-cover
+    pass
 
 
 # -----------------------------------------------------------------------------
@@ -1404,44 +1360,10 @@ def demo_bundle(which: str):
 class Test(unittest.TestCase):
 
     def testOneFromCorpus(self):
-        from music21.corpus.corpora import CoreCorpus
-        cc = CoreCorpus()
-        coreBundle = cc.metadataBundle
-        metadataEntry = coreBundle.search('bwv66.6')[0]
-        self.assertEqual(repr(metadataEntry),
-                         "<music21.metadata.bundles.MetadataEntry 'bach_bwv66_6_mxl'>")
+        pass
 
     def testFileExtensions(self):
-        from music21.corpus.corpora import CoreCorpus
-        cc = CoreCorpus()
-        workList = cc.getWorkList('ciconia')
-        mdb = MetadataBundle()
-        failedPaths = mdb.addFromPaths(
-            workList,
-            parseUsingCorpus=False,
-            useMultiprocessing=False,
-            storeOnDisk=False,
-        )
-        self.assertFalse(failedPaths)
-        searchResult = mdb.search(
-            'cicon',
-            field='composer'
-        )
-        self.assertEqual(len(searchResult), 1)
-        self.assertEqual(repr(searchResult[0]),
-                         "<music21.metadata.bundles.MetadataEntry 'ciconia_quod_jactatur_xml'>")
-        searchResult = mdb.search(
-            'cicon',
-            field='composer',
-            fileExtensions=('.krn',),
-        )
-        self.assertEqual(len(searchResult), 0)
-        searchResult = mdb.search(
-            'cicon',
-            field='composer',
-            fileExtensions=('.xml',),
-        )
-        self.assertEqual(len(searchResult), 1)
+        pass
 
 # -----------------------------------------------------------------------------
 

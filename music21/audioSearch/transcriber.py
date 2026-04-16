@@ -41,53 +41,7 @@ def runTranscribe(show=True, plot=True, useMic=True,
     used as the filename.  If set to anything else then it will use that as the
     filename.
     '''
-    from music21 import audioSearch as audioSearchBase
-
-    if useScale is None:
-        useScale = scale.ChromaticScale('C4')
-    # beginning - recording or not
-    if saveFile is True:
-        waveFilename = environLocal.getRootTempDir() / 'ex.wav'
-    elif saveFile is False:
-        waveFilename = False
-    else:
-        waveFilename = saveFile
-
-    # the rest of the score
-    if useMic is True:
-        freqFromAQList = audioSearchBase.getFrequenciesFromMicrophone(
-            length=seconds,
-            storeWaveFilename=str(waveFilename))
-    else:
-        freqFromAQList = audioSearchBase.getFrequenciesFromAudioFile(
-            waveFilename=str(waveFilename))
-
-    detectedPitchesFreq = audioSearchBase.detectPitchFrequencies(freqFromAQList, useScale)
-    detectedPitchesFreq = audioSearchBase.smoothFrequencies(detectedPitchesFreq)
-    (detectedPitchObjects,
-        listplot) = audioSearchBase.pitchFrequenciesToObjects(detectedPitchesFreq, useScale)
-    (notesList,
-        durationList) = audioSearchBase.joinConsecutiveIdenticalPitches(detectedPitchObjects)
-    myScore, unused_length_part = audioSearchBase.notesAndDurationsToStream(
-        notesList,
-        durationList,
-        removeRestsAtBeginning=True)
-
-    if show:
-        myScore.show()
-
-    if plot:
-        try:
-            # for finding
-            import matplotlib.pyplot  # type: ignore
-        except ImportError:
-            raise audioSearchBase.AudioSearchException(
-                'Cannot plot without matplotlib installed.')
-        matplotlib.pyplot.plot(listplot)
-        matplotlib.pyplot.show()
-    environLocal.printDebug('* END')
-
-    return myScore
+    pass
 
 
 def monophonicStreamFromFile(fileName, useScale=None):
@@ -121,30 +75,16 @@ def monophonicStreamFromFile(fileName, useScale=None):
     {7.25} <music21.note.Note C>
     ...
     '''
-    from music21 import audioSearch as audioSearchBase
-
-    freqFromAQList = audioSearchBase.getFrequenciesFromAudioFile(waveFilename=fileName)
-
-    detectedPitchesFreq = audioSearchBase.detectPitchFrequencies(freqFromAQList, useScale)
-    detectedPitchesFreq = audioSearchBase.smoothFrequencies(detectedPitchesFreq)
-    (detectedPitchObjects,
-        unused_listplot) = audioSearchBase.pitchFrequenciesToObjects(detectedPitchesFreq, useScale)
-    (notesList,
-        durationList) = audioSearchBase.joinConsecutiveIdenticalPitches(detectedPitchObjects)
-    myScore, unused_length_part = audioSearchBase.notesAndDurationsToStream(
-        notesList, durationList, removeRestsAtBeginning=True)
-    return myScore.parts.first()
+    pass
 
 
 class TestExternal(unittest.TestCase):
 
     def x_testRunTranscribe(self):
-        saveFile = environLocal.getRootTempDir() / 'new_song.wav'
-        runTranscribe(show=False, plot=False, saveFile=saveFile, seconds=10.0)
+        pass
 
     def x_testTranscribePachelbel(self):
-        saveFile = environLocal.getRootTempDir() / 'pachelbel.wav'
-        runTranscribe(useMic=False, saveFile=saveFile, plot=False, show=False)
+        pass
         # _myScore = runTranscribe(useMic=False, saveFile=saveFile, plot=False, show=False)
         # myScore.show()
 

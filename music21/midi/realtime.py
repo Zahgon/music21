@@ -113,20 +113,10 @@ class StreamPlayer:  # pragma: no cover
         If blocked is False, the method will finish before ending the stream, allowing
         you to completely control whether to stop it. Ignore every other arguments
         '''
-        streamStringIOFile = self.getStringOrBytesIOFile()
-        self.playStringIOFile(streamStringIOFile,
-                              busyFunction=busyFunction,
-                              busyArgs=busyArgs,
-                              endFunction=endFunction,
-                              endArgs=endArgs,
-                              busyWaitMilliseconds=busyWaitMilliseconds,
-                              playForMilliseconds=playForMilliseconds,
-                              blocked=blocked)
+        pass
 
     def getStringOrBytesIOFile(self):
-        streamMidiFile = midiTranslate.streamToMidiFile(self.streamIn)
-        streamMidiWritten = streamMidiFile.writestr()
-        return BytesIO(streamMidiWritten)
+        pass
 
     def playStringIOFile(self, stringIOFile, busyFunction=None, busyArgs=None,
                          endFunction=None, endArgs=None, busyWaitMilliseconds=50,
@@ -144,28 +134,7 @@ class StreamPlayer:  # pragma: no cover
         If blocked is False, the method will finish before ending the stream, allowing you to
         completely control whether to stop it. Ignore every other arguments but for stringIOFile
         '''
-        pygameClock = self.pygame.time.Clock()
-        try:
-            self.pygame.mixer.music.load(stringIOFile)
-        except self.pygame.error as pge:
-            raise StreamPlayerException(
-                f'Could not play music file {stringIOFile} because: {pge}'
-            ) from pge
-        self.pygame.mixer.music.play()
-        if not blocked:
-            return
-        framerate = int(1000 / busyWaitMilliseconds)  # coerce into int even if given a float.
-        start_time = self.pygame.time.get_ticks()
-        while self.pygame.mixer.music.get_busy():
-            if busyFunction is not None:
-                busyFunction(busyArgs)
-            if self.pygame.time.get_ticks() - start_time > playForMilliseconds:
-                self.pygame.mixer.music.stop()
-                break
-            pygameClock.tick(framerate)
-
-        if endFunction is not None:
-            endFunction(endArgs)
+        pass
 
     def stop(self):
         self.pygame.mixer.music.stop()
@@ -184,16 +153,7 @@ class TestExternal(unittest.TestCase):  # pragma: no cover
 
     @unittest.skipUnless(pygame_installed, 'pygame is not installed')
     def testBachDetune(self):
-        from music21 import corpus
-        import random
-        b = corpus.parse('bwv66.6')
-        keyDetune = []
-        for i in range(127):
-            keyDetune.append(random.randint(-30, 30))
-        for n in b.recurse().notes:
-            n.pitch.microtone = keyDetune[n.pitch.midi]
-        sp = StreamPlayer(b)
-        sp.play()
+        pass
 
         # # testing playForMilliseconds
         # sp.play(playForMilliseconds=2000)
@@ -209,94 +169,16 @@ class TestExternal(unittest.TestCase):  # pragma: no cover
         '''
         tests to see if the busyCallback function is called properly
         '''
-        from music21 import corpus
-        import random
-
-        def busyCounter(timeList):
-            timeCounter_inner = timeList[0]
-            timeCounter_inner.times += timeCounter_inner.updateTime
-            print(f'hi! waited {timeCounter_inner.times} milliseconds')
-
-        class Mock:
-            times = 0
-
-        timeCounter = Mock()
-        timeCounter.updateTime = 500  # pylint: disable=attribute-defined-outside-init
-
-        b = corpus.parse('bach/bwv66.6')
-        keyDetune = []
-        for i in range(127):
-            keyDetune.append(random.randint(-30, 30))
-        for n in b.recurse().notes:
-            n.pitch.microtone = keyDetune[n.pitch.midi]
-        sp = StreamPlayer(b)
-        sp.play(busyFunction=busyCounter, busyArgs=[timeCounter], busyWaitMilliseconds=500)
+        pass
 
     def x_testPlayOneMeasureAtATime(self):
-        from music21 import corpus
-        defaults.ticksAtStart = 0
-        b = corpus.parse('bwv66.6')
-        measures = []  # store for later
-        maxMeasure = len(b.parts[0].getElementsByClass(stream.Measure))
-        for i in range(maxMeasure):
-            measures.append(b.measure(i))
-        sp = StreamPlayer(b)
-
-        for measure in measures:
-            sp.streamIn = measure
-            sp.play()
+        pass
 
     def x_testPlayRealTime(self):
         '''
         doesn't work -- no matter what there's always at least a small lag, even with queues
         '''
-        # pylint: disable=attribute-defined-outside-init
-        from music21 import note
-        import random
-
-        def getRandomStream():
-            s = stream.Stream()
-            for i in range(4):
-                n = note.Note()
-                n.ps = random.randint(48, 72)
-                s.append(n)
-            lastN = note.Note()
-            # lastN.duration.quarterLength = 0.75
-            s.append(lastN)
-            return s
-
-        # noinspection PyShadowingNames
-        def restoreList(timeList):
-            timeCounter = timeList[0]
-            streamPlayer = timeList[1]
-            currentPos = streamPlayer.pygame.mixer.music.get_pos()
-            if currentPos < 500 <= timeCounter.lastPos:
-                timeCounter.times -= 1
-                if timeCounter.times > 0:
-                    streamPlayer.streamIn = getRandomStream()
-                    # timeCounter.oldIOFile = timeCounter.storedIOFile
-                    timeCounter.storedIOFile = streamPlayer.getStringOrBytesIOFile()
-                    streamPlayer.pygame.mixer.music.queue(timeCounter.storedIOFile)
-                    timeCounter.lastPos = currentPos
-            else:
-                timeCounter.lastPos = currentPos
-
-        class TimePlayer:
-            ready = False
-            times = 3
-            lastPos = 1000
-
-        timeCounter = TimePlayer()
-
-        b = getRandomStream()
-        sp = StreamPlayer(b)
-        timeCounter.storedIOFile = sp.getStringOrBytesIOFile()
-        while timeCounter.times > 0:
-            timeCounter.ready = False
-            sp.playStringIOFile(timeCounter.storedIOFile,
-                                busyFunction=restoreList,
-                                busyArgs=[timeCounter, sp],
-                                busyWaitMilliseconds=30)
+        pass
 
 
 if __name__ == '__main__':

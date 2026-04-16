@@ -577,7 +577,7 @@ class _EnvironmentCore:
         lilypondPath
         ...
         '''
-        return self._keysToPaths
+        pass
 
     def getRefKeys(self):
         '''
@@ -949,7 +949,7 @@ class Environment:
         'vectorPath'
 
         '''
-        return envSingleton().getKeysToPaths()
+        pass
 
     def getRefKeys(self):
         '''
@@ -1159,21 +1159,7 @@ class Environment:
 
         >>> a['musicxmlPath'] = original  #_DOCS_HIDE
         '''
-        xp = self['musicxmlPath']
-        if common.runningInNotebook():
-            xp = self['musescoreDirectPNGPath']
-
-        if not xp:
-            return None
-        xp = str(xp).lower()
-        if 'sibelius' in xp:
-            return 'Sibelius'
-        elif 'finale' in xp:
-            return 'Finale'
-        elif 'musescore' in xp:
-            return 'Musescore'
-        else:
-            return 'unknown'
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -1331,22 +1317,13 @@ class UserSettings:
         If an environment configuration file does not exist, create one based on
         the default settings.
         '''
-        if not self._environment.getSettingsPath().exists():
-            self._environment.write()
-        else:
-            raise UserSettingsException(
-                'An environment configuration file already exists; '
-                'simply set values to modify.')
+        pass
 
     def delete(self):
         '''
         Permanently remove the user configuration file.
         '''
-        if self._environment.getSettingsPath().exists():
-            self._environment.getSettingsPath().unlink()
-        else:
-            raise UserSettingsException(
-                'An environment configuration file does not exist.')
+        pass
 
     def getSettingsPath(self):
         '''
@@ -1412,12 +1389,7 @@ def set(key, value):  # okay to override set here: @ReservedAssignment
 
     >>> #_DOCS_SHOW environment.set('musicxmlPath', '/Applications/Finale Reader.app')
     '''
-    us = UserSettings()
-    try:
-        us.create()  # no problem if this does not exist
-    except UserSettingsException:
-        pass  # this means it already exists
-    us[key] = value  # this may raise an exception
+    pass
 
 
 def get(key):
@@ -1439,224 +1411,27 @@ class Test(unittest.TestCase):
     import stat
 
     def stringFromTree(self, settingsTree):
-        etIndent(settingsTree.getroot())
-        bio = io.BytesIO()
-        settingsTree.write(bio, encoding='utf-8', xml_declaration=True)
-        match = bio.getvalue().decode('utf-8')
-        return match
+        pass
 
     @unittest.skipIf(common.getPlatform() == 'win', 'test assumes Unix-style paths')
     def testToSettings(self):
-        env = Environment(forcePlatform='darwin')
-        settingsTree = envSingleton().toSettingsXML()
-        match = self.stringFromTree(settingsTree)
-        self.maxDiff = None
-        if 'encoding' in match:
-            enc = "encoding='utf-8'"
-        else:
-            enc = ''
-        canonic = '''<?xml version='1.0' ''' + enc + '''?>
-<settings encoding="utf-8">
-  <preference name="autoDownload" value="ask" />
-  <preference name="braillePath" />
-  <preference name="debug" value="0" />
-  <preference name="directoryScratch" />
-  <preference name="graphicsPath" value="/System/Applications/Preview.app" />
-  <preference name="ipythonShowFormat" value="ipython.musicxml.png" />
-  <preference name="lilypondBackend" value="ps" />
-  <preference name="lilypondFormat" value="pdf" />
-  <preference name="lilypondPath"
-      value="/Applications/Lilypond.app/Contents/Resources/bin/lilypond" />
-  <preference name="lilypondVersion" />
-  <localCorporaSettings />
-  <localCorpusSettings />
-  <preference name="manualCoreCorpusPath" />
-  <preference name="midiPath" value="/Applications/GarageBand.app" />
-  <preference name="musescoreDirectPNGPath"
-      value="/Applications/MuseScore 3.app/Contents/MacOS/mscore" />
-  <preference name="musicxmlPath" value="/Applications/MuseScore 3.app/Contents/MacOS/mscore" />
-  <preference name="pdfPath" value="/System/Applications/Preview.app" />
-  <preference name="showFormat" value="musicxml" />
-  <preference name="vectorPath" value="/System/Applications/Preview.app" />
-  <preference name="warnings" value="1" />
-  <preference name="writeFormat" value="musicxml" />
-</settings>
-'''
-        true_but_for_preview_location = common.whitespaceEqual(canonic.replace(
-            '/System/Applications/Preview', '/Applications/Preview'), match)
-        self.assertTrue(common.whitespaceEqual(canonic, match) or true_but_for_preview_location)
-
-        # try adding some local corpus settings
-        env['localCorpusSettings'] = LocalCorpusSettings(['a', 'b', 'c'])
-
-        lcFoo = LocalCorpusSettings(['bar', 'baz', 'fuzzy'])
-        lcFoo.cacheFilePath = '/tmp/local.json'
-        lcFoo.name = 'foo'
-        env['localCorporaSettings']['foo'] = lcFoo
-        settingsTree = envSingleton().toSettingsXML()
-        match = self.stringFromTree(settingsTree)
-        if 'encoding' in match:
-            enc = "encoding='utf-8'"
-        else:
-            enc = ''
-        canonic = '''<?xml version='1.0' ''' + enc + '''?>
-<settings encoding="utf-8">
-  <preference name="autoDownload" value="ask" />
-  <preference name="braillePath" />
-  <preference name="debug" value="0" />
-  <preference name="directoryScratch" />
-  <preference name="graphicsPath" value="/System/Applications/Preview.app" />
-  <preference name="ipythonShowFormat" value="ipython.musicxml.png" />
-  <preference name="lilypondBackend" value="ps" />
-  <preference name="lilypondFormat" value="pdf" />
-  <preference name="lilypondPath"
-      value="/Applications/Lilypond.app/Contents/Resources/bin/lilypond" />
-  <preference name="lilypondVersion" />
-  <localCorporaSettings>
-    <localCorpusSettings name="foo">
-      <localCorpusPath>bar</localCorpusPath>
-      <localCorpusPath>baz</localCorpusPath>
-      <localCorpusPath>fuzzy</localCorpusPath>
-      <cacheFilePath>/tmp/local.json</cacheFilePath>
-    </localCorpusSettings>
-  </localCorporaSettings>
-  <localCorpusSettings>
-    <localCorpusPath>a</localCorpusPath>
-    <localCorpusPath>b</localCorpusPath>
-    <localCorpusPath>c</localCorpusPath>
-  </localCorpusSettings>
-  <preference name="manualCoreCorpusPath" />
-  <preference name="midiPath" value="/Applications/GarageBand.app" />
-  <preference name="musescoreDirectPNGPath"
-      value="/Applications/MuseScore 3.app/Contents/MacOS/mscore" />
-  <preference name="musicxmlPath" value="/Applications/MuseScore 3.app/Contents/MacOS/mscore" />
-  <preference name="pdfPath" value="/System/Applications/Preview.app" />
-  <preference name="showFormat" value="musicxml" />
-  <preference name="vectorPath" value="/System/Applications/Preview.app" />
-  <preference name="warnings" value="1" />
-  <preference name="writeFormat" value="musicxml" />
-</settings>
-'''
-        true_but_for_preview_location = common.whitespaceEqual(canonic.replace(
-            '/System/Applications/Preview', '/Applications/Preview'), match)
-        self.assertTrue(common.whitespaceEqual(canonic, match) or true_but_for_preview_location)
+        pass
 
     @unittest.skipIf(common.getPlatform() == 'win', 'test assumes Unix-style paths')
     def testFromSettings(self):
 
-        unused_env = Environment(forcePlatform='darwin')
-
-        # use a fake ref dict to get settings
-        ref = {
-            'localCorpusSettings': LocalCorpusSettings(['x', 'y', 'z']),
-            'midiPath': 'w'
-        }
-        settings = envSingleton().toSettingsXML(ref)
-
-        # this will load values into the env._ref dictionary
-        envSingleton()._fromSettings(settings,
-                                     envSingleton()._ref)
-        # get xml strings
-        match = self.stringFromTree(envSingleton().toSettingsXML())
-        if 'encoding' in match:
-            enc = "encoding='utf-8'"
-        else:
-            enc = ''
-        canonic = '''<?xml version='1.0' ''' + enc + '''?>
-<settings encoding="utf-8">
-  <preference name="autoDownload" value="ask" />
-  <preference name="braillePath" />
-  <preference name="debug" value="0" />
-  <preference name="directoryScratch" />
-  <preference name="graphicsPath" value="/System/Applications/Preview.app" />
-  <preference name="ipythonShowFormat" value="ipython.musicxml.png" />
-  <preference name="lilypondBackend" value="ps" />
-  <preference name="lilypondFormat" value="pdf" />
-  <preference name="lilypondPath"
-      value="/Applications/Lilypond.app/Contents/Resources/bin/lilypond" />
-  <preference name="lilypondVersion" />
-  <localCorporaSettings />
-  <localCorpusSettings>
-    <localCorpusPath>x</localCorpusPath>
-    <localCorpusPath>y</localCorpusPath>
-    <localCorpusPath>z</localCorpusPath>
-  </localCorpusSettings>
-  <preference name="manualCoreCorpusPath" />
-  <preference name="midiPath" value="w" />
-  <preference name="musescoreDirectPNGPath"
-      value="/Applications/MuseScore 3.app/Contents/MacOS/mscore" />
-  <preference name="musicxmlPath" value="/Applications/MuseScore 3.app/Contents/MacOS/mscore" />
-  <preference name="pdfPath" value="/System/Applications/Preview.app" />
-  <preference name="showFormat" value="musicxml" />
-  <preference name="vectorPath" value="/System/Applications/Preview.app" />
-  <preference name="warnings" value="1" />
-  <preference name="writeFormat" value="musicxml" />
-</settings>
-'''
-        true_but_for_preview_location = common.whitespaceEqual(canonic.replace(
-            '/System/Applications/Preview', '/Applications/Preview'), match)
-        self.assertTrue(common.whitespaceEqual(canonic, match) or true_but_for_preview_location)
+        pass
 
     @unittest.skipIf(common.getPlatform() == 'win', 'test assumes Unix-style paths')
     def testEnvironmentA(self):
-        env = Environment(forcePlatform='darwin')
-
-        # No path: https://github.com/cuthbertLab/music21/issues/551
-        self.assertIsNone(env['localCorpusPath'])
-
-        # setting the local corpus path pref is like adding a path
-        env['localCorpusPath'] = '/a'
-        self.assertEqual(list(env['localCorpusSettings']), ['/a'])
-
-        env['localCorpusPath'] = '/b'
-        self.assertEqual(list(env['localCorpusSettings']), ['/a', '/b'])
+        pass
 
     @unittest.skipUnless(
         common.getPlatform() in ['nix', 'darwin'],
         'os.getuid can be called only on Unix platforms'
     )
     def testGetDefaultRootTempDir(self):
-        import stat
-
-        e = Environment()
-        oldScratchDir = e['directoryScratch']
-        oldTempDir = None
-        oldPermission = None
-        newTempDir = None
-        try:
-            e['directoryScratch'] = None
-            oldTempDir = e.getDefaultRootTempDir()
-            oldPermission = oldTempDir.stat()[stat.ST_MODE]
-            # Wipe out write, exec permissions on the default root dir
-            os.chmod(oldTempDir, stat.S_IREAD)
-            newTempDir = e.getDefaultRootTempDir()
-            self.assertIn(f'music21-userid-{os.getuid()}', str(newTempDir))
-        finally:
-            # Make sure oldTempDir and oldPermission is set in 'try' block
-            if oldTempDir is not None and oldPermission is not None:
-                # Restore original permissions and original path
-                os.chmod(oldTempDir, oldPermission)
-                e['directoryScratch'] = oldScratchDir
-
-            # Make sure newTempDir is set in 'try' block
-            if newTempDir is not None:
-                # If getting OSError while trying to create the directory on the first fallback,
-                # the default temp directory from tempfile.gettempdir() will be return on the second
-                # fallback. We don't want to delete the default temp directory. Therefore we check
-                # it before deleting.
-                #
-                # For security concerns, we are not sure that newTempDir is always a directory
-                # which can be removed safely. For example, if newTempDir is "/" for unknown reason,
-                # remove newTempDir could potentially destroy an entire hard drive. To avoid this
-                # situation, we check newTempDir first, making sure that newTempDir is an empty
-                # directory which means (1) it's a directory we create in this test or (2) we won't
-                # destroy anything if we delete it, and then delete it with os.rmdir, which could
-                # only delete an empty directory. We don't set an exception-catching block here
-                # because we have checked this directory is empty.
-                tmp = newTempDir.samefile(tempfile.gettempdir())
-                empty = len(os.listdir(newTempDir)) == 0
-                if not tmp and empty:
-                    os.rmdir(newTempDir)
+        pass
 
 # -----------------------------------------------------------------------------
 

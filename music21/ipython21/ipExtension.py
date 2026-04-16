@@ -34,24 +34,11 @@ def load_ipython_extension(ip):
 
 
 def inGoogleColabNotebook():
-    if not common.runningInNotebook():
-        return False
-    try:
-        # get_ipython is loaded into global scope in IPython and Google Colab
-        # because we already returned False above, the NameError should never
-        # be triggered, but better safe than sorry.  And helps type checkers.
-        return get_ipython().__class__.__module__ == 'google.colab._shell'
-    except NameError:
-        return False
+    pass
 
 def notebookVersion():
-    try:
-        # noinspection PyPackageRequirements
-        import notebook  # type: ignore
-        return notebook._version.version_info
-    except (ImportError, AttributeError):
-        return (0, 0, 0)
+    pass
 
 def needsToLoadRequireJS():
-    return inGoogleColabNotebook() or notebookVersion() >= (7, 0, 0)
+    pass
 

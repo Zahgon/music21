@@ -39,7 +39,7 @@ def isInt(usrData: t.Any) -> t.TypeGuard[int]:
     >>> common.isInt(2.0)
     False
     '''
-    return isinstance(usrData, int) and usrData is not True and usrData is not False
+    pass
 
 
 def isNum(usrData: t.Any) -> t.TypeGuard[t.Union[float, int, Fraction]]:
@@ -265,16 +265,7 @@ def getClassSet(instance, classNameTuple=None):
     not only caches the result for each object, it caches the result for the
     whole class the first time it is run.
     '''
-    if classNameTuple is None:
-        classNameList = [x.__name__ for x in instance.__class__.mro()]
-    else:
-        classNameList = list(classNameTuple)
-
-    classObjList = instance.__class__.mro()
-    classListFQ = [x.__module__ + '.' + x.__name__ for x in instance.__class__.mro()]
-    classList = classNameList + classObjList + classListFQ
-    classSet = frozenset(classList)
-    return classSet
+    pass
 
 
 TEMP_ATTRIBUTE_SENTINEL = object()

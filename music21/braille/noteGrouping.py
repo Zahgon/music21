@@ -68,16 +68,11 @@ class NoteGroupingTranscriber:
         >>> ngt.showClefSigns
         False
         '''
-        if self._showClefSigns is not None:
-            return self._showClefSigns
-        elif self.brailleElementGrouping is not None:
-            return self.brailleElementGrouping.showClefSigns
-        else:
-            return False
+        pass
 
     @showClefSigns.setter
     def showClefSigns(self, new):
-        self._showClefSigns = new
+        pass
 
     @property
     def upperFirstInFingering(self):
@@ -102,16 +97,11 @@ class NoteGroupingTranscriber:
         >>> ngt.upperFirstInFingering
         True
         '''
-        if self._upperFirstInFingering is not None:
-            return self._upperFirstInFingering
-        elif self.brailleElementGrouping is not None:
-            return self.brailleElementGrouping.upperFirstInNoteFingering
-        else:
-            return True
+        pass
 
     @upperFirstInFingering.setter
     def upperFirstInFingering(self, new):
-        self._upperFirstInFingering = new
+        pass
 
     def transcribeGroup(self, brailleElementGrouping=None):
         '''
@@ -166,29 +156,19 @@ class NoteGroupingTranscriber:
         return brailleChord
 
     def translateDynamic(self, currentDynamic):
-        brailleDynamic = basic.dynamicToBraille(currentDynamic)
-        self.previousNote = None
-        self.showLeadingOctave = True
-        return brailleDynamic
+        pass
 
     def translateTextExpression(self, currentExpression):
-        brailleExpression = basic.textExpressionToBraille(currentExpression)
-        self.previousNote = None
-        self.showLeadingOctave = True
-        return brailleExpression
+        pass
 
     def translateBarline(self, currentBarline):
-        return basic.barlineToBraille(currentBarline)
+        pass
 
     def translateClef(self, currentClef):
         '''
         translate Clefs to braille IF self.showClefSigns is True
         '''
-        if self.showClefSigns:
-            brailleClef = basic.clefToBraille(currentClef)
-            self.previousNote = None
-            self.showLeadingOctave = True
-            return brailleClef
+        pass
 
     translateDict = OrderedDict([
         ('Note', translateNote),

@@ -370,7 +370,7 @@ class Metadata(base.Music21Object):
         (<music21.metadata.primitives.Text measure 128>,
          <music21.metadata.primitives.Text measure 192>)
         '''
-        return self._get(name, isCustom=True)
+        pass
 
     def addCustom(self, name: str, value: t.Any|Iterable[t.Any]):
         '''
@@ -427,7 +427,7 @@ class Metadata(base.Music21Object):
         (<music21.metadata.primitives.Text measure 192>,
          <music21.metadata.primitives.Text measure 256>)
         '''
-        self._set(name, value, isCustom=True)
+        pass
 
 # -----------------------------------------------------------------------------
 #   A few utility routines for clients calling public APIs
@@ -481,7 +481,7 @@ class Metadata(base.Music21Object):
         >>> metadata.Metadata.namespaceNameToUniqueName('dcterms:alternative')
         'alternativeTitle'
         '''
-        return properties.NAMESPACE_NAME_TO_UNIQUE_NAME.get(namespaceName, None)
+        pass
 
     @staticmethod
     def isContributorUniqueName(uniqueName: str|None) -> bool:
@@ -544,13 +544,7 @@ class Metadata(base.Music21Object):
         >>> md.isStandardName('soundtracker:SampleName')
         False
         '''
-        if self._isStandardNamespaceName(name):
-            return True
-
-        if self._isStandardUniqueName(name):
-            return True
-
-        return False
+        pass
 
 # -----------------------------------------------------------------------------
 #   Public APIs
@@ -579,7 +573,7 @@ class Metadata(base.Music21Object):
         singular looking properties return a string.  In fact, it is always
         plural and returns a tuple of strings.  There is no singular version
         '''
-        return self._getPluralAttribute('software')
+        pass
 
     @property
     def contributors(self) -> tuple[Contributor, ...]:
@@ -605,13 +599,7 @@ class Metadata(base.Music21Object):
         Note that `.contributors` cannot be set.  Add them separately via
         specific setters or the `.addContributor()` method.
         '''
-        output: list[Contributor] = []
-        for _, contrib in self.all(
-                skipNonContributors=True,  # we only want the contributors
-                returnPrimitives=True,     # we want Contributor values
-                returnSorted=False):
-            output.append(contrib)
-        return tuple(output)
+        pass
 
     @property
     def copyright(self):
@@ -664,14 +652,14 @@ class Metadata(base.Music21Object):
         >>> md['dcterms:rights']
         (<music21.metadata.primitives.Copyright Copyright © 1985>,)
         '''
-        return self._getSingularAttribute('copyright')
+        pass
 
     @copyright.setter
     def copyright(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.copyright = value
+        pass
 
     # SPECIAL METHODS #
     def all(
@@ -741,26 +729,7 @@ class Metadata(base.Music21Object):
         (('arranger', <music21.metadata.primitives.Contributor arranger:Michael Scott Cuthbert>),
          ('composer', <music21.metadata.primitives.Contributor composer:Arcangelo Corelli>))
         '''
-        allOut: list[tuple[str, t.Any]] = []
-
-        valueList: list[ValueType]
-        for uniqueName, valueList in self._contents.items():
-            isContributor: bool = self._isContributorUniqueName(uniqueName)
-            if skipContributors and isContributor:
-                continue
-            if skipNonContributors and not isContributor:
-                continue
-
-            value: ValueType
-            for value in valueList:
-                if returnPrimitives:
-                    allOut.append((uniqueName, value))
-                else:
-                    allOut.append((uniqueName, str(value)))
-
-        if returnSorted:
-            return tuple(sorted(allOut))
-        return tuple(allOut)
+        pass
 
     def __getattr__(self, name):
         '''
@@ -1032,11 +1001,7 @@ class Metadata(base.Music21Object):
         >>> md.search('Cunningham')
         (True, 'interpretive dancer')
         '''
-        if not isinstance(c, Contributor):
-            raise exceptions21.MetadataException(
-                f'supplied object is not a Contributor: {c}')
-        uniqueName: str = self._contributorRoleToUniqueName(c.role)
-        self._add(uniqueName, c, isCustom=False)
+        pass
 
     def getContributorsByRole(self, role: str|None) -> tuple[Contributor, ...]:
         r'''
@@ -1074,14 +1039,7 @@ class Metadata(base.Music21Object):
         >>> noRoleTuple[0].name
         'Baron van Swieten'
         '''
-        result: list[Contributor] = []  # there may be more than one per role
-        for _, contrib in self.all(
-                skipNonContributors=True,  # we only want the contributors
-                returnPrimitives=True,     # we want Contributor values
-                returnSorted=False):
-            if contrib.role == role:
-                result.append(contrib)
-        return tuple(result)
+        pass
 
     def search(
         self,
@@ -1295,14 +1253,14 @@ class Metadata(base.Music21Object):
         >>> md.alternativeTitle
         'Heroic Symphony'
         '''
-        return self._getSingularAttribute('alternativeTitle')
+        pass
 
     @alternativeTitle.setter
     def alternativeTitle(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.alternativeTitle = value
+        pass
 
     @property
     def composer(self):
@@ -1329,14 +1287,14 @@ class Metadata(base.Music21Object):
         >>> md.composer
         'Shorter, Wayne and Spalding, Esperanza'
         '''
-        return self._getSingularAttribute('composer')
+        pass
 
     @composer.setter
     def composer(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.composer = value
+        pass
 
     @property
     def composers(self):
@@ -1365,14 +1323,14 @@ class Metadata(base.Music21Object):
         >>> md.composers
         ()
         '''
-        return self._getPluralAttribute('composer')
+        pass
 
     @composers.setter
     def composers(self, value: Iterable[str]) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.composers = value
+        pass
 
     @property
     def dateCreated(self):
@@ -1398,28 +1356,28 @@ class Metadata(base.Music21Object):
         >>> md.dateCreated
         '1803/01/01 to 1805/04/07'
         '''
-        return self._getSingularAttribute('dateCreated')
+        pass
 
     @dateCreated.setter
     def dateCreated(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.dateCreated = value
+        pass
 
     @property
     def fileFormat(self) -> str|None:
         '''
         Get or set the file format that was parsed.
         '''
-        return self._getSingularAttribute('fileFormat')
+        pass
 
     @fileFormat.setter
     def fileFormat(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.fileFormat = value
+        pass
 
     @property
     def filePath(self) -> str|None:
@@ -1427,42 +1385,42 @@ class Metadata(base.Music21Object):
         Get or set the file path that was parsed.  This returns a string, not a Path object
         that is deliberate for caching.
         '''
-        return self._getSingularAttribute('filePath')
+        pass
 
     @filePath.setter
     def filePath(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.filePath = value
+        pass
 
     @property
     def corpusFilePath(self) -> str|None:
         '''
         Get or set the path within the corpus that was parsed.
         '''
-        return self._getSingularAttribute('corpusFilePath')
+        pass
 
     @corpusFilePath.setter
     def corpusFilePath(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.corpusFilePath = value
+        pass
 
     @property
     def fileNumber(self) -> str|None:
         '''
         Get or set the file number that was parsed.
         '''
-        return self._getSingularAttribute('fileNumber')
+        pass
 
     @fileNumber.setter
     def fileNumber(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.fileNumber = value
+        pass
 
     @property
     def localeOfComposition(self):
@@ -1474,14 +1432,14 @@ class Metadata(base.Music21Object):
         >>> md.localeOfComposition
         'Paris, France'
         '''
-        return self._getSingularAttribute('localeOfComposition')
+        pass
 
     @localeOfComposition.setter
     def localeOfComposition(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.localeOfComposition = value
+        pass
 
     @property
     def librettist(self):
@@ -1497,14 +1455,14 @@ class Metadata(base.Music21Object):
         librettists should be distinguished from lyricists etc., but sometimes
         the line is not 100% clear.
         '''
-        return self._getSingularAttribute('librettist')
+        pass
 
     @librettist.setter
     def librettist(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.librettist = value
+        pass
 
     @property
     def librettists(self):
@@ -1518,14 +1476,14 @@ class Metadata(base.Music21Object):
 
         Should be distinguished from lyricists etc.
         '''
-        return self._getPluralAttribute('librettist')
+        pass
 
     @librettists.setter
     def librettists(self, value: Iterable[str]) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.librettists = value
+        pass
 
     @property
     def lyricist(self):
@@ -1544,14 +1502,14 @@ class Metadata(base.Music21Object):
         >>> md.lyricist
         'Sondheim, Stephen'
         '''
-        return self._getSingularAttribute('lyricist')
+        pass
 
     @lyricist.setter
     def lyricist(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.lyricist = value
+        pass
 
     @property
     def lyricists(self):
@@ -1565,14 +1523,14 @@ class Metadata(base.Music21Object):
 
         Should be distinguished from librettists etc.
         '''
-        return self._getPluralAttribute('lyricist')
+        pass
 
     @lyricists.setter
     def lyricists(self, value: Iterable[str]) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.lyricists = value
+        pass
 
     @property
     def movementName(self):
@@ -1588,14 +1546,14 @@ class Metadata(base.Music21Object):
         the piece title as the movement title. For instance, the Bach
         Chorales, since they are technically movements of larger cantatas.
         '''
-        return self._getSingularAttribute('movementName')
+        pass
 
     @movementName.setter
     def movementName(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.movementName = value
+        pass
 
     @property
     def movementNumber(self) -> str|None:
@@ -1611,14 +1569,14 @@ class Metadata(base.Music21Object):
         >>> md.movementNumber
         '4'
         '''
-        return self._getSingularAttribute('movementNumber')
+        pass
 
     @movementNumber.setter
     def movementNumber(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.movementNumber = value
+        pass
 
     @property
     def number(self) -> str|None:
@@ -1641,14 +1599,14 @@ class Metadata(base.Music21Object):
         >>> md.number
         '2'
         '''
-        return self._getSingularAttribute('number')
+        pass
 
     @number.setter
     def number(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.number = value
+        pass
 
     @property
     def opusNumber(self) -> str|None:
@@ -1671,14 +1629,14 @@ class Metadata(base.Music21Object):
 
         >>> md.opusNumber = 'K.622'
         '''
-        return self._getSingularAttribute('opusNumber')
+        pass
 
     @opusNumber.setter
     def opusNumber(self, value: str) -> None:
         '''
         For type checking only. Does not run.
         '''
-        self.opusNumber = value
+        pass
 
     @property
     def title(self):
@@ -1735,20 +1693,7 @@ class Metadata(base.Music21Object):
         Traceback (most recent call last):
         AttributeError: property 'bestTitle' of 'Metadata' object has no setter
         '''
-        searchId = (
-            'title',
-            'popularTitle',
-            'alternativeTitle',
-            'movementName',
-        )
-        for uniqueName in searchId:
-            titleSummary: str|None = self._getStringValueByNamespaceName(
-                properties.UNIQUE_NAME_TO_NAMESPACE_NAME[uniqueName]
-            )
-            if titleSummary:
-                return titleSummary  # return first matched
-
-        return None
+        pass
 
 # -----------------------------------------------------------------------------
 # Internal support routines (many of them static).
@@ -2069,13 +2014,7 @@ class Metadata(base.Music21Object):
         >>> metadata.Metadata._isContributorUniqueName('average duration')
         False
         '''
-        prop: PropertyDescription|None = (
-            properties.UNIQUE_NAME_TO_PROPERTY_DESCRIPTION.get(uniqueName)
-        )
-        if prop is None:
-            return False
-
-        return prop.isContributor
+        pass
 
     @staticmethod
     def _isContributorNamespaceName(namespaceName: str) -> bool:
@@ -2194,22 +2133,7 @@ class Metadata(base.Music21Object):
         >>> metadata.Metadata._contributorRoleToUniqueName(None)
         'otherContributor'
         '''
-        if role is None:
-            return 'otherContributor'
-
-        prop: PropertyDescription|None = (
-            properties.UNIQUE_NAME_TO_PROPERTY_DESCRIPTION.get(role)
-        )
-
-        if prop is None:
-            # It's not a standard uniqueName
-            return 'otherContributor'
-
-        if not prop.isContributor:
-            # It's not a standard contributor role
-            return 'otherContributor'
-
-        return role
+        pass
 
     def _get(self, name: str, isCustom: bool) -> tuple[ValueType, ...]:
         '''
@@ -2317,19 +2241,7 @@ class Metadata(base.Music21Object):
         Traceback (most recent call last):
         KeyError: "Name='average duration' is not a standard metadata name...
         '''
-        if not isCustom:
-            uniqueName: str = name
-            if self._isStandardNamespaceName(name):
-                uniqueName = properties.NAMESPACE_NAME_TO_UNIQUE_NAME.get(name, '')
-            if not self._isStandardUniqueName(uniqueName):
-                raise KeyError(
-                    f'Name={name!r} is not a standard metadata name.'
-                    ' Call addCustom/setCustom/getCustom for custom names.')
-            name = uniqueName
-
-        self._contents.pop(name, None)
-        if value is not None:
-            self._add(name, value, isCustom)
+        pass
 
     @staticmethod
     def convertValue(uniqueName: str, value: t.Any) -> ValueType:
@@ -2770,24 +2682,7 @@ class RichMetadata(Metadata):
         (('arranger', <music21.metadata.primitives.Contributor arranger:Michael Scott Cuthbert>),
          ('composer', <music21.metadata.primitives.Contributor composer:Arcangelo Corelli>))
         '''
-        allOut: list[tuple[str, t.Any]] = list(super().all(
-            skipContributors=skipContributors,
-            skipNonContributors=skipNonContributors,
-            returnPrimitives=returnPrimitives,
-            returnSorted=returnSorted))
-
-        # All RichMetadata additions are considered non-contributors
-        if skipNonContributors:
-            # it's already sorted if requested
-            return tuple(allOut)
-
-        # Note that RichMetadata values do not pay attention to returnPrimitives.
-        for name in self.additionalRichMetadataAttributes:
-            allOut.append((name, getattr(self, name)))
-
-        if returnSorted:
-            return tuple(sorted(allOut))
-        return tuple(allOut)
+        pass
 
     def _isStandardUniqueName(self, uniqueName: str) -> bool:
         '''

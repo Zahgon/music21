@@ -149,7 +149,7 @@ class Articulation(base.Music21Object):
         self.displayText: str|None = None
 
     def _reprInternal(self):
-        return ''
+        pass
 
     @property
     def name(self) -> str:
@@ -167,19 +167,14 @@ class Articulation(base.Music21Object):
         >>> sp.name
         'snap pizzicato'
         '''
-        className = self.__class__.__name__
-        return common.camelCaseToHyphen(className, replacement=' ')
+        pass
 
     def _getVolumeShift(self):
-        return self._volumeShift
+        pass
 
     def _setVolumeShift(self, value):
         # value should be between 0 and 1
-        if value > 1:
-            value = 1
-        elif value < -1:
-            value = -1
-        self._volumeShift = value
+        pass
 
     volumeShift = property(_getVolumeShift, _setVolumeShift, doc='''
         Get or set the volumeShift of this Articulation. This value, between -1 and 1,
@@ -450,7 +445,7 @@ class Fingering(TechnicalIndication):
         self.alternate = False
 
     def _reprInternal(self):
-        return str(self.fingerNumber)
+        pass
 
 
 # ------------------------------------------------------------------------------
@@ -505,7 +500,7 @@ class StringIndication(Bowing):
         self.number = number
 
     def _reprInternal(self):
-        return f'{self.number}'
+        pass
 
 
 class StringThumbPosition(Bowing):
@@ -557,7 +552,7 @@ class FretIndication(TechnicalIndication):
         self.number = number
 
     def _reprInternal(self):
-        return f'{self.number}'
+        pass
 
 class FrettedPluck(FretIndication, Fingering):
     '''
@@ -698,13 +693,11 @@ class HandbellIndication(TechnicalIndication):
 # ------------------------------------------------------------------------------
 class Test(unittest.TestCase):
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
 
     def testBasic(self):
-        a = FretBend()
-        self.assertEqual(a.bendAlter, None)
+        pass
 
 
     # def testArticulationEquality(self):

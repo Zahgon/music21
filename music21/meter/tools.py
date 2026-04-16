@@ -88,16 +88,7 @@ def slashCompoundToFraction(value: str) -> NumDenomTuple:
 
     * Changed in v7: new location and returns a tuple.
     '''
-    post: list[NumDenom] = []
-    value = value.strip()  # rem whitespace
-    valueList = value.split('+')
-    for part in valueList:
-        try:
-            m = slashToTuple(part)
-            post.append((m.numerator, m.denominator))
-        except MeterException:
-            pass
-    return tuple(post)
+    pass
 
 
 @lru_cache(512)

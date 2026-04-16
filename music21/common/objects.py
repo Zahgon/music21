@@ -73,22 +73,10 @@ class RelativeCounter(collections.Counter):
             yield k, self[k]
 
     def asProportion(self):
-        selfLen = sum(self[x] for x in self)
-        outDict = {}
-        for y in self:
-            outDict[y] = self[y] / selfLen
-        # noinspection PyTypeChecker
-        new = self.__class__(outDict)
-        return new
+        pass
 
     def asPercentage(self):
-        selfLen = sum(self[x] for x in self)
-        outDict = {}
-        for y in self:
-            outDict[y] = self[y] * 100 / selfLen
-        # noinspection PyTypeChecker
-        new = self.__class__(outDict)
-        return new
+        pass
 
 
 class defaultlist(list):
@@ -104,8 +92,7 @@ class defaultlist(list):
         self._fx = fx
 
     def _fill(self, index):
-        while len(self) <= index:
-            self.append(self._fx())
+        pass
 
     def __setitem__(self, index, value):
         self._fill(index)
@@ -237,10 +224,7 @@ class SlottedObjectMixin:
         ['_editorial', '_style', 'direction', 'funkiness', 'groovability',
             'id', 'independentAngle', 'number', 'type']
         '''
-        slots = set()
-        for cls in self.__class__.mro():
-            slots.update(getattr(cls, '__slots__', ()))
-        return slots
+        pass
 
 
 class EqualSlottedObjectMixin(SlottedObjectMixin):
@@ -276,17 +260,7 @@ class FrozenObject(EqualSlottedObjectMixin):
     __slots__: tuple[str, ...] = ()
 
     def _check_init(self, key=None) -> bool:
-        if key == '__class__':
-            return True
-        if not getattr(self, 'frozen', True):
-            return True
-
-        for st in inspect.stack():
-            if (st.frame.f_code.co_name in ('__init__', '__new__', '__setstate__')
-                    and 'self' in st.frame.f_locals
-                    and st.frame.f_locals['self'].__class__ == self.__class__):
-                return True
-        raise TypeError(f'This {self.__class__.__name__} instance is immutable.')
+        pass
 
     def __setattr__(self, key: str, value):
         self._check_init(key)

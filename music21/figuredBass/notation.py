@@ -225,7 +225,7 @@ class Notation(prebase.ProtoM21Object):
         self._getFigures()
 
     def _reprInternal(self):
-        return str(self.notationColumn)
+        pass
 
     def _parseNotationColumn(self):
         '''
@@ -279,58 +279,7 @@ class Notation(prebase.ProtoM21Object):
         >>> notation2.hasExtenders
         False
         '''
-        delimiter = '[,]'
-        figures = re.split(delimiter, self.notationColumn)
-        patternA1 = '([0-9_]*)'
-        patternA2 = '([^0-9_]*)'
-        numbers = []
-        modifierStrings = []
-        figureStrings = []
-
-        for figure in figures:
-            figure = figure.strip()
-            figureStrings.append(figure)
-            m1 = re.findall(patternA1, figure)
-            m2 = re.findall(patternA2, figure)
-            for i in range(m1.count('')):
-                m1.remove('')
-            for i in range(m2.count('')):
-                m2.remove('')
-            if not (len(m1) <= 1 or len(m2) <= 1):
-                raise NotationException('Invalid Notation: ' + figure)
-
-            number = None
-            modifierString = None
-            extender = False
-            if m1:
-                # if no number is there and only an extender is found.
-                if '_' in m1:
-                    self.hasExtenders = True
-                    number = '_'
-                    extender = True
-                else:
-                    # is an extender part of the number string?
-                    if '_' in m1[0]:
-                        self.hasExtenders = True
-                        extender = True
-                        number = int(m1[0].strip('_'))
-                    else:
-                        number = int(m1[0].strip())
-            if m2:
-                modifierString = m2[0].strip()
-
-            numbers.append(number)
-            modifierStrings.append(modifierString)
-            self.extenders.append(extender)
-
-        numbers = tuple(numbers)
-        modifierStrings = tuple(modifierStrings)
-
-        self.origNumbers = numbers  # Keep original numbers
-        self.numbers = numbers  # Will be converted to longhand
-        self.origModStrings = modifierStrings  # Keep original modifier strings
-        self.modifierStrings = modifierStrings  # Will be converted to longhand
-        self.figureStrings = figureStrings
+        pass
 
     def _translateToLonghand(self):
         '''
@@ -349,46 +298,7 @@ class Notation(prebase.ProtoM21Object):
         >>> notation2.modifierStrings
         ('-', '-')
         '''
-        oldNumbers = self.numbers
-        newNumbers = oldNumbers
-        oldModifierStrings = self.modifierStrings
-        newModifierStrings = oldModifierStrings
-
-        try:
-            newNumbers = shorthandNotation[oldNumbers]
-            newModifierStrings = []
-
-            oldNumbers = list(oldNumbers)
-            temp = []
-            for number in oldNumbers:
-                if number is None:
-                    temp.append(3)
-                else:
-                    temp.append(number)
-
-            oldNumbers = tuple(temp)
-
-            for number in newNumbers:
-                newModifierString = None
-                if number in oldNumbers:
-                    modifierStringIndex = oldNumbers.index(number)
-                    newModifierString = oldModifierStrings[modifierStringIndex]
-                newModifierStrings.append(newModifierString)
-
-            newModifierStrings = tuple(newModifierStrings)
-        except KeyError:
-            newNumbers = list(newNumbers)
-            temp = []
-            for number in newNumbers:
-                if number is None:
-                    temp.append(3)
-                else:
-                    temp.append(number)
-
-            newNumbers = tuple(temp)
-
-        self.numbers = newNumbers
-        self.modifierStrings = newModifierStrings
+        pass
 
     def _getModifiers(self):
         '''
@@ -407,14 +317,7 @@ class Notation(prebase.ProtoM21Object):
         >>> notation1.modifiers[2]
         <music21.figuredBass.notation.Modifier + sharp>
         '''
-        modifiers = []
-
-        for i in range(len(self.numbers)):
-            modifierString = self.modifierStrings[i]
-            modifier = Modifier(modifierString)
-            modifiers.append(modifier)
-
-        self.modifiers = tuple(modifiers)
+        pass
 
     def _getFigures(self) -> None:
         '''
@@ -429,27 +332,7 @@ class Notation(prebase.ProtoM21Object):
         >>> notation2.figures[1]
         <music21.figuredBass.notation.Figure 3 <Modifier - flat>>
         '''
-        figures: list[Figure] = []
-
-        for i in range(len(self.numbers)):
-            number = self.numbers[i]
-            modifierString = self.modifierStrings[i]
-            extender = False
-            if self.extenders and i < len(self.extenders):
-                extender = self.extenders[i]
-            figure = Figure(number, modifierString, extender=extender)
-            figures.append(figure)
-
-        self.figures = figures
-
-        figuresFromNotaCol = []
-
-        for i, origNumber in enumerate(self.origNumbers):
-            modifierString = self.origModStrings[i]
-            figure = Figure(origNumber, modifierString)
-            figuresFromNotaCol.append(figure)
-
-        self.figuresFromNotationColumn = figuresFromNotaCol
+        pass
 
 
 class NotationException(exceptions21.Music21Exception):
@@ -542,17 +425,10 @@ class Figure(prebase.ProtoM21Object):
         >>> n
         <music21.figuredBass.notation.Figure 2(extender) <Modifier # sharp>>
         '''
-        return self.number == 1 and self.hasExtender
+        pass
 
     def _reprInternal(self):
-        if self.isPureExtender:
-            num = 'pure-extender'
-            ext = ''
-        else:
-            num = str(self.number)
-            ext = '(extender)' if self.hasExtender else ''
-        mod = repr(self.modifier).replace('music21.figuredBass.notation.', '')
-        return f'{num}{ext} {mod}'
+        pass
 
 
 # ------------------------------------------------------------------------------
@@ -637,11 +513,7 @@ class Modifier(prebase.ProtoM21Object):
         self.accidental = self._toAccidental()
 
     def _reprInternal(self):
-        if self.accidental is not None:
-            acc = self.accidental.name
-        else:
-            acc = None
-        return f'{self.modifierString} {acc}'
+        pass
 
     def _toAccidental(self):
         '''
@@ -663,22 +535,7 @@ class Modifier(prebase.ProtoM21Object):
         >>> m5.accidental
         <music21.pitch.Accidental flat>
         '''
-        if not self.modifierString:
-            return None
-
-        a = pitch.Accidental()
-        try:
-            a.set(self.modifierString)
-        except pitch.AccidentalException:
-            try:
-                newModifierString = specialModifiers[self.modifierString]
-            except KeyError:
-                raise ModifierException(
-                    f'Figure modifier unsupported in music21: {self.modifierString}'
-                )
-            a.set(newModifierString)
-
-        return a
+        pass
 
     def modifyPitchName(self, pitchNameToAlter):
         '''

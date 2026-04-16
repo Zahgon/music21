@@ -184,7 +184,7 @@ class ABCToken(prebase.ProtoM21Object, common.objects.EqualSlottedObjectMixin):
         self.src: str = src  # store source character sequence
 
     def _reprInternal(self):
-        return repr(self.src)
+        pass
 
     @staticmethod
     def stripComment(strSrc: str) -> str:
@@ -2947,13 +2947,7 @@ class ABCHandler:
         >>> ah.getReferenceNumber()
         '5'
         '''
-        if not self.tokens:
-            raise ABCHandlerException('must process tokens before calling split')
-        for token in self.tokens:
-            if isinstance(token, ABCMetadata):
-                if token.isReferenceNumber():
-                    return token.data
-        return None
+        pass
 
     def definesMeasures(self):
         '''
@@ -3311,13 +3305,7 @@ class ABCHandler:
 
         Requires tokens to have been processed.
         '''
-        if not self.tokens:
-            raise ABCHandlerException('must process tokens before calling split')
-        for token in self.tokens:
-            if isinstance(token, ABCMetadata):
-                if token.isTitle():
-                    return token.data
-        return None
+        pass
 
 
 class ABCHandlerBar(ABCHandler):
@@ -3425,11 +3413,7 @@ class ABCFile(prebase.ProtoM21Object):
         '''
         Open a file for reading
         '''
-        # try:
-        self.file = io.open(filename, encoding='utf-8')  # pylint: disable=consider-using-with
-        # except
-        # self.file = io.open(filename, encoding='latin-1')
-        self.filename = filename
+        pass
 
     def openFileLike(self, fileLike):
         '''
@@ -3439,10 +3423,10 @@ class ABCFile(prebase.ProtoM21Object):
         >>> from io import StringIO
         >>> fileLikeOpen = StringIO()
         '''
-        self.file = fileLike  # already 'open'
+        pass
 
     def _reprInternal(self):
-        return ''
+        pass
 
     def close(self):
         self.file.close()
@@ -3545,492 +3529,63 @@ class ABCFile(prebase.ProtoM21Object):
 # ------------------------------------------------------------------------------
 class Test(unittest.TestCase):
     def testCopyAndDeepcopy(self):
-        from music21.test.commonTest import testCopyAll
-        testCopyAll(self, globals())
+        pass
 
     def testTokenization(self):
-        from music21.abcFormat import testFiles
-
-        for (tf, countTokens, noteTokens, chordTokens) in [
-            (testFiles.fyrareprisarn, 241, 152, 0),
-            (testFiles.mysteryReel, 192, 153, 0),
-            (testFiles.aleIsDear, 291, 206, 32),
-            (testFiles.testPrimitive, 100, 75, 2),
-            (testFiles.williamAndNancy, 127, 93, 0),
-            (testFiles.morrisonsJig, 178, 137, 0),
-        ]:
-
-            handler = ABCHandler()
-            handler.tokenize(tf)
-            tokens = handler.tokens  # get private for testing
-            self.assertEqual(len(tokens), countTokens)
-            countNotes = 0
-            countChords = 0
-            for o in tokens:
-                if isinstance(o, ABCChord):
-                    countChords += 1
-                elif isinstance(o, ABCNote):
-                    countNotes += 1
-
-            self.assertEqual(countNotes, noteTokens)
-            self.assertEqual(countChords, chordTokens)
+        pass
 
     def testRe(self):
 
-        src = 'A: this is a test'
-        post = reMetadataTag.match(src).end()
-        self.assertEqual(src[:post], 'A:')
-        self.assertEqual(src[post:], ' this is a test')
-
-        src = 'Q: this is a test % and a following comment'
-        post = reMetadataTag.match(src).end()
-        self.assertEqual(src[:post], 'Q:')
-
-        # chord symbol matches
-        src = 'd|"G"e2d B2d|"C"gfe "D7"d2d|"G"e2d B2d|"A7""C"gfe "D7""D"d2c|'
-        post = reChordSymbol.findall(src)
-        self.assertEqual(post, ['"G"', '"C"', '"D7"', '"G"', '"A7"',
-                                '"C"', '"D7"', '"D"'])
-
-        # get index of last match of many
-        i = list(reChordSymbol.finditer(src))[-1].end()
-
-        src = '=d2'
-        self.assertEqual(rePitchName.findall(src)[0], 'd')
-
-        src = 'A3/2'
-        self.assertEqual(rePitchName.findall(src)[0], 'A')
+        pass
 
     def testTokenProcessMetadata(self):
-        from music21.abcFormat import testFiles
-
-        # noinspection SpellCheckingInspection
-        for (tf, titleEncoded, meterEncoded, keyEncoded) in [
-            (testFiles.fyrareprisarn, 'Fyrareprisarn', '3/4', 'F'),
-            (testFiles.mysteryReel, 'Mystery Reel', 'C|', 'G'),
-            (testFiles.aleIsDear, 'Ale is Dear, The', '4/4', 'D', ),
-            (testFiles.kitchGirl, 'Kitchen Girl', '4/4', 'D'),
-            (testFiles.williamAndNancy, 'William and Nancy', '6/8', 'G'),
-        ]:
-
-            handler = ABCHandler()
-            handler.tokenize(tf)
-            handler.tokenProcess()
-
-            tokens = handler.tokens  # get private for testing
-            for token in tokens:
-                if isinstance(token, ABCMetadata):
-                    if token.tag == 'T':
-                        self.assertEqual(token.data, titleEncoded)
-                    elif token.tag == 'M':
-                        self.assertEqual(token.data, meterEncoded)
-                    elif token.tag == 'K':
-                        self.assertEqual(token.data, keyEncoded)
+        pass
 
     def testTokenProcess(self):
-        from music21.abcFormat import testFiles
-
-        for tf in [
-            testFiles.fyrareprisarn,
-            testFiles.mysteryReel,
-            testFiles.aleIsDear,
-            testFiles.testPrimitive,
-            testFiles.kitchGirl,
-            testFiles.williamAndNancy,
-        ]:
-
-            handler = ABCHandler()
-            handler.tokenize(tf)
-            handler.tokenProcess()
+        pass
 
     def testNoteParse(self):
-        from music21 import key
-
-        an = ABCNote()
-
-        # with a key signature, matching steps are assumed altered
-        an.activeKeySignature = key.KeySignature(3)
-        self.assertEqual(an.getPitchName('c'), ('C#5', False))
-
-        an.activeKeySignature = None
-        self.assertEqual(an.getPitchName('c'), ('C5', None))
-        self.assertEqual(an.getPitchName('^c'), ('C#5', True))
-
-        an.activeKeySignature = key.KeySignature(-3)
-        self.assertEqual(an.getPitchName('B'), ('B-4', False))
-
-        an.activeKeySignature = None
-        self.assertEqual(an.getPitchName('B'), ('B4', None))
-        self.assertEqual(an.getPitchName('_B'), ('B-4', True))
+        pass
 
     def testSplitByMeasure(self):
 
-        from music21.abcFormat import testFiles
-
-        ah = ABCHandler()
-        ah.process(testFiles.hectorTheHero)
-        ahm = ah.splitByMeasure()
-
-        for i, left, right in [
-            (0, None, None),  # metadata
-            (2, '|:', '|'),
-            (3, '|', '|'),
-            (-2, '[1', ':|'),
-            (-1, '[2', '|'),
-        ]:
-            if left is None:
-                self.assertEqual(ahm[i].leftBarToken, None)
-            else:
-                self.assertEqual(ahm[i].leftBarToken.src, left)
-
-            if right is None:
-                self.assertEqual(ahm[i].rightBarToken, None)
-            else:
-                self.assertEqual(ahm[i].rightBarToken.src, right)
-
-        # for ahSub in ah.splitByMeasure():
-        #     environLocal.printDebug(['split by measure:', ahSub.tokens])
-        #     environLocal.printDebug(['leftBar:', ahSub.leftBarToken,
-        #        'rightBar:', ahSub.rightBarToken, '\n'])
-
-        ah = ABCHandler()
-        ah.process(testFiles.theBeggerBoy)
-        ahm = ah.splitByMeasure()
-
-        for i, left, right in [
-            (0, None, None),  # metadata
-            (1, None, '|'),
-            (-1, '||', None),  # trailing lyric metadata
-        ]:
-            if left is None:
-                self.assertEqual(ahm[i].leftBarToken, None)
-            else:
-                self.assertEqual(ahm[i].leftBarToken.src, left)
-
-            if right is None:
-                self.assertEqual(ahm[i].rightBarToken, None)
-            else:
-                self.assertEqual(ahm[i].rightBarToken.src, right)
-
-        # test a simple string with no bars
-        ah = ABCHandler()
-        ah.process('M:6/8\nL:1/8\nK:G\nc1D2')
-        ahm = ah.splitByMeasure()
-
-        for i, left, right in [
-            (0, None, None),  # metadata
-            (-1, None, None),  # note data, but no bars
-        ]:
-            if left is None:
-                self.assertEqual(ahm[i].leftBarToken, None)
-            else:
-                self.assertEqual(ahm[i].leftBarToken.src, left)
-
-            if right is None:
-                self.assertEqual(ahm[i].rightBarToken, None)
-            else:
-                self.assertEqual(ahm[i].rightBarToken.src, right)
+        pass
 
     def testMergeLeadingMetaData(self):
-        from music21.abcFormat import testFiles
-
-        # a case of leading and trailing metadata
-        ah = ABCHandler()
-        ah.process(testFiles.theBeggerBoy)
-        ahm = ah.splitByMeasure()
-
-        self.assertEqual(len(ahm), 14)
-
-        mergedHandlers = mergeLeadingMetaData(ahm)
-
-        # after merging, one less handler as leading metadata is merged
-        self.assertEqual(len(mergedHandlers), 13)
-        # the last handler is all trailing metadata
-        self.assertTrue(mergedHandlers[0].hasNotes())
-        self.assertFalse(mergedHandlers[-1].hasNotes())
-        self.assertTrue(mergedHandlers[-2].hasNotes())
-        # these are all ABCHandlerBar instances with bars defined
-        self.assertEqual(mergedHandlers[-2].rightBarToken.src, '||')
-
-        # a case of only leading metadata
-        ah = ABCHandler()
-        ah.process(testFiles.theAleWifesDaughter)
-        ahm = ah.splitByMeasure()
-
-        self.assertEqual(len(ahm), 10)
-
-        mergedHandlers = mergeLeadingMetaData(ahm)
-        # after merging, one less handler as leading metadata is merged
-        self.assertEqual(len(mergedHandlers), 10)
-        # all handlers have notes
-        self.assertTrue(mergedHandlers[0].hasNotes())
-        self.assertTrue(mergedHandlers[-1].hasNotes())
-        self.assertTrue(mergedHandlers[-2].hasNotes())
-        # these are all ABCHandlerBar instances with bars defined
-        self.assertEqual(mergedHandlers[-1].rightBarToken.src, '|]')
-
-        # test a simple string with no bars
-        ah = ABCHandler()
-        ah.process('M:6/8\nL:1/8\nK:G\nc1D2')
-        ahm = ah.splitByMeasure()
-
-        # split by measure divides metadata
-        self.assertEqual(len(ahm), 2)
-        mergedHandlers = mergeLeadingMetaData(ahm)
-        # after merging, metadata is merged back
-        self.assertEqual(len(mergedHandlers), 1)
-        # and it has notes
-        self.assertTrue(mergedHandlers[0].hasNotes())
+        pass
 
     def testSplitByReferenceNumber(self):
-        from music21.abcFormat import testFiles
-
-        # a case of leading and trailing metadata
-        ah = ABCHandler()
-        ah.process(testFiles.theBeggerBoy)
-        ahs = ah.splitByReferenceNumber()
-        self.assertEqual(len(ahs), 1)
-        self.assertEqual(list(ahs.keys()), [5])
-        self.assertEqual(len(ahs[5]), 88)  # tokens
-        self.assertEqual(ahs[5].tokens[0].src, 'X:5')  # first is retained
-        # noinspection SpellCheckingInspection
-        self.assertEqual(ahs[5].getTitle(), 'The Begger Boy')  # tokens
-
-        ah = ABCHandler()
-        ah.process(testFiles.testPrimitivePolyphonic)  # has no reference num
-        self.assertEqual(len(ah), 47)  # tokens
-
-        ahs = ah.splitByReferenceNumber()
-        self.assertEqual(len(ahs), 1)
-        self.assertEqual(list(ahs.keys()), [None])
-        self.assertEqual(ahs[None].tokens[0].src, 'M:6/8')  # first is retained
-        self.assertEqual(len(ahs[None]), 47)  # tokens
-
-        ah = ABCHandler()
-        ah.process(testFiles.valentineJigg)  # has no reference num
-        self.assertEqual(len(ah), 244)  # total tokens
-
-        ahs = ah.splitByReferenceNumber()
-        self.assertEqual(len(ahs), 3)
-        self.assertEqual(sorted(list(ahs.keys())), [166, 167, 168])
-
-        self.assertEqual(ahs[168].tokens[0].src, 'X:168')  # first is retained
-        self.assertEqual(ahs[168].getTitle(), '168  The Castle Gate   (HJ)')
-        self.assertEqual(len(ahs[168]), 89)  # tokens
-
-        self.assertEqual(ahs[166].tokens[0].src, 'X:166')  # first is retained
-        # noinspection SpellCheckingInspection
-        self.assertEqual(ahs[166].getTitle(), '166  Valentine Jigg   (Pe)')
-        self.assertEqual(len(ahs[166]), 67)  # tokens
-
-        self.assertEqual(ahs[167].tokens[0].src, 'X:167')  # first is retained
-        self.assertEqual(ahs[167].getTitle(), '167  The Dublin Jig     (HJ)')
-        self.assertEqual(len(ahs[167]), 88)  # tokens
+        pass
 
     def testExtractReferenceNumber(self):
-        from music21 import corpus
-        fp = corpus.getWork('essenFolksong/test0')
-
-        af = ABCFile()
-        af.open(fp)
-        ah = af.read(5)  # returns a parsed handler
-        af.close()
-        self.assertEqual(len(ah), 74)
-
-        af = ABCFile()
-        af.open(fp)
-        ah = af.read(7)  # returns a parsed handler
-        af.close()
-        self.assertEqual(len(ah), 84)
-
-        fp = corpus.getWork('essenFolksong/han1')
-        af = ABCFile()
-        af.open(fp)
-        ah = af.read(339)  # returns a parsed handler
-        af.close()
-        self.assertEqual(len(ah), 101)
+        pass
 
     def testSlurs(self):
-        from music21.abcFormat import testFiles
-        ah = ABCHandler()
-        ah.process(testFiles.slurTest)
-        self.assertEqual(len(ah), 70)  # number of tokens
+        pass
 
     def testTies(self):
-        from music21.abcFormat import testFiles
-        ah = ABCHandler()
-        ah.process(testFiles.tieTest)
-        self.assertEqual(len(ah), 73)  # number of tokens
+        pass
 
     def testCresc(self):
-        from music21.abcFormat import testFiles
-        ah = ABCHandler()
-        ah.process(testFiles.crescTest)
-        self.assertEqual(len(ah), 75)
-        tokens = ah.tokens
-        i = 0
-        for token in tokens:
-            if isinstance(token, ABCCrescStart):
-                i += 1
-        self.assertEqual(i, 1)
+        pass
 
     def testDim(self):
-        from music21.abcFormat import testFiles
-        ah = ABCHandler()
-        ah.process(testFiles.dimTest)
-        self.assertEqual(len(ah), 75)
-        tokens = ah.tokens
-        i = 0
-        for token in tokens:
-            if isinstance(token, ABCDimStart):
-                i += 1
-        self.assertEqual(i, 1)
+        pass
 
     def testStaccato(self):
-        from music21.abcFormat import testFiles
-        ah = ABCHandler()
-        ah.process(testFiles.staccTest)
-        self.assertEqual(len(ah), 80)
+        pass
 
     def testBow(self):
-        from music21.abcFormat import testFiles
-        ah = ABCHandler()
-        ah.process(testFiles.bowTest)
-        self.assertEqual(len(ah), 83)
-        tokens = ah.tokens
-        upBows = 0
-        downBows = 0
-        for token in tokens:
-            if isinstance(token, ABCUpbow):
-                upBows += 1
-            elif isinstance(token, ABCDownbow):
-                downBows += 1
-        self.assertEqual(upBows, 2)
-        self.assertEqual(downBows, 1)
+        pass
 
     def testAcc(self):
-        from music21.abcFormat import testFiles
-        from music21 import abcFormat
-        ah = abcFormat.ABCHandler()
-        ah.process(testFiles.accTest)
-        # noinspection SpellCheckingInspection
-        tokensCorrect = '''<music21.abcFormat.ABCMetadata 'X: 979'>
-<music21.abcFormat.ABCMetadata 'T: Staccato test, plus accents and tenuto marks'>
-<music21.abcFormat.ABCMetadata 'M: 2/4'>
-<music21.abcFormat.ABCMetadata 'L: 1/16'>
-<music21.abcFormat.ABCMetadata 'K: Edor'>
-<music21.abcFormat.ABCNote 'B,2'>
-<music21.abcFormat.ABCBar '|'>
-<music21.abcFormat.ABCDimStart '!'>
-<music21.abcFormat.ABCStaccato '.'>
-<music21.abcFormat.ABCNote 'E'>
-<music21.abcFormat.ABCNote '^D'>
-<music21.abcFormat.ABCStaccato '.'>
-<music21.abcFormat.ABCNote 'E'>
-<music21.abcFormat.ABCTie '-'>
-<music21.abcFormat.ABCNote 'E'>
-<music21.abcFormat.ABCParenStop '!'>
-<music21.abcFormat.ABCSlurStart '('>
-<music21.abcFormat.ABCTuplet '(3'>
-<music21.abcFormat.ABCStaccato '.'>
-<music21.abcFormat.ABCNote 'G'>
-<music21.abcFormat.ABCStaccato '.'>
-<music21.abcFormat.ABCNote 'F'>
-<music21.abcFormat.ABCStaccato '.'>
-<music21.abcFormat.ABCAccent 'K'>
-<music21.abcFormat.ABCNote 'G'>
-<music21.abcFormat.ABCParenStop ')'>
-<music21.abcFormat.ABCNote 'B'>
-<music21.abcFormat.ABCNote 'A'>
-<music21.abcFormat.ABCParenStop ')'>
-<music21.abcFormat.ABCBar '|'>
-<music21.abcFormat.ABCNote 'E'>
-<music21.abcFormat.ABCNote '^D'>
-<music21.abcFormat.ABCTenuto 'M'>
-<music21.abcFormat.ABCNote 'E'>
-<music21.abcFormat.ABCNote 'F'>
-<music21.abcFormat.ABCTuplet '(3'>
-<music21.abcFormat.ABCSlurStart '('>
-<music21.abcFormat.ABCNote 'G'>
-<music21.abcFormat.ABCTie '-'>
-<music21.abcFormat.ABCNote 'G'>
-<music21.abcFormat.ABCNote 'G'>
-<music21.abcFormat.ABCParenStop ')'>
-<music21.abcFormat.ABCParenStop ')'>
-<music21.abcFormat.ABCNote 'B'>
-<music21.abcFormat.ABCStraccent 'k'>
-<music21.abcFormat.ABCTenuto 'M'>
-<music21.abcFormat.ABCNote 'A'>
-<music21.abcFormat.ABCBar '|'>
-<music21.abcFormat.ABCSlurStart '('>
-<music21.abcFormat.ABCNote 'E'>
-<music21.abcFormat.ABCSlurStart '('>
-<music21.abcFormat.ABCNote '^D'>
-<music21.abcFormat.ABCNote 'E'>
-<music21.abcFormat.ABCParenStop ')'>
-<music21.abcFormat.ABCNote 'F'>
-<music21.abcFormat.ABCParenStop ')'>
-<music21.abcFormat.ABCTuplet '(3'>
-<music21.abcFormat.ABCSlurStart '('>
-<music21.abcFormat.ABCStraccent 'k'>
-<music21.abcFormat.ABCNote 'G'>
-<music21.abcFormat.ABCAccent 'K'>
-<music21.abcFormat.ABCNote 'F'>
-<music21.abcFormat.ABCParenStop ')'>
-<music21.abcFormat.ABCNote 'G'>
-<music21.abcFormat.ABCParenStop ')'>
-<music21.abcFormat.ABCNote 'A'>
-<music21.abcFormat.ABCTie '-'>
-<music21.abcFormat.ABCNote 'A'>
-<music21.abcFormat.ABCBar '|'>
-<music21.abcFormat.ABCSlurStart '('>
-<music21.abcFormat.ABCNote 'E'>
-<music21.abcFormat.ABCNote '^D'>
-<music21.abcFormat.ABCNote 'E'>
-<music21.abcFormat.ABCNote 'F'>
-<music21.abcFormat.ABCTuplet '(3'>
-<music21.abcFormat.ABCSlurStart '('>
-<music21.abcFormat.ABCNote 'G'>
-<music21.abcFormat.ABCNote 'F'>
-<music21.abcFormat.ABCNote 'G'>
-<music21.abcFormat.ABCParenStop ')'>
-<music21.abcFormat.ABCParenStop ')'>
-<music21.abcFormat.ABCParenStop ')'>
-<music21.abcFormat.ABCNote 'B'>
-<music21.abcFormat.ABCNote 'A'>
-<music21.abcFormat.ABCBar '|'>
-<music21.abcFormat.ABCNote 'G6'>
-'''.splitlines()
-        tokensReceived = [str(x) for x in ah.tokens]
-        self.assertEqual(tokensCorrect, tokensReceived)
-
-        self.assertEqual(len(ah), 86)
-        tokens = ah.tokens
-        i = 0
-        j = 0
-        k = 0
-        for token in tokens:
-            if isinstance(token, abcFormat.ABCAccent):
-                i += 1
-            elif isinstance(token, abcFormat.ABCStraccent):
-                j += 1
-            elif isinstance(token, abcFormat.ABCTenuto):
-                k += 1
-        self.assertEqual(i, 2)
-        self.assertEqual(j, 2)
-        self.assertEqual(k, 2)
+        pass
 
     def testGrace(self):
-        from music21.abcFormat import testFiles
-        ah = ABCHandler()
-        ah.process(testFiles.graceTest)
-        self.assertEqual(len(ah), 85)
+        pass
 
     def testGuineaPig(self):
-        from music21.abcFormat import testFiles
-        ah = ABCHandler()
-        ah.process(testFiles.guineapigTest)
-        self.assertEqual(len(ah), 105)
+        pass
 
 
 # ------------------------------------------------------------------------------

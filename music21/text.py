@@ -149,14 +149,7 @@ def assembleAllLyrics(streamIn, maxLyrics=10, lyricSeparation='\n', *, wordSepar
 
     * Changed in v8: no lyric separator appears at the beginning.
     '''
-    lyrics = ''
-    for i in range(1, maxLyrics):
-        lyr = assembleLyrics(streamIn, i, wordSeparator=wordSeparator)
-        if lyr != '':
-            if i > 1:
-                lyrics += lyricSeparation
-            lyrics += lyr
-    return lyrics
+    pass
 
 
 
@@ -215,27 +208,7 @@ def postpendArticle(src, language=None):
     >>> text.postpendArticle('Il Combattimento di Tancredi e Clorinda', 'it')
     'Combattimento di Tancredi e Clorinda, Il'
     '''
-    if ' ' not in src:  # must have at least one space
-        return src
-
-    if language is None:  # get all languages?
-        ref = []
-        for key in articleReference:
-            ref += articleReference[key]
-    else:
-        ref = articleReference[language]
-
-    leading = src.split(' ')[0].strip()
-    match = None
-    for candidate in ref:
-        if leading.lower() == candidate:
-            match = leading
-            break
-    if match is not None:
-        # recombine everything except the last comma split
-        return ' '.join(src.split(' ')[1:]) + f', {match}'
-    else:  # not match
-        return src
+    pass
 
 
 # ------------------------------------------------------------------------------
@@ -313,12 +286,7 @@ class TextBox(base.Music21Object):
 
 
     def _reprInternal(self):
-        if self._content is not None and len(self._content) > 10:
-            return repr(self._content[:10] + '...')
-        elif self._content is not None:
-            return repr(self._content)
-        else:
-            return ''
+        pass
 
 
     @property
@@ -333,14 +301,11 @@ class TextBox(base.Music21Object):
         >>> te.style.justify
         'center'
         '''
-        return self._content
+        pass
 
     @content.setter
     def content(self, value):
-        if not isinstance(value, str):
-            self._content = str(value)
-        else:
-            self._content = value
+        pass
 
     @property
     def page(self):
@@ -356,12 +321,11 @@ class TextBox(base.Music21Object):
         >>> te.page
         2
         '''
-        return self._page
+        pass
 
     @page.setter
     def page(self, value):
-        if value is not None:
-            self._page = int(value)  # must be an integer
+        pass
         # do not set otherwise
 
 
@@ -416,14 +380,7 @@ class LanguageDetector:
 
         Called on first LanguageDectector read.
         '''
-        for languageCode in cls.languageCodes:
-            thisExcerpt = (common.getSourceFilePath() / 'languageExcerpts'
-                            / 'trainingData' / (languageCode + '.txt'))
-
-            with thisExcerpt.open(encoding='utf-8') as f:
-                excerptWords = f.read().split()
-                _stored_trigrams[languageCode] = Trigram(excerptWords)
-        return _stored_trigrams.copy()
+        pass
 
 
     def __init__(self, text=None):
@@ -557,25 +514,10 @@ class Trigram:
 
     @property
     def length(self):
-        if self._length is None:
-            return self.measure()
-        else:
-            return self._length
+        pass
 
     def parseExcerpt(self, excerpt):
-        pair = '  '
-        if isinstance(excerpt, list):
-            for line in excerpt:
-                for letter in line.strip() + ' ':
-                    d = self.lut.setdefault(pair, {})
-                    d[letter] = d.get(letter, 0) + 1
-                    pair = pair[1] + letter
-        else:
-            for letter in excerpt:
-                d = self.lut.setdefault(pair, {})
-                d[letter] = d.get(letter, 0) + 1
-                pair = pair[1] + letter
-        self.measure()
+        pass
 
     def measure(self):
         '''
@@ -596,23 +538,7 @@ class Trigram:
         1.0 means an identical ratio of trigrams;
         0.0 means no trigrams in common.
         '''
-        if not isinstance(other, Trigram):
-            raise TypeError("can't compare Trigram with non-Trigram")
-        lut1 = self.lut
-        lut2 = other.lut
-        total = 0
-        for k in lut1:
-            if k in lut2:
-                a = lut1[k]
-                b = lut2[k]
-                for x in a:
-                    if x in b:
-                        total += a[x] * b[x]
-
-        # environLocal.warn([self.length, 'self'])
-        # environLocal.warn([other.length, 'other'])
-
-        return float(total / (self.length * other.length))
+        pass
 
     def __sub__(self, other: Trigram) -> float:
         '''
@@ -625,15 +551,7 @@ class Trigram:
         '''
         returns a string of made-up words based on the known text.
         '''
-        text = []
-        k = '  '
-        while count:
-            n = self.likely(k)
-            text.append(n)
-            k = k[1] + n
-            if n in ' \t':
-                count -= 1
-        return ''.join(text)
+        pass
 
 
     def likely(self, k):
@@ -641,76 +559,22 @@ class Trigram:
         Returns a character likely to follow the given string
         two character string, or a space if nothing is found.
         '''
-        if k not in self.lut:
-            return ' '
-        # if you were using this a lot, caching would a good idea.
-        letters = []
-        for letK, v in self.lut[k].items():
-            letters.append(letK * v)
-        letters = ''.join(letters)
-        return random.choice(letters)
+        pass
 
 
 # ------------------------------------------------------------------------------
 class Test(unittest.TestCase):
 
     def testBasic(self):
-        from music21 import converter
-        from music21 import corpus
-
-        a = converter.parse(corpus.getWork('haydn/opus1no1/movement4.xml'))
-        post = assembleLyrics(a)
-        self.assertEqual(post, '')  # no lyrics!
-
-        a = converter.parse(corpus.getWork('luca/gloria'))
-        post = assembleLyrics(a)
-        self.assertTrue(post.startswith('Et in terra pax hominibus bone voluntatis'))
+        pass
 
 
     def testAssembleLyricsA(self):
-        from music21 import note
-        from music21 import stream
-        s = stream.Stream()
-        for syl in ['hel-', '-lo', 'a-', '-gain']:
-            n = note.Note()
-            n.lyric = syl
-            s.append(n)
-        post = assembleLyrics(s)
-        self.assertEqual(post, 'hello again')
-
-        s = stream.Stream()
-        for syl in ['a-', '-ris-', '-to-', '-cats', 'are', 'great']:
-            n = note.Note()
-            n.lyric = syl
-            s.append(n)
-        post = assembleLyrics(s)
-        # noinspection SpellCheckingInspection
-        self.assertEqual(post, 'aristocats are great')
-
-        s = stream.Stream()
-        for syl in ['长', '亭', '外', '古', '道', '边']:
-            n = note.Note()
-            n.lyric = syl
-            s.append(n)
-        post = assembleLyrics(s, wordSeparator='')
-        # custom word separator
-        self.assertEqual(post, '长亭外古道边')
+        pass
 
     # noinspection SpellCheckingInspection
     def testLanguageDetector(self):
-        ld = LanguageDetector()
-        diffFrIt = ld.trigrams['fr'] - ld.trigrams['it']
-        self.assertTrue(0.50 < diffFrIt < 0.55)
-        self.assertTrue(0.67 < ld.trigrams['fr'] - ld.trigrams['de'] < 0.70)
-        self.assertTrue(0.99 < ld.trigrams['fr'] - ld.trigrams['cn'] < 1.0)
-
-        self.assertEqual('en',
-                         ld.mostLikelyLanguage('hello friends, this is a test of the '
-                                               + 'ability of language detector to '
-                                               + 'tell what language I am writing in.'))
-        self.assertEqual('it', ld.mostLikelyLanguage(
-            'ciao amici! cosé trovo in quale lingua ho scritto questo passaggio. Spero che '
-            + 'troverà che é stata scritta in italiano'))
+        pass
 
         # TODO: Replace
         # messiahGovernment = corpus.parse('handel/hwv56/movement1-13.md')

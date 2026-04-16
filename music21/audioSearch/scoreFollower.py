@@ -67,25 +67,7 @@ class ScoreFollower:
 
         If `useScale` is none, then it uses a scale.ChromaticScale
         '''
-        if useScale is None:
-            useScale = scale.ChromaticScale('C4')
-        self.seconds_recording = seconds
-        self.useMic = useMic
-        self.useScale = useScale
-
-        self.result = False
-        while self.result is False:
-            self.result = self.repeatTranscription()
-
-        # if plot is True:
-        #     try:
-        #         import matplotlib.pyplot  # for find
-        #     except ImportError:
-        #         raise AudioSearchException('Cannot plot without matplotlib installed.')
-        #
-        #     matplotlib.pyplot.plot(plot)
-        #     matplotlib.pyplot.show()
-        environLocal.printDebug('* END')
+        pass
 
     def repeatTranscription(self):
         '''
@@ -122,87 +104,7 @@ class ScoreFollower:
         10
 
         '''
-        from music21 import audioSearch
-
-        # print('WE STAY AT:',)
-        # print(self.lastNotePosition, len(self.scoreNotesOnly),)
-        # print(f'en percent {self.lastNotePosition * 100 / len(self.scoreNotesOnly)}%')
-        # print(' this search begins at: ', self.startSearchAtSlot,)
-        # print(f'countdown {self.countdown}')
-        # print('Measure last note', self.scoreStream[self.lastNotePosition].measureNumber)
-
-        environLocal.printDebug('repeat transcription starting')
-
-        if self.useMic is True:
-            freqFromAQList = audioSearch.getFrequenciesFromMicrophone(
-                length=self.seconds_recording,
-                storeWaveFilename=None,
-            )
-        else:
-            getFreqFunc = audioSearch.getFrequenciesFromPartialAudioFile
-            freqFromAQList, self.waveFile, self.currentSample = getFreqFunc(
-                self.waveFile,
-                length=self.seconds_recording,
-                startSample=self.currentSample,
-            )
-            if self.totalFile == 0:
-                self.totalFile = self.waveFile.getnframes()
-
-        environLocal.printDebug('got Frequencies from Microphone')
-
-        time_start = time()
-        detectedPitchesFreq = audioSearch.detectPitchFrequencies(freqFromAQList, self.useScale)
-        detectedPitchesFreq = audioSearch.smoothFrequencies(detectedPitchesFreq)
-        detectedPitchObjects, unused_plot = audioSearch.pitchFrequenciesToObjects(
-            detectedPitchesFreq, self.useScale)
-        notesList, durationList = audioSearch.joinConsecutiveIdenticalPitches(
-            detectedPitchObjects)
-        self.silencePeriodDetection(notesList)
-        environLocal.printDebug('made it to here.')
-        excerpt = self.scoreStream[self.lastNotePosition:self.lastNotePosition + len(notesList)]
-        scNotes = stream.Part(excerpt)
-        # print('1')
-        transcribedScore, self.qle = audioSearch.notesAndDurationsToStream(
-            notesList,
-            durationList,
-            scNotes=scNotes,
-            qle=self.qle,
-        )
-        # print('2')
-        totalLengthPeriod, self.lastNotePosition, prob, END_OF_SCORE = self.matchingNotes(
-            self.scoreStream,
-            transcribedScore,
-            self.startSearchAtSlot,
-            self.lastNotePosition,
-        )
-        # print('3')
-        self.processing_time = time() - time_start
-        environLocal.printDebug('and even to here.')
-        if END_OF_SCORE is True:
-            exitType = 'endOfScore'  # 'endOfScore'
-            return exitType
-
-        # estimate position, or exit if we can't at all
-        exitType = self.updatePosition(prob, totalLengthPeriod, time_start)
-
-        if self.useMic is False:  # reading from the disc (only for TESTS)
-            # skip ahead the processing time.
-            getFreqFunc = audioSearch.getFrequenciesFromPartialAudioFile
-            freqFromAQList, junk, self.currentSample = getFreqFunc(
-                self.waveFile,
-                length=self.processing_time,
-                startSample=self.currentSample,
-            )
-
-        if self.lastNotePosition > len(self.scoreNotesOnly):
-            # print('finishedPerforming')
-            exitType = 'finishedPerforming'
-        elif self.useMic is False and self.currentSample >= self.totalFile:
-            # print('waveFileEOF')
-            exitType = 'waveFileEOF'
-
-        environLocal.printDebug(f'about to return -- exitType: {exitType} ')
-        return exitType
+        pass
 
     def silencePeriodDetection(self, notesList):
         '''
@@ -235,19 +137,7 @@ class ScoreFollower:
         >>> ScF.silencePeriodCounter
         0
         '''
-        onlyRests = True
-        for i in notesList:
-            if i.name != 'rest':
-                onlyRests = False
-
-        if onlyRests is True:
-            self.silencePeriod = True
-            self.notesCounter = 0
-            self.silencePeriodCounter += 1
-        else:
-            self.silencePeriod = False
-            self.notesCounter += 1
-            self.silencePeriodCounter = 0
+        pass
 
     def updatePosition(self, prob, totalLengthPeriod, time_start):
         '''
@@ -385,51 +275,7 @@ class ScoreFollower:
         countdownExceeded
 
         '''
-        exitType = False
-
-        if not self.begins:
-            if self.countdown == 0:
-                # successfully matched last note; predict next position.
-                self.startSearchAtSlot = self.lastNotePosition
-                processing_time = time() - time_start
-                self.predictedNotePosition = self.predictNextNotePosition(
-                    totalLengthPeriod, processing_time)
-            elif self.countdown == 1:
-                # do nothing to startSearch or predicted note position
-                totalSeconds = 2 * (time() - time_start) + self.seconds_recording
-                self.predictedNotePosition = self.predictNextNotePosition(
-                    totalLengthPeriod, totalSeconds)
-            elif self.countdown == 2:
-                # another chance to match notes
-                totalSeconds = 3 * (time() - time_start) + self.seconds_recording
-                self.predictedNotePosition = self.predictNextNotePosition(
-                    totalLengthPeriod, totalSeconds)
-            elif self.countdown == 3:
-                # searching at the beginning of the shown pages
-                self.lastNotePosition = self.firstSlot
-                self.startSearchAtSlot = self.firstSlot
-                self.predictedNotePosition = self.firstSlot
-            elif self.countdown == 4:
-                # SEARCHING IN ALL THE SCORE;
-                # MAYBE THE MUSICIAN HAS STARTED FROM THE BEGINNING
-                self.lastNotePosition = 0
-                self.startSearchAtSlot = 0
-                self.predictedNotePosition = 0
-            else:  # self.countdown >= 5:
-                # print('Exit due to bad recognition or rests')
-                environLocal.printDebug('COUNTDOWN = 5')
-                exitType = 'countdownExceeded'
-        else:  # at beginning
-            if prob < 0.7:  # to avoid rests at the beginning
-                self.lastNotePosition = 0
-                self.startSearchAtSlot = 0
-                environLocal.printDebug('Silence or noise at the beginning')
-            else:  # got some good notes at the beginning!
-                self.begins = False
-#                print('GO!')
-            if self.countdown >= 5:
-                exitType = '5consecutiveCountdownsBeginning'
-        return exitType
+        pass
 
     def getFirstSlotOnScreen(self):
         '''
@@ -437,7 +283,7 @@ class ScoreFollower:
 
         Doesn't work. (maybe it's not necessary)
         '''
-        return 0
+        pass
 
     def predictNextNotePosition(self, totalLengthPeriod, totalSeconds):
         '''
@@ -465,16 +311,7 @@ class ScoreFollower:
         18
 
         '''
-        extraLength = totalLengthPeriod * totalSeconds / self.seconds_recording
-        middleRhythm = 0
-        slots = 0
-
-        while middleRhythm < extraLength:
-            middleRhythm = middleRhythm + self.scoreNotesOnly[
-                self.lastNotePosition + slots].quarterLength
-            slots = slots + 1
-        predictedStartingNotePosition = int(slots + self.lastNotePosition)
-        return predictedStartingNotePosition
+        pass
 
     def matchingNotes(
         self,
@@ -483,86 +320,7 @@ class ScoreFollower:
         notePrediction,
         lastNotePosition,
     ):
-        from music21 import audioSearch
-
-        # Analyzing streams
-        tn_recording = int(len(transcribedScore.flatten().notesAndRests))
-        totScores = []
-        beginningData = []
-        lengthData = []
-        END_OF_SCORE = False
-        # take 10% more of samples
-        tn_window = int(math.ceil(tn_recording * 1.1))
-        hop = int(math.ceil(tn_window / 4))
-        if hop == 0:
-            iterations = 1
-        else:
-            iterations = int((math.floor(len(scoreStream) / hop))
-                             - math.ceil(tn_window / hop))
-
-        for i in range(iterations):
-            excerpt = scoreStream[i * hop + 1:i * hop + tn_recording + 1]
-            scNotes = stream.Part(excerpt)
-            name = str(i)
-            beginningData.append(i * hop + 1)
-            lengthData.append(tn_recording)
-            scNotes.id = name
-            totScores.append(scNotes)
-        listOfParts = search.approximateNoteSearchWeighted(
-            transcribedScore.flatten().notesAndRests.stream(), totScores)
-
-        # decision process
-        if notePrediction > len(scoreStream) - tn_recording - hop - 1:
-            notePrediction = len(scoreStream) - tn_recording - hop - 1
-            END_OF_SCORE = True
-            environLocal.printDebug('LAST PART OF THE SCORE')
-
-        # lastCountdown = self.countdown
-        position, self.countdown = audioSearch.decisionProcess(
-            listOfParts,
-            notePrediction,
-            beginningData,
-            lastNotePosition,
-            self.countdown,
-            self.firstNotePage,
-            self.lastNotePage,
-        )
-
-        totalLength = 0
-        number = int(listOfParts[position].id)
-
-        if self.silencePeriod is True and self.silencePeriodCounter < 5:
-            # print(lastCountdown, self.countdown, lastNotePosition,
-            #    beginningData[number], lengthData[number])
-            environLocal.printDebug('All rest period')
-            self.countdown -= 1
-
-        if self.countdown != 0:
-            probabilityHit = 0
-        else:
-            probabilityHit = listOfParts[position].matchProbability
-
-        unused_listOfParts2 = search.approximateNoteSearch(
-            transcribedScore.flatten().notesAndRests.stream(), totScores)
-        unused_listOfParts3 = search.approximateNoteSearchNoRhythm(
-            transcribedScore.flatten().notesAndRests.stream(), totScores)
-        unused_listOfParts4 = search.approximateNoteSearchOnlyRhythm(
-            transcribedScore.flatten().notesAndRests.stream(), totScores)
-        # print('PROBABILITIES:',)
-        # print('pitches and durations weighted (current)',
-        #     listOfParts[position].matchProbability,)
-        # print('pitches and durations without weighting',
-        #     listOfParts2[position].matchProbability,)
-        # print('pitches', listOfParts3[position].matchProbability,)
-        # print('durations', listOfParts4[position].matchProbability)
-
-        for i in range(len(totScores[number])):
-            totalLength = totalLength + totScores[number][i].quarterLength
-
-        if self.countdown == 0 and self.silencePeriodCounter == 0:
-            lastNotePosition = beginningData[number] + lengthData[number]
-
-        return totalLength, lastNotePosition, probabilityHit, END_OF_SCORE
+        pass
 
 
 # -----------------------------------------------------------------------------
@@ -571,10 +329,7 @@ class ScoreFollower:
 class TestExternal(unittest.TestCase):
 
     def xtestRunScoreFollower(self):
-        from music21 import corpus
-        scNotes = corpus.parse('luca/gloria').parts[0].flatten().notesAndRests
-        ScF = ScoreFollower(scoreStream=scNotes)
-        ScF.runScoreFollower(plot=False, useMic=True, seconds=10.0)
+        pass
 
 
 # -----------------------------------------------------------------------------

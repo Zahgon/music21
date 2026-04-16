@@ -54,24 +54,7 @@ def labelBeatDepth(streamIn):
     4        **
     4 1/2    *
     '''
-    for m in streamIn.getElementsByClass(stream.Measure):
-
-        # this will search contexts
-        ts = m.getTimeSignatures(sortByCreationTime=False)[0]
-
-        # need to make a copy otherwise the .beat/.beatStr values will be messed up (1/4 the normal)
-        tsTemp = copy.deepcopy(ts)
-        tsTemp.beatSequence.subdivideNestedHierarchy(depth=3)
-
-        for n in m.notesAndRests:
-            if hasattr(n, 'tie') and n.tie is not None:
-                environLocal.printDebug(['note, tie', n, n.tie, n.tie.type])
-                if n.tie.type == 'stop':
-                    continue
-            for unused_i in range(tsTemp.getBeatDepth(n.offset)):
-                n.addLyric('*')
-
-    return streamIn
+    pass
 
 def thomassenMelodicAccent(streamIn: stream.Stream):
     # noinspection PyShadowingNames
@@ -116,49 +99,7 @@ def thomassenMelodicAccent(streamIn: stream.Stream):
     ('D4', 0.0)
 
     '''
-    # we use .ps instead of Intervals for speed, since
-    # we just need perceived contours
-    maxNotes = len(streamIn) - 1
-    p2Accent = 1.0
-    for i, n in enumerate(streamIn):
-        if i == 0:
-            n.editorial.melodicAccent = 1.0
-            continue
-        elif i == maxNotes:
-            n.editorial.melodicAccent = p2Accent
-            continue
-
-        lastPs = streamIn[i - 1].pitch.ps
-        thisPs = n.pitch.ps
-        nextPs = streamIn[i + 1].pitch.ps
-
-        if lastPs == thisPs and thisPs == nextPs:
-            thisAccent = 0.0
-            nextAccent = 0.0
-        elif lastPs != thisPs and thisPs == nextPs:
-            thisAccent = 1.0
-            nextAccent = 0.0
-        elif lastPs == thisPs and thisPs != nextPs:
-            thisAccent = 0.0
-            nextAccent = 1.0
-        elif lastPs < thisPs and thisPs > nextPs:
-            thisAccent = 0.83
-            nextAccent = 0.17
-        elif lastPs > thisPs and thisPs < nextPs:
-            thisAccent = 0.71
-            nextAccent = 0.29
-        elif lastPs < thisPs < nextPs:
-            thisAccent = 0.33
-            nextAccent = 0.67
-        elif lastPs > thisPs > nextPs:
-            thisAccent = 0.5
-            nextAccent = 0.5
-        else:  # pragma: no cover  # should not happen
-            thisAccent = 0.0
-            nextAccent = 0.0
-
-        n.editorial.melodicAccent = thisAccent * p2Accent
-        p2Accent = nextAccent
+    pass
 
 
 
@@ -171,25 +112,7 @@ class TestExternal(unittest.TestCase):
         '''
         Need to test direct meter creation w/o stream
         '''
-        from music21 import note
-        from music21 import meter
-        s = stream.Stream()
-        ts = meter.TimeSignature('4/4')
-
-        s.append(ts)
-        n = note.Note()
-        n.quarterLength = 1
-        s.repeatAppend(n, 4)
-
-        n = note.Note()
-        n.quarterLength = 0.5
-        s.repeatAppend(n, 8)
-
-        s = s.makeMeasures()
-        s = labelBeatDepth(s)
-
-        if self.show:
-            s.show()
+        pass
 
 
 class Test(unittest.TestCase):

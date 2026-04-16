@@ -112,11 +112,7 @@ def showImageThroughMuseScore(
 
         @interact(page=(1, last_number))
         def page_display(page=1):
-            inner_page_fp = pages[page]
-            if inner_page_fp.exists():
-                display(Image(data=inner_page_fp.read_bytes(), retina=True))
-            else:
-                print(f'No file for page {page}.')
+            pass
 
         return page_display
 

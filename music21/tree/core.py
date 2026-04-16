@@ -287,7 +287,7 @@ class AVLNode(common.SlottedObjectMixin):
                 R: <OffsetNode 6.0 Indices:9,9,11,12 Length:2>
                     R: <OffsetNode 7.0 Indices:11,11,12,12 Length:1>
         '''
-        return '\n'.join(self._getDebugPieces())
+        pass
 
     def _getDebugPieces(self):
         r'''
@@ -309,17 +309,7 @@ class AVLNode(common.SlottedObjectMixin):
         '\t\tR: <OffsetNode 6.0 Indices:9,9,11,12 Length:2>',
         '\t\t\tR: <OffsetNode 7.0 Indices:11,11,12,12 Length:1>']
         '''
-        result = []
-        result.append(repr(self))
-        if self.leftChild:
-            subResult = self.leftChild._getDebugPieces()
-            result.append(f'\tL: {subResult[0]}')
-            result.extend('\t' + x for x in subResult[1:])
-        if self.rightChild:
-            subResult = self.rightChild._getDebugPieces()
-            result.append(f'\tR: {subResult[0]}')
-            result.extend('\t' + x for x in subResult[1:])
-        return result
+        pass
 
     def update(self):
         '''
@@ -651,9 +641,7 @@ class AVLTree(prebase.ProtoM21Object):
                 R: <OffsetNode 6.0 Indices:8,8,9,10 Length:1>
                     R: <OffsetNode 7.0 Indices:9,9,10,10 Length:1>
         '''
-        if self.rootNode is not None:
-            return self.rootNode.debug()
-        return ''
+        pass
 
     def getNodeByPosition(self, position):
         r'''
@@ -763,11 +751,7 @@ class AVLTree(prebase.ProtoM21Object):
         >>> at.getPositionAfter(-999) is None
         True
         '''
-        node = self.getNodeAfter(position)
-        if node:
-            return node.position
-        else:
-            return None
+        pass
 
     def getNodeBefore(self, position):
         '''
@@ -814,10 +798,7 @@ class AVLTree(prebase.ProtoM21Object):
         >>> scoreTree.getPositionBefore(0) is None
         True
         '''
-        node = self.getNodeBefore(position)
-        if node is None:
-            return None
-        return node.position
+        pass
 
     def removeNode(self, position):
         r'''

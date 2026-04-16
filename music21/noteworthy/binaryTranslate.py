@@ -798,7 +798,7 @@ class NWCObject:
         self.text = None
 
         def genericDumpMethod(inner_self) -> str:
-            return ''
+            pass
 
         self.dumpMethod = genericDumpMethod
 
@@ -855,67 +855,21 @@ class NWCObject:
         Key signature
         10 bytes
         '''
-        p = self.parserParent
-        self.type = 'KeySig'
-        self.flats = p.byteToInt()
-        p.skipBytes(1)  # ?
-        self.sharps = p.byteToInt()
-        p.skipBytes(7)
-
-        # too complex
-        # for letter in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
-        #     bitshift = ord(letter) - ord('A')
-        #     letterMask = 1 << bitshift
-
-        if self.flats > 0 and self.flats in constants.FlatMask:
-            self.keyString = constants.FlatMask[self.flats]
-        elif self.sharps > 0 and self.sharps in constants.SharpMask:
-            self.keyString = constants.SharpMask[self.sharps]
-        else:
-            self.keyString = ''  # no unusual key signatures
-
-        def dump(inner_self):
-            build = '|Key|Signature:' + inner_self.keyString
-            return build
-
-        self.dumpMethod = dump
+        pass
 
     def barline(self):
         '''
         Bar line
         2 bytes
         '''
-        p = self.parserParent
-        self.type = 'Barline'
-        self.style = p.byteToInt()
-        self.localRepeatCount = p.byteToInt()
-
-        self.parserParent.currentAlterations = {}
-
-        def dump(inner_self):
-            build = '|Bar|'
-            # we don't care about 'Single', as it is the default
-            if 0 < inner_self.style < len(constants.BarStyles):
-                styleString = constants.BarStyles[inner_self.style]
-                build += '|Style:' + styleString
-            return build
-
-        self.dumpMethod = dump
+        pass
 
     def ending(self):
         '''
         Endings
         2 bytes
         '''
-        p = self.parserParent
-        self.type = 'Ending'
-        self.style = p.byteToInt()
-        p.skipBytes(1)
-
-        def dump(inner_self):
-            return '|Ending|Endings:' + str(inner_self.style)
-
-        self.dumpMethod = dump
+        pass
 
     def instrument(self):
         '''
@@ -933,18 +887,7 @@ class NWCObject:
         Time signature
         6 bytes
         '''
-        p = self.parserParent
-        self.type = 'TimeSig'
-        self.numerator = p.readLEShort()
-        self.bits = p.readLEShort()
-        self.denominator = 1 << self.bits
-        self.style = p.readLEShort()
-
-        def dump(inner_self):
-            build = f'|TimeSig|Signature:{inner_self.numerator}/{inner_self.denominator}'
-            return build
-
-        self.dumpMethod = dump
+        pass
 
     def tempo(self):
         '''
@@ -972,16 +915,7 @@ class NWCObject:
         dynamics
         7 bytes
         '''
-        p = self.parserParent
-        self.type = 'Dynamic'
-        if p.version < 170:
-            print('Dynamics on version below 1.70 is not supported yet')
-        else:
-            self.pos = p.byteToInt()
-            self.placement = p.byteToInt()
-            self.style = p.byteToInt()
-            self.velocity = p.readLEShort()
-            self.volume = p.readLEShort()
+        pass
 
     def setDurationForObject(self):
         '''
@@ -1104,71 +1038,14 @@ class NWCObject:
         Rest
         8 bytes
         '''
-        p = self.parserParent
-        self.type = 'Rest'
-        if p.version <= 150:
-            print('Does not work under version 1.50')
-        else:
-            self.duration = p.byteToInt()
-            self.data2 = p.readBytes(5)
-            self.offset = p.readLEShort()
-
-        self.durationStr = self.setDurationForObject()
-
-        def dump(inner_self):
-            build = '|Rest|Dur:' + inner_self.durationStr + '|'
-            return build
-
-        self.dumpMethod = dump
+        pass
 
     def noteChordMember(self):
         '''
         Chord member
         8 bytes + n Note objects
         '''
-        p = self.parserParent
-        self.type = 'NoteChordMember'
-        numberOfNotes = 0
-        if p.version <= 170:
-            self.data1 = p.readBytes(12)
-        elif p.version == 175:
-            self.data1 = p.readBytes(10)
-            numberOfNotes = self.data1[8]
-        else:
-            self.data1 = p.readBytes(8)
-        if p.version >= 200:
-            if (self.data1[7] & 0x40) != 0:
-                print('have stemLength info!')
-                self.stemLength = p.byteToInt()
-            else:
-                # print('attribute 2:', hex(self.attribute2))
-                self.stemLength = 7
-        else:
-            self.stemLength = 7
-
-        self.data2 = []
-        if t.TYPE_CHECKING:
-            assert isinstance(self, NWCStaff)
-        for i in range(numberOfNotes):
-            chordNote = NWCObject(staffParent=self, parserParent=p)
-            chordNote.parse()
-            self.data2.append(chordNote)
-
-        def dump(inner_self):
-            build = '|Chord'
-            notes = {}
-            for d in inner_self.data2:
-                if notes.get(d.durationStr) is None:
-                    notes[d.durationStr] = []
-
-                notes[d.durationStr].append(d.alterationStr + str(d.pos) + d.tieInfo)
-
-            for n in notes:
-                build += '|Dur:' + n + '|Pos:' + ','.join(notes[n])
-
-            return build
-
-        self.dumpMethod = dump
+        pass
 
 
 
@@ -1177,113 +1054,49 @@ class NWCObject:
         Pedal
         3 bytes
         '''
-        p = self.parserParent
-        self.type = 'Pedal'
-        if p.version < 170:
-            print('Pedal on version below 170 is not yet supported')
-        else:
-            self.pos = p.byteToInt()
-            self.placement = p.byteToInt()
-            self.style = p.byteToInt()
+        pass
 
     def flowDir(self):
         '''
         Flow
         4 bytes
         '''
-        p = self.parserParent
-        self.type = 'FlowDir'
-        if p.version >= 170:
-            self.pos = p.byteToInt()
-            self.placement = p.byteToInt()
-        else:
-            self.pos = -8  # so needs to be signed int?
-            self.placement = 0x01
-
-        self.style = p.readLEShort()
+        pass
 
     def mpc(self):
         '''
         Midi Instructions
         34 bytes
         '''
-        p = self.parserParent
-        self.type = 'MPC'
-        self.pos = p.byteToInt()
-        self.placement = p.byteToInt()
-        if p.version == 175:
-            self.data1 = p.readBytes(32)
-        elif p.version > 155:
-            self.data1 = p.readBytes(31)
-        else:
-            self.data1 = p.readBytes(32)
+        pass
 
     def tempoVariation(self):
         '''
         Tempo variation
         4 bytes
         '''
-        p = self.parserParent
-        self.type = 'TempoVariation'
-        if p.version >= 170:
-            self.pos = p.byteToInt()
-            self.placement = p.byteToInt()
-            self.style = p.byteToInt()
-            self.delay = p.byteToInt()
-        else:
-            self.style = p.byteToInt()
-            self.style = self.style & 0x0F
-            self.pos = p.byteToInt()
-            self.placement = p.byteToInt()
-            self.delay = p.byteToInt()
+        pass
 
     def dynamicVariation(self):
         '''
         Dynamic variation
         3 bytes
         '''
-        p = self.parserParent
-        self.type = 'DynamicVariation'
-        self.pos = p.byteToInt()
-        if p.version >= 170:
-            self.placement = p.byteToInt()
-        else:
-            self.placement = 0
-        self.style = p.byteToInt()
+        pass
 
     def performance(self):
         '''
         Performance
         3 bytes
         '''
-        p = self.parserParent
-        self.type = 'Performance'
-        self.pos = p.byteToInt()
-        if p.version >= 170:
-            self.placement = p.byteToInt()
-        else:
-            self.placement = 0
-        self.style = p.byteToInt()
+        pass
 
     def textObj(self):
         '''
         Text
         3 bytes + null terminated string
         '''
-        p = self.parserParent
-        self.type = 'Text'
-        self.pos = p.byteToSignedInt()
-        self.data = p.byteToInt()
-        # role of the text (lyric, staff info ...)
-        self.font = p.byteToInt()
-        self.text = p.readToNUL()
-
-        def dump(inner_self):
-            build = '|Text|Text:' + inner_self.text.decode('latin_1') + '|Pos:' + str(self.pos)
-            return build
-
-        if self.text is not None:
-            self.dumpMethod = dump
+        pass
 
 
     def restChordMember(self):
@@ -1291,36 +1104,7 @@ class NWCObject:
         Rest chord
         10 bytes
         '''
-        self.noteChordMember()
-        self.type = 'RestChordMember'
-        if t.TYPE_CHECKING:
-            assert isinstance(self, NWCStaff)
-        rest = NWCObject(staffParent=self, parserParent=self.parserParent)
-        rest.duration = self.data1[0]
-        rest.data2 = self.data1
-        rest.durationStr = rest.setDurationForObject()
-        self.data2.append(rest)
-
-        def dump(inner_self):
-            build = '|Chord'
-            notes = {}
-            for d in inner_self.data2:
-                if notes.get(d.durationStr) is None:
-                    notes[d.durationStr] = []
-
-                notes[d.durationStr].append(d.alterationStr + str(d.pos) + d.tieInfo)
-
-            i = 0
-            for n in notes:
-                if i == len(notes) - 1:
-                    build += '|Dur2:' + n + '|Pos2:' + ','.join(notes[n])
-                else:
-                    build += '|Dur:' + n + '|Pos:' + ','.join(notes[n])
-                i += 1
-
-            return build
-
-        self.dumpMethod = dump
+        pass
 
     # list of methods to parse specific object. The index in the list
     # is the ID of the object to parse.

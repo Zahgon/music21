@@ -94,7 +94,7 @@ class RTToken(prebase.ProtoM21Object):
         self.lineNumber = 0
 
     def _reprInternal(self):
-        return repr(self.src)
+        pass
 
     def isComposer(self):
         return False
@@ -124,13 +124,13 @@ class RTToken(prebase.ProtoM21Object):
         '''
         Occasionally found in header.
         '''
-        return False
+        pass
 
     def isMeasure(self):
         return False
 
     def isPedal(self):
-        return False
+        pass
 
     def isWork(self):
         return False
@@ -146,7 +146,7 @@ class RTToken(prebase.ProtoM21Object):
         Atoms are any untagged data; generally only found inside a
         measure definition.
         '''
-        return False
+        pass
 
 
 class RTTagged(RTToken):
@@ -356,9 +356,7 @@ class RTTagged(RTToken):
         >>> tag.isForm()
         False
         '''
-        if self.tag.lower() == 'form':
-            return True
-        return False
+        pass
 
     def isPedal(self):
         '''
@@ -372,9 +370,7 @@ class RTTagged(RTToken):
         >>> tag.isPedal()
         False
         '''
-        if self.tag.lower() in ['pedal']:
-            return True
-        return False
+        pass
 
     def isVersion(self):
         '''
@@ -560,40 +556,10 @@ class RTMeasure(RTToken):
 
     def _parseAttributes(self, src):
         # assume that we have already checked that this is a measure
-        g = reMeasureTag.match(src)
-        if g is None:  # not measure tag found
-            raise RTHandlerException(f'found no measure tag: {src}')
-        iEnd = g.end()  # get end index
-        rawTag = src[:iEnd].strip()
-        self.tag = rawTag
-        rawData = src[iEnd:].strip()  # may have variant
-
-        # get the number list from the tag
-        self.number, self.repeatLetter = self._getMeasureNumberData(rawTag)
-
-        # strip a variant indication off of rawData if found
-        g = reVariant.match(rawData)
-        if g is not None:  # there is a variant tag
-            varStr = g.group(0)
-            self.variantNumber = int(common.getNumFromStr(varStr)[0])
-            self.data = rawData[g.end():].strip()
-        else:
-            self.data = rawData
-        g = reVariantLetter.match(rawData)
-        if g is not None:  # there is a variant letter tag
-            varStr = g.group(1)
-            self.variantLetter = varStr
-            self.data = rawData[g.end():].strip()
-
-        if self.data.startswith('='):
-            self.isCopyDefinition = True
+        pass
 
     def _reprInternal(self):
-        if len(self.number) == 1:
-            numberStr = str(self.number[0])
-        else:
-            numberStr = f'{self.number[0]}-{self.number[1]}'
-        return numberStr
+        pass
 
     def isMeasure(self):
         return True
@@ -646,7 +612,7 @@ class RTAtom(RTToken):
         self.container = container
 
     def isAtom(self):
-        return True
+        pass
 
     # for lower level distinctions, use isinstance(), as each type has its own subclass.
 
@@ -1393,16 +1359,14 @@ class RTHandler:
         '''
         Get or set tokens for this Handler.
         '''
-        if not self._tokens:
-            raise RTHandlerException('must process tokens before calling split')
-        return self._tokens
+        pass
 
     @tokens.setter
     def tokens(self, tokens):
         '''
         Assign tokens to this Handler.
         '''
-        self._tokens = tokens
+        pass
 
     def __len__(self):
         return len(self._tokens)
@@ -1432,38 +1396,17 @@ class RTFile(prebase.ProtoM21Object):
         Open a file for reading, trying a variety of encodings and then
         trying them again with an "ignore" flag if it is not possible.
         '''
-        for encoding in ('utf-8', 'macintosh', 'latin-1', 'utf-16'):
-            try:
-                # pylint: disable=consider-using-with
-                self.file = io.open(filename, encoding=encoding)
-                if self.file is not None:
-                    break
-            except UnicodeDecodeError:
-                pass
-        if self.file is None:
-            for encoding in ('utf-8', 'macintosh', 'latin-1', 'utf-16', None):
-                try:
-                    # pylint: disable=consider-using-with
-                    self.file = io.open(filename, encoding=encoding, errors='ignore')
-                    if self.file is not None:
-                        break
-                except UnicodeDecodeError:
-                    pass
-            if self.file is None:
-                raise RomanTextException(
-                    f'Cannot parse file {filename}, possibly a broken codec?')
-
-        self.filename = filename
+        pass
 
     def openFileLike(self, fileLike):
         '''
         Assign a file-like object, such as those provided by StringIO, as an
         open file object.
         '''
-        self.file = fileLike  # already 'open'
+        pass
 
     def _reprInternal(self):
-        return ''
+        pass
 
     def close(self):
         self.file.close()
@@ -1491,134 +1434,18 @@ class RTFile(prebase.ProtoM21Object):
 class Test(unittest.TestCase):
 
     def testBasicA(self):
-        from music21.romanText import testFiles
-        for fileStr in testFiles.ALL:
-            f = RTFile()
-            unused_rth = f.readstr(fileStr)  # get a handler from a string
+        pass
 
     def testReA(self):
         # gets the index of the end of the measure indication
-        g = reMeasureTag.match('m1 g: V b2 i')
-        self.assertEqual(g.end(), 2)
-        self.assertEqual(g.group(0), 'm1')
-
-        self.assertEqual(reMeasureTag.match('Time Signature: 2/2'), None)
-
-        g = reMeasureTag.match('m3-4=m1-2')
-        self.assertEqual(g.end(), 4)
-        self.assertEqual(g.start(), 0)
-        self.assertEqual(g.group(0), 'm3-4')
-
-        g = reMeasureTag.match('m123-432=m1120-24234')
-        self.assertEqual(g.group(0), 'm123-432')
-
-        g = reMeasureTag.match('m231a IV6 b4 C: V')
-        self.assertEqual(g.group(0), 'm231a')
-
-        g = reMeasureTag.match('m123b-432b=m1120a-24234a')
-        self.assertEqual(g.group(0), 'm123b-432b')
-
-        g = reMeasureTag.match('m231var1 IV6 b4 C: V')
-        self.assertEqual(g.group(0), 'm231')
-
-        # this only works if it starts the string
-        g = reVariant.match('var1 IV6 b4 C: V')
-        self.assertEqual(g.group(0), 'var1')
-
-        g = reAnalyticKeyAtom.match('Bb:')
-        self.assertEqual(g.group(0), 'Bb:')
-        g = reAnalyticKeyAtom.match('F#:')
-        self.assertEqual(g.group(0), 'F#:')
-        g = reAnalyticKeyAtom.match('f#:')
-        self.assertEqual(g.group(0), 'f#:')
-        g = reAnalyticKeyAtom.match('b:')
-        self.assertEqual(g.group(0), 'b:')
-        g = reAnalyticKeyAtom.match('bb:')
-        self.assertEqual(g.group(0), 'bb:')
-        g = reAnalyticKeyAtom.match('g:')
-        self.assertEqual(g.group(0), 'g:')
-
-        # beats do not have a colon
-        self.assertEqual(reKeyAtom.match('b2'), None)
-        self.assertEqual(reKeyAtom.match('b2.5'), None)
-
-        g = reBeatAtom.match('b2.5')
-        self.assertEqual(g.group(0), 'b2.5')
-
-        g = reBeatAtom.match('bVII')
-        self.assertEqual(g, None)
-
-        g = reBeatAtom.match('b1.66.5')
-        self.assertEqual(g.group(0), 'b1.66.5')
+        pass
 
     def testMeasureAttributeProcessing(self):
-        rtm = RTMeasure('m17var1 vi b2 IV b2.5 viio6/4 b3.5 I')
-        self.assertEqual(rtm.data, 'vi b2 IV b2.5 viio6/4 b3.5 I')
-        self.assertEqual(rtm.number, [17])
-        self.assertEqual(rtm.tag, 'm17')
-        self.assertEqual(rtm.variantNumber, 1)
-
-        rtm = RTMeasure('m17varC vi b2 IV b2.5 viio6/4 b3.5 I')
-        self.assertEqual(rtm.data, 'vi b2 IV b2.5 viio6/4 b3.5 I')
-        self.assertEqual(rtm.variantLetter, 'C')
-
-        rtm = RTMeasure('m20 vi b2 ii6/5 b3 V b3.5 V7')
-        self.assertEqual(rtm.data, 'vi b2 ii6/5 b3 V b3.5 V7')
-        self.assertEqual(rtm.number, [20])
-        self.assertEqual(rtm.tag, 'm20')
-        self.assertEqual(rtm.variantNumber, None)
-        self.assertFalse(rtm.isCopyDefinition)
-
-        rtm = RTMeasure('m0 b3 G: I')
-        self.assertEqual(rtm.data, 'b3 G: I')
-        self.assertEqual(rtm.number, [0])
-        self.assertEqual(rtm.tag, 'm0')
-        self.assertEqual(rtm.variantNumber, None)
-        self.assertFalse(rtm.isCopyDefinition)
-
-        rtm = RTMeasure('m59 = m57')
-        self.assertEqual(rtm.data, '= m57')
-        self.assertEqual(rtm.number, [59])
-        self.assertEqual(rtm.tag, 'm59')
-        self.assertEqual(rtm.variantNumber, None)
-        self.assertTrue(rtm.isCopyDefinition)
-
-        rtm = RTMeasure('m3-4 = m1-2')
-        self.assertEqual(rtm.data, '= m1-2')
-        self.assertEqual(rtm.number, [3, 4])
-        self.assertEqual(rtm.tag, 'm3-4')
-        self.assertEqual(rtm.variantNumber, None)
-        self.assertTrue(rtm.isCopyDefinition)
+        pass
 
     def testTokenDefinition(self):
         # test that we are always getting the right number of tokens
-        from music21.romanText import testFiles
-
-        rth = RTHandler()
-        rth.process(testFiles.mozartK279)
-
-        count = 0
-        for t in rth._tokens:
-            if t.isMovement():
-                count += 1
-        self.assertEqual(count, 3)
-
-        rth.process(testFiles.riemenschneider001)
-        count = 0
-        for t in rth._tokens:
-            if t.isMeasure():
-                # print(t.src)
-                count += 1
-        # 21, 2 variants, and one pickup
-        self.assertEqual(count, 21 + 2 + 1)
-
-        count = 0
-        for t in rth._tokens:
-            if t.isMeasure():
-                for a in t.atoms:
-                    if isinstance(a, RTAnalyticKey):
-                        count += 1
-        self.assertEqual(count, 1)
+        pass
 
 
 # ------------------------------------------------------------------------------

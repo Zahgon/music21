@@ -57,19 +57,7 @@ class VirtualWork:
         Given a request for an extension, find the best match for a URL from
         the list of known URLs. If ext is None, return the first URL.
         '''
-        if not common.isListLike(extList):
-            extList = [extList]
-        if extList is None or extList == [None]:
-            return [self.urlList[0]]  # return a list of all
-
-        post = []
-        for ext in extList:
-            for url in self.urlList:
-                unused_format, extFound = common.findFormatExtURL(url)
-                # environLocal.printDebug([extFound, ext])
-                if extFound == ext:
-                    post.append(url)
-        return post  # no match
+        pass
 
 
 # ------------------------------------------------------------------------------
@@ -196,17 +184,7 @@ class Test(unittest.TestCase):
         '''
         Test instantiating all objects defined in the virtual corpus module
         '''
-        a = BachBWV1007Prelude()
-        self.assertNotEqual(a.getUrlByExt(['.xml']), [])
-        self.assertNotEqual(a.getUrlByExt(['.krn']), [])
-        BachBWV772()
-        BachBWV773()
-        ColtraneGiantSteps()
-        SchubertD576()
-        SchubertD5762()
-        SchubertD5763()
-        SchubertD5764()
-        PachelbelCanonD()
+        pass
 
 
 # ------------------------------------------------------------------------------

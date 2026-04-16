@@ -365,7 +365,7 @@ class CTSong(prebase.ProtoM21Object):
         self.parse(textFile)
 
     def _reprInternal(self):
-        return f'title={self.title!r} year={self.year}'
+        pass
 
     # --------------------------------------------------------------------------
     def parse(self, textFile: str|pathlib.Path):
@@ -462,15 +462,7 @@ class CTSong(prebase.ProtoM21Object):
         >>> s.comments
         [['A wonderful shaker melody'], ['Vr:', 'incomplete verse'], ['S:', 'Not quite finished!']]
         """
-        comments = []
-        for line in self.lines[1:]:
-            if '%' in line:
-                if line.split()[0].endswith(':'):
-                    comments.append([line.split()[0],
-                                     (line[line.index('%') + 1:].strip())])
-                else:
-                    comments.append([line[line.index('%') + 1:].strip()])
-        return comments
+        pass
 
     @property
     def rules(self):
@@ -534,24 +526,7 @@ class CTSong(prebase.ProtoM21Object):
         >>> change.homeTimeSig.beatSequence
         <music21.meter.core.MeterSequence {{1/8+1/8+1/8}+{1/8+1/8+1/8}+{1/8+1/8+1/8}+{1/8+1/8+1/8}}>
         '''
-        if self._homeTimeSig:
-            return self._homeTimeSig
-
-        # look at 'S' Rule and grab the home time Signature
-        if self.text and 'S:' in self.text:
-            lines = self.text.split('\n')
-            for line in lines:
-                if line.startswith('S:'):
-                    for atom in line.split()[1:3]:
-                        if '[' not in atom:
-                            self._homeTimeSig = meter.TimeSignature('4/4')
-                            return self._homeTimeSig
-                        elif '/' in atom:
-                            self._homeTimeSig = meter.TimeSignature(atom[1:-1])
-                            return self._homeTimeSig
-                        else:
-                            pass
-        return self._homeTimeSig
+        pass
 
     @property
     def homeKey(self):
@@ -563,25 +538,7 @@ class CTSong(prebase.ProtoM21Object):
         >>> s.homeKey
         <music21.key.Key of A major>
         '''
-        if self._homeKey:
-            return self._homeKey
-
-        # look at 'S' Rule and grab the home key
-        if self.text and 'S:' in self.text:
-            lines = self.text.split('\n')
-            for line in lines:
-                if line.startswith('S:'):
-                    for atom in line.split()[1:3]:
-                        if '[' not in atom:
-                            self._homeKey = key.Key('C')
-                            return self._homeKey
-                        elif '/' not in atom:
-                            m21keyStr = key.convertKeyStringToMusic21KeyString(atom[1:-1])
-                            self._homeKey = key.Key(m21keyStr)
-                            return self._homeKey
-                        else:
-                            pass
-        return self._homeKey
+        pass
 
     def toPart(self, labelRomanNumerals=True, labelSubsectionsOnScore=True) -> stream.Part:
         # noinspection PyShadowingNames
@@ -618,8 +575,7 @@ class CTSong(prebase.ProtoM21Object):
         '''
         DEPRECATED: use .toPart() instead.  This method will be removed in v.10
         '''
-        return self.toPart(labelRomanNumerals=labelRomanNumerals,
-                           labelSubsectionsOnScore=labelSubsectionsOnScore)
+        pass
 
 class CTRuleException(exceptions21.Music21Exception):
     pass
@@ -664,14 +620,14 @@ class CTRule(prebase.ProtoM21Object):
 
 
     def _reprInternal(self):
-        return f'text={self.text!r}'
+        pass
 
     # --------------------------------------------------------------------------
     def _getParent(self):
-        return common.unwrapWeakref(self._parent)
+        pass
 
     def _setParent(self, parent):
-        self._parent = common.wrapWeakref(parent)
+        pass
 
     parent = property(_getParent, _setParent, doc=r'''
     A reference to the CTSong object housing the CTRule if any.
@@ -1003,22 +959,10 @@ class CTRule(prebase.ProtoM21Object):
     # --------------------------------------------------------------------------
 
     def _setMusicText(self, value: str) -> None:
-        self._musicText = str(value)
+        pass
 
     def _getMusicText(self):
-        if self._musicText:
-            return self._musicText
-
-        if not self.text:
-            return ''
-
-        text = self.text[len(self.LHS) + 1:]
-        if '%' in text:
-            commentStartIndex = text.index('%')
-            text = text[0:commentStartIndex]
-
-        self._musicText = text.strip()
-        return self._musicText
+        pass
 
     musicText = property(_getMusicText, _setMusicText, doc='''
         Gets just the music text of the CTRule, excluding the left hand side and comments
@@ -1046,23 +990,10 @@ class CTRule(prebase.ProtoM21Object):
         return None
 
     def _getLHS(self) -> str:
-        if self._LHS:
-            return self._LHS
-
-        LHS = ''
-        if self.text and self.text.split()[0].endswith(':'):
-            for char in self.text:
-                if char == ':':
-                    self._LHS = LHS.strip()
-                    return self._LHS
-                LHS = LHS + char
-            # no colon found -- will not happen; it's in self.text
-            return ''  # pragma: no cover
-        else:
-            return ''
+        pass
 
     def _setLHS(self, value: str) -> None:
-        self._LHS = str(value)
+        pass
 
     LHS = property(_getLHS, _setLHS, doc='''
         Get the LHS (Left Hand Side) of the CTRule.
@@ -1095,24 +1026,7 @@ class CTRule(prebase.ProtoM21Object):
         >>> s.sectionName
         'Verse2'
         '''
-        sectionName = ''
-        if 'In' in self.LHS:
-            sectionName = 'Introduction' + self.LHS[2:]
-        elif 'Br' in self.LHS:
-            sectionName = 'Bridge' + self.LHS[2:]
-        elif 'Vr' in self.LHS:
-            sectionName = 'Verse' + self.LHS[2:]
-        elif 'Ch' in self.LHS:
-            sectionName = 'Chorus' + self.LHS[2:]
-        elif 'Tg' in self.LHS:
-            sectionName = 'Tag' + self.LHS[2:]
-        elif self.LHS == 'S':
-            sectionName = 'Song' + self.LHS[1:]
-        elif self.LHS == 'Fadeout':
-            sectionName = 'Fadeout'
-        else:
-            sectionName = self.LHS
-        return sectionName
+        pass
 
 
 # ------------------------------------------------------------------------------
@@ -1124,11 +1038,7 @@ class TestExternal(unittest.TestCase):
     show = True
 
     def testB(self):
-        from music21.romanText import clercqTemperley
-        s = clercqTemperley.CTSong(BlitzkriegBopCT)
-        partObj = s.toPart()
-        if self.show:
-            partObj.show()
+        pass
 
     def x_testA(self):
         pass

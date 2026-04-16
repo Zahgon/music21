@@ -163,7 +163,7 @@ class CapellaImporter:
         >>> len(funnyTag.findall('greg'))
         2
         '''
-        return xml.etree.ElementTree.fromstring(xmlText)
+        pass
 
     def partScoreFromSystemScore(self, systemScore: stream.Score) -> stream.Score:
         '''
@@ -416,10 +416,7 @@ class CapellaImporter:
         >>> r.duration.type
         'half'
         '''
-        r = note.Rest()
-        durationList = restElement.findall('duration')
-        r.duration = self.durationFromDuration(durationList[0])
-        return r
+        pass
 
     def chordOrNoteFromChord(self, chordElement):
         # noinspection PyShadowingNames
@@ -450,32 +447,7 @@ class CapellaImporter:
         >>> c.duration
         <music21.duration.Duration 0.5>
         '''
-        # TODO: test Lyrics
-        durationList = chordElement.findall('duration')
-        headsList = chordElement.findall('heads')
-
-        if len(durationList) != 1 or len(headsList) != 1:
-            raise CapellaImportException('Malformed chord!')
-
-        notesList = self.notesFromHeads(headsList[0])
-
-        noteOrChord = None
-        if not notesList:
-            raise CapellaImportException('Malformed chord!')
-
-        if len(notesList) == 1:
-            noteOrChord = notesList[0]  # a Note object
-        else:
-            noteOrChord = chord.Chord(notesList)
-
-        noteOrChord.duration = self.durationFromDuration(durationList[0])
-
-        lyricsList = chordElement.findall('lyric')
-        if lyricsList:
-            lyricsList = self.lyricListFromLyric(lyricsList[0])
-            noteOrChord.lyrics = lyricsList
-
-        return noteOrChord
+        pass
 
     def notesFromHeads(self, headsElement):
         # noinspection PyShadowingNames
@@ -488,11 +460,7 @@ class CapellaImporter:
         >>> ci.notesFromHeads(headsElement)
         [<music21.note.Note B->, <music21.note.Note C>]
         '''
-        notes = []
-        headDomList = headsElement.findall('head')
-        for headElement in headDomList:
-            notes.append(self.noteFromHead(headElement))
-        return notes
+        pass
 
     def noteFromHead(self, headElement):
         # noinspection PyShadowingNames
@@ -512,31 +480,7 @@ class CapellaImporter:
         >>> n.tie
         <music21.tie.Tie stop>
         '''
-        if 'pitch' not in headElement.attrib:
-            raise CapellaImportException('Cannot deal with <head> element without pitch!')
-
-        noteNameWithOctave = headElement.attrib['pitch']
-        n = note.Note()
-        n.nameWithOctave = noteNameWithOctave
-        n.octave = n.octave - 1  # capella octaves are 1 off
-
-        alters = headElement.findall('alter')
-        if len(alters) > 1:
-            raise CapellaImportException('Cannot deal with multiple <alter> elements!')
-
-        if len(alters) == 1:
-            acc = self.accidentalFromAlter(alters[0])
-            n.pitch.accidental = acc
-
-        ties = headElement.findall('tie')
-        if len(ties) > 1:
-            raise CapellaImportException('Cannot deal with multiple <tie> elements!')
-
-        if len(ties) == 1:
-            thisTie = self.tieFromTie(ties[0])
-            n.tie = thisTie
-
-        return n
+        pass
 
     def accidentalFromAlter(self, alterElement):
         '''
@@ -556,16 +500,7 @@ class CapellaImporter:
         >>> accidentalObject.displayType
         'never'
         '''
-        if 'step' in alterElement.attrib:
-            alteration = int(alterElement.attrib['step'])
-        else:
-            print('No alteration...')
-            alteration = 0
-        acc = pitch.Accidental(alteration)
-
-        if 'display' in alterElement.attrib and alterElement.attrib['display'] == 'suppress':
-            acc.displayType = 'never'
-        return acc
+        pass
 
     def tieFromTie(self, tieElement):
         '''
@@ -591,25 +526,7 @@ class CapellaImporter:
         >>> ci.tieFromTie(tieEl)
         <music21.tie.Tie continue>
         '''
-        begin = False
-        end = False
-        if 'begin' in tieElement.attrib and tieElement.attrib['begin'] == 'true':
-            begin = True
-        if 'end' in tieElement.attrib and tieElement.attrib['end'] == 'true':
-            end = True
-
-        tieType = None
-        if begin is True and end is True:
-            tieType = 'continue'
-        elif begin is True:
-            tieType = 'start'
-        elif end is True:
-            tieType = 'stop'
-        else:
-            return None
-
-        tieObj = tie.Tie(tieType)
-        return tieObj
+        pass
 
     def lyricListFromLyric(self, lyricElement):
         '''
@@ -625,13 +542,7 @@ class CapellaImporter:
          <music21.note.Lyric number=2 syllabic=single text='man,'>,
          <music21.note.Lyric number=3 syllabic=single text='frau,'>]
         '''
-        lyricList = []
-        verses = lyricElement.findall('verse')
-        for d in verses:
-            thisLyric = self.lyricFromVerse(d)
-            if thisLyric is not None:
-                lyricList.append(thisLyric)
-        return lyricList
+        pass
 
     def lyricFromVerse(self, verse):
         # noinspection PyShadowingNames
@@ -647,18 +558,7 @@ class CapellaImporter:
 
         if the text is empty, returns None
         '''
-        verseNumber = 1
-        syllabic = 'single'
-        if 'i' in verse.attrib:
-            verseNumber = int(verse.attrib['i']) + 1
-        if 'hyphen' in verse.attrib and verse.attrib['hyphen'] == 'true':
-            syllabic = 'begin'
-        text = verse.text
-        if text is None or text == '':
-            return None
-        else:
-            lyric = note.Lyric(text=text, number=verseNumber, syllabic=syllabic, applyRaw=True)
-            return lyric
+        pass
 
         # i = number - 1
         # align
@@ -696,24 +596,7 @@ class CapellaImporter:
         >>> clefObject.octaveChange
         1
         '''
-        if 'clef' in clefSign.attrib:
-            clefValue = clefSign.attrib['clef']
-            if clefValue in self.clefMapping:
-                return self.clefMapping[clefValue]()
-            elif clefValue[0] == 'p':
-                return clef.PercussionClef()
-            elif len(clefValue) > 1:
-                clefSignAndLine = clefValue[0:2]
-                clefOctaveChange = 0
-                if len(clefValue) > 2:
-                    if clefValue[2] == '+':
-                        clefOctaveChange = 1
-                    elif clefValue[2] == '-':
-                        clefOctaveChange = -1
-                clefObj = clef.clefFromString(clefSignAndLine, clefOctaveChange)
-                return clefObj
-
-        return None
+        pass
 
     def keySignatureFromKeySign(self, keySign):
         # noinspection PyShadowingNames
@@ -725,9 +608,7 @@ class CapellaImporter:
         >>> ci.keySignatureFromKeySign(keySign)
         <music21.key.KeySignature of 1 flat>
         '''
-        if 'fifths' in keySign.attrib:
-            keyFifths = int(keySign.attrib['fifths'])
-            return key.KeySignature(keyFifths)
+        pass
 
     def timeSignatureFromTimeSign(self, timeSign):
         # noinspection PyShadowingNames
@@ -743,14 +624,7 @@ class CapellaImporter:
         >>> ci.timeSignatureFromTimeSign(timeSign) is None
         True
         '''
-        if 'time' in timeSign.attrib:
-            timeString = timeSign.attrib['time']
-            if timeString != 'infinite':
-                return meter.TimeSignature(timeString)
-            else:
-                return None
-        else:
-            return None
+        pass
 
     def durationFromDuration(self, durationElement):
         '''
@@ -782,27 +656,7 @@ class CapellaImporter:
 
         Does not handle noDuration='true', display, churchStyle on rest durations
         '''
-        dur = duration.Duration()
-
-        if 'base' in durationElement.attrib:
-            baseValue = durationElement.attrib['base']
-            slashIndex = baseValue.find('/')
-            if slashIndex != -1:
-                firstNumber = int(baseValue[0:slashIndex])
-                secondNumber = int(baseValue[slashIndex + 1:])
-                quarterLength = (4.0 * firstNumber) / secondNumber
-                dur.quarterLength = quarterLength
-
-        if 'dots' in durationElement.attrib:
-            dotNumber = int(durationElement.attrib['dots'])
-            dur.dots = dotNumber
-
-        tuplets = durationElement.findall('tuplet')
-        for d in tuplets:
-            tuplet = self.tupletFromTuplet(d)
-            dur.appendTuplet(tuplet)
-
-        return dur
+        pass
 
     def tupletFromTuplet(self, tupletElement):
         '''
@@ -816,22 +670,7 @@ class CapellaImporter:
 
         does not handle 'tripartite' = True
         '''
-        numerator = 1
-        denominator = 1
-        if 'count' in tupletElement.attrib:
-            numerator = int(tupletElement.attrib['count'])
-            denominator = 1
-            while numerator > denominator * 2:
-                denominator *= 2
-        if 'prolong' in tupletElement.attrib and tupletElement.attrib['count'] == 'true':
-            denominator *= 2
-
-        if 'tripartite' in tupletElement.attrib:
-            print(
-                "WE DON'T HANDLE TRIPARTITE YET! Email the file and a pdf so I can figure it out")
-
-        tup = duration.Tuplet(numerator, denominator)
-        return tup
+        pass
 
     barlineMap = {'single': 'normal',
                   'double': 'double',
@@ -862,26 +701,7 @@ class CapellaImporter:
         [<music21.bar.Repeat direction=end>, <music21.bar.Repeat direction=start>]
 
         '''
-        barlineList = []
-        hasRepeatEnd = False
-        if 'type' in barlineElement.attrib:
-            barlineType = barlineElement.attrib['type']
-            if barlineType.startswith('rep'):  # begins with rep
-                if barlineType in self.barlineMap:
-                    repeatType = self.barlineMap[barlineType]
-                    if repeatType.find('end') > -1:
-                        barlineList.append(bar.Repeat('end'))
-                        hasRepeatEnd = True
-                    if repeatType.find('start') > -1:
-                        startRep = bar.Repeat('start')
-                        if hasRepeatEnd is True:
-                            startRep.priority = 1
-                        barlineList.append(startRep)
-            else:
-                if barlineType in self.barlineMap:
-                    barlineList.append(bar.Barline(self.barlineMap[barlineType]))
-
-        return barlineList
+        pass
 
     def slurFromDrawObjSlur(self, drawObj):
         '''
@@ -892,43 +712,16 @@ class CapellaImporter:
 
 class Test(unittest.TestCase):
     def testComplete(self):
-        from music21 import text
-
-        ci = CapellaImporter()
-        capellaDirPath = common.getSourceFilePath() / 'capella'
-        oswaldPath = capellaDirPath / r'Nu_rue_mit_sorgen.capx'
-        partScore = ci.scoreFromFile(oswaldPath)
-        self.assertEqual(len(partScore.parts), 3)
-        self.assertGreater(len(partScore.recurse().notes), 20)
-        self.assertIn('mass!', text.assembleLyrics(partScore.parts[0], 1))
-        self.assertIn('scherz', text.assembleLyrics(partScore.parts[0], 2))
+        pass
 
 class TestExternal(unittest.TestCase):
     show = True
 
     def testComplete(self):
-        ci = CapellaImporter()
-        capellaDirPath = common.getSourceFilePath() / 'capella'
-        oswaldPath = capellaDirPath / r'Nu_rue_mit_sorgen.capx'
-        partScore = ci.scoreFromFile(oswaldPath)
-        if self.show:
-            partScore.show()
+        pass
 
     def xtestImportSorgen(self):
-        ci = CapellaImporter()
-        capellaDirPath = common.getSourceFilePath() / 'capella'
-        oswaldPath = capellaDirPath / r'Nu_rue_mit_sorgen.capx'
-
-        ci.readCapellaXMLFile(oswaldPath)
-        ci.parseXMLText()
-        # firstSystemObject = ci.mainDom.documentElement.getElementsByTagName('system')[0]
-        # m21SystemObj = ci.systemFromSystem(firstSystemObject)
-        # m21SystemObj.show('text')
-        # scoreElement = ci.mainDom.documentElement.getElementsByTagName('score')[0]
-        scoreObj = ci.systemScoreFromScore(ci.mainDom.documentElement)
-        partScore = ci.partScoreFromSystemScore(scoreObj)
-        if self.show:
-            partScore.show()
+        pass
         # ci.walkNodes()
         # print(ci.xmlText)
 

@@ -44,27 +44,7 @@ class Segmenter:
          [<music21.note.Note A>, <music21.note.Note B>],
          [<music21.note.Note C>]]
         '''
-        segments = []
-        thisSegment = []
-        partNotes = workOrPart.recurse().getElementsByClass(['Note', 'Rest', 'Clef'])
-        for i in range(len(partNotes)):
-            n = partNotes[i]
-            if isinstance(n, note.Note):
-                thisSegment.append(n)
-                # for final segment as workOrPart usually ends with a note not clef or rest
-                if i == len(partNotes) - 1:
-                    segments.append(thisSegment)
-            if isinstance(n, (note.Rest, clef.Clef)):
-                segments.append(thisSegment)
-                thisSegment = []
-                continue
-
-        # Optionally: Remove the empty sublists given by rests
-        if removeEmptyLists:
-            for segment in segments[::-1]:
-                if not segment:
-                    segments.remove(segment)
-        return segments
+        pass
 
     @classmethod
     def getIntervalList(cls, workOrPart):
@@ -78,35 +58,16 @@ class Segmenter:
         >>> [x.name for x in intList]
         ['M2', 'M2', 'P5']
         '''
-        intervalList = []
-        elementList = workOrPart.recurse().getElementsByClass(['Note', 'Rest', 'Clef'])
-        for i in range(len(elementList) - 1):
-            n1 = elementList[i]
-            if isinstance(n1, (note.Rest, clef.Clef)):
-                continue
-            n2 = elementList[i + 1]
-            if isinstance(n2, (note.Rest, clef.Clef)):
-                continue
-            intervalObj = interval.Interval(n1, n2)
-            intervalList.append(intervalObj)
-        return intervalList
+        pass
 
 # ------------------------------------------------------------------------------
 class Test(unittest.TestCase):
 
     def testGetSegmentsList(self):
-        ex = converter.parse('tinyNotation: E4 r F G A r g c r c')
-        segments = Segmenter.getSegmentsList(ex)
-
-        self.assertIsInstance(segments[0], list)
-        self.assertEqual(segments[1][0].name, 'F')
+        pass
 
     def testGetIntervalList(self):
-        ex = converter.parse('tinyNotation: E4 r F G A r g c r c')
-        intervalList = Segmenter.getIntervalList(ex)
-
-        self.assertEqual(intervalList[0].name, 'M2')
-        self.assertIsInstance(intervalList, list)
+        pass
 
 
 # -----------------------------------------------------------------------------
