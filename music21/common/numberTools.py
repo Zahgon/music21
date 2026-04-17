@@ -27,50 +27,68 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    'addFloatPrecision',
-    'approximateGCD',
-    'contiguousList',
-    'decimalToTuplet',
-    'dotMultiplier',
-    'fromRoman',
-    'groupContiguousIntegers',
-    'mixedNumeral',
-    'musicOrdinals',
-    'nearestMultiple',
-    'numToIntOrFloat',
-    'opFrac',
-    'ordinalAbbreviation',
-    'ordinals',
-    'ordinalsToNumbers',
-    'roundToHalfInteger',
-    'strTrimFloat',
-    'toRoman',
-    'unitBoundaryProportion',
-    'unitNormalizeProportion',
-    'weightedSelection',
+    "addFloatPrecision",
+    "approximateGCD",
+    "contiguousList",
+    "decimalToTuplet",
+    "dotMultiplier",
+    "fromRoman",
+    "groupContiguousIntegers",
+    "mixedNumeral",
+    "musicOrdinals",
+    "nearestMultiple",
+    "numToIntOrFloat",
+    "opFrac",
+    "ordinalAbbreviation",
+    "ordinals",
+    "ordinalsToNumbers",
+    "roundToHalfInteger",
+    "strTrimFloat",
+    "toRoman",
+    "unitBoundaryProportion",
+    "unitNormalizeProportion",
+    "weightedSelection",
 ]
 
 ordinals = [
-    'Zeroth', 'First', 'Second', 'Third', 'Fourth', 'Fifth',
-    'Sixth', 'Seventh', 'Eighth', 'Ninth', 'Tenth', 'Eleventh',
-    'Twelfth', 'Thirteenth', 'Fourteenth', 'Fifteenth',
-    'Sixteenth', 'Seventeenth', 'Eighteenth', 'Nineteenth',
-    'Twentieth', 'Twenty-first', 'Twenty-second',
+    "Zeroth",
+    "First",
+    "Second",
+    "Third",
+    "Fourth",
+    "Fifth",
+    "Sixth",
+    "Seventh",
+    "Eighth",
+    "Ninth",
+    "Tenth",
+    "Eleventh",
+    "Twelfth",
+    "Thirteenth",
+    "Fourteenth",
+    "Fifteenth",
+    "Sixteenth",
+    "Seventeenth",
+    "Eighteenth",
+    "Nineteenth",
+    "Twentieth",
+    "Twenty-first",
+    "Twenty-second",
 ]
 
 musicOrdinals = ordinals[:]
-musicOrdinals[1] = 'Unison'
-musicOrdinals[8] = 'Octave'
-musicOrdinals[15] = 'Double-octave'
-musicOrdinals[22] = 'Triple-octave'
+musicOrdinals[1] = "Unison"
+musicOrdinals[8] = "Octave"
+musicOrdinals[15] = "Double-octave"
+musicOrdinals[22] = "Triple-octave"
 
 
 # -----------------------------------------------------------------------------
 # Number methods
 
 
-def numToIntOrFloat(value: OffsetQLIn) -> int|float:
-    '''
+def numToIntOrFloat(value: OffsetQLIn) -> int | float:
+    """
     Given a number, return an integer if it is very close to an integer,
     otherwise, return a float.
 
@@ -126,7 +144,7 @@ def numToIntOrFloat(value: OffsetQLIn) -> int|float:
     1.333333333...
 
     Note: Decimal objects are not supported.
-    '''
+    """
     try:
         intVal = round(value)
     except (ValueError, TypeError):
@@ -141,10 +159,11 @@ def numToIntOrFloat(value: OffsetQLIn) -> int|float:
 
 DENOM_LIMIT = defaults.limitOffsetDenominator
 
+
 @cache
 def _preFracLimitDenominator(n: int, d: int) -> tuple[int, int]:
     # noinspection PyShadowingNames
-    '''
+    """
     Used in opFrac
 
     Copied from fractions.limit_denominator.  Their method
@@ -194,7 +213,7 @@ def _preFracLimitDenominator(n: int, d: int) -> tuple[int, int]:
     ...         print(f'boo: {x}, {myWay(x)}, {theirWay(x)}')
 
     (n.b. -- nothing printed)
-    '''
+    """
     if d <= DENOM_LIMIT:  # faster than hard-coding 65535
         return (n, d)
     nOrg = n
@@ -230,22 +249,22 @@ def _preFracLimitDenominator(n: int, d: int) -> tuple[int, int]:
 # the length of this set does determine the time to search.  A set with all values from maxima to
 # 2048th notes + 1-2 dots was half the speed
 
-_KNOWN_PASSES = frozenset([
-    0.0625, 0.09375, 0.125, 0.1875,
-    0.25, 0.375, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0
-])
+_KNOWN_PASSES = frozenset(
+    [0.0625, 0.09375, 0.125, 0.1875, 0.25, 0.375, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0]
+)
+
 
 @overload
-def opFrac(num: int) -> float:
-    ...
+def opFrac(num: int) -> float: ...
+
 
 @overload
-def opFrac(num: float|Fraction) -> float|Fraction:
-    ...
+def opFrac(num: float | Fraction) -> float | Fraction: ...
+
 
 # no type checking due to accessing protected attributes (for speed)
 def opFrac(num: OffsetQLIn) -> OffsetQL:
-    '''
+    """
     opFrac -> optionally convert a number to a fraction or back.
 
     Important music21 function for working with offsets and quarterLengths
@@ -293,7 +312,7 @@ def opFrac(num: OffsetQLIn) -> OffsetQL:
 
     * Changed in v9.3: opFrac(None) should not be called.  If it is called,
       it now returns 0.0
-    '''
+    """
     # This is a performance critical operation, tuned to go as fast as possible.
     # hence redundancy -- first we check for type (no inheritance) and then we
     # repeat exact same test with inheritance.
@@ -303,7 +322,7 @@ def opFrac(num: OffsetQLIn) -> OffsetQL:
     # anyone sets ._numeration or ._denominator directly on that object.
     #
     if num in _KNOWN_PASSES:
-        return num + 0.0   # need the add, because ints and Fractions satisfy the "in"
+        return num + 0.0  # need the add, because ints and Fractions satisfy the "in"
 
     # Note that the later examples are more verbose
     numType = type(num)
@@ -356,12 +375,11 @@ def opFrac(num: OffsetQLIn) -> OffsetQL:
         else:
             return num  # leave fraction alone
     else:
-        raise TypeError(f'Cannot convert num: {num}')
+        raise TypeError(f"Cannot convert num: {num}")
 
 
-def mixedNumeral(expr: numbers.Real,
-                 limitDenominator=defaults.limitOffsetDenominator):
-    '''
+def mixedNumeral(expr: numbers.Real, limitDenominator=defaults.limitOffsetDenominator):
+    """
     Returns a string representing a mixedNumeral form of a number
 
     >>> common.mixedNumeral(1.333333)
@@ -398,7 +416,7 @@ def mixedNumeral(expr: numbers.Real,
     '2'
     >>> common.mixedNumeral(2.0000001, limitDenominator=10000000)
     '2 1/10000000'
-    '''
+    """
     if not isinstance(expr, Fraction):
         quotient, remainder = divmod(float(expr), 1.0)
         remainderFrac = Fraction(remainder).limit_denominator(limitDenominator)
@@ -416,7 +434,7 @@ def mixedNumeral(expr: numbers.Real,
 
     if quotient:
         if remainderFrac:
-            return f'{int(quotient)} {remainderFrac}'
+            return f"{int(quotient)} {remainderFrac}"
         else:
             return str(int(quotient))
     else:
@@ -425,8 +443,8 @@ def mixedNumeral(expr: numbers.Real,
     return str(0)
 
 
-def roundToHalfInteger(num: float|int) -> float|int:
-    '''
+def roundToHalfInteger(num: float | int) -> float | int:
+    """
     Given a floating-point number, round to the nearest half-integer. Returns int or float
 
     >>> common.roundToHalfInteger(1.2)
@@ -461,12 +479,12 @@ def roundToHalfInteger(num: float|int) -> float|int:
     -0.5
     >>> common.roundToHalfInteger(-0.25)
     0
-    '''
+    """
     pass
 
 
-def addFloatPrecision(x, grain=1e-2) -> float|Fraction:
-    '''
+def addFloatPrecision(x, grain=1e-2) -> float | Fraction:
+    """
     Given a value that suggests a floating point fraction, like 0.33,
     return a Fraction or float that provides greater specification, such as Fraction(1, 3)
 
@@ -483,12 +501,11 @@ def addFloatPrecision(x, grain=1e-2) -> float|Fraction:
     0.125
     >>> common.addFloatPrecision(1/7) == 1/7
     True
-    '''
+    """
     if isinstance(x, str):
         x = float(x)
 
-    values = (1 / 3, 2 / 3,
-              1 / 6, 5 / 6)
+    values = (1 / 3, 2 / 3, 1 / 6, 5 / 6)
     for v in values:
         if isclose(x, v, abs_tol=grain):
             return opFrac(v)
@@ -496,7 +513,7 @@ def addFloatPrecision(x, grain=1e-2) -> float|Fraction:
 
 
 def strTrimFloat(floatNum: float, maxNum: int = 4) -> str:
-    '''
+    """
     returns a string from a float that is at most maxNum of
     decimal digits long, but never less than 1.
 
@@ -510,14 +527,14 @@ def strTrimFloat(floatNum: float, maxNum: int = 4) -> str:
     '2.0'
     >>> common.strTrimFloat(-5)
     '-5.0'
-    '''
+    """
     # variables called 'off' because originally designed for offsets
-    offBuildString = r'%.' + str(maxNum) + 'f'
+    offBuildString = r"%." + str(maxNum) + "f"
     off = offBuildString % floatNum
-    offDecimal = off.index('.')
+    offDecimal = off.index(".")
     offLen = len(off)
     for index in range(offLen - 1, offDecimal + 1, -1):
-        if off[index] != '0':
+        if off[index] != "0":
             break
         else:
             offLen = offLen - 1
@@ -526,7 +543,7 @@ def strTrimFloat(floatNum: float, maxNum: int = 4) -> str:
 
 
 def nearestMultiple(n: float, unit: float) -> tuple[float, float, float]:
-    '''
+    """
     Given a positive value `n`, return the nearest multiple of the supplied `unit` as well as
     the absolute difference (error) to seven significant digits and the signed difference.
 
@@ -571,11 +588,13 @@ def nearestMultiple(n: float, unit: float) -> tuple[float, float, float]:
     Traceback (most recent call last):
     ValueError: n (-0.5) is less than zero. Thus, cannot find the nearest
         multiple for a value less than the unit, 0.125
-    '''
+    """
     if n < 0:
-        raise ValueError(f'n ({n}) is less than zero. '
-                         + 'Thus, cannot find the nearest multiple for a value '
-                         + f'less than the unit, {unit}')
+        raise ValueError(
+            f"n ({n}) is less than zero. "
+            + "Thus, cannot find the nearest multiple for a value "
+            + f"less than the unit, {unit}"
+        )
 
     mult = math.floor(n / unit)  # can start with the floor
     halfUnit = unit / 2.0
@@ -586,7 +605,7 @@ def nearestMultiple(n: float, unit: float) -> tuple[float, float, float]:
     # print(['mult, halfUnit, matchLow, matchHigh', mult, halfUnit, matchLow, matchHigh])
 
     if matchLow >= n >= matchHigh:
-        raise ValueError(f'cannot place n between multiples: {matchLow}, {matchHigh}')
+        raise ValueError(f"cannot place n between multiples: {matchLow}, {matchHigh}")
 
     if matchLow <= n <= (matchLow + halfUnit):
         return matchLow, round(n - matchLow, 7), round(n - matchLow, 7)
@@ -595,11 +614,11 @@ def nearestMultiple(n: float, unit: float) -> tuple[float, float, float]:
         return matchHigh, round(matchHigh - n, 7), round(n - matchHigh, 7)
 
 
-_DOT_LOOKUP = (1.0, 1.5, 1.75, 1.875, 1.9375,
-               1.96875, 1.984375, 1.9921875, 1.99609375)
+_DOT_LOOKUP = (1.0, 1.5, 1.75, 1.875, 1.9375, 1.96875, 1.984375, 1.9921875, 1.99609375)
+
 
 def dotMultiplier(dots: int) -> float:
-    '''
+    """
     dotMultiplier(dots) returns how long to multiply the note
     length of a note in order to get the note length with n dots
 
@@ -616,15 +635,15 @@ def dotMultiplier(dots: int) -> float:
 
     >>> common.dotMultiplier(0)
     1.0
-    '''
+    """
     if dots < 9:
         return _DOT_LOOKUP[dots]
 
-    return ((2 ** (dots + 1.0)) - 1.0) / (2 ** dots)
+    return ((2 ** (dots + 1.0)) - 1.0) / (2**dots)
 
 
 def decimalToTuplet(decNum: float) -> tuple[int, int]:
-    '''
+    """
     For simple decimals (usually > 1), a quick way to figure out the
     fraction in lowest terms that gives a valid tuplet.
 
@@ -648,12 +667,12 @@ def decimalToTuplet(decNum: float) -> tuple[int, int]:
     >>> common.decimalToTuplet(-.02)
     Traceback (most recent call last):
     ZeroDivisionError: number must be greater than zero
-    '''
+    """
     pass
 
 
-def unitNormalizeProportion(values: Sequence[int|float]) -> list[float]:
-    '''
+def unitNormalizeProportion(values: Sequence[int | float]) -> list[float]:
+    """
     Normalize values within the unit interval, where max is determined by the sum of the series.
 
     >>> common.unitNormalizeProportion([0, 3, 4])
@@ -678,11 +697,11 @@ def unitNormalizeProportion(values: Sequence[int|float]) -> list[float]:
     >>> common.unitNormalizeProportion([0, -2, -8])
     Traceback (most recent call last):
     ValueError: value members must be positive
-    '''
+    """
     summation = 0.0
     for x in values:
         if x < 0.0:
-            raise ValueError('value members must be positive')
+            raise ValueError("value members must be positive")
         summation += x
     unit = []  # weights on the unit interval; sum == 1
     for x in values:
@@ -690,10 +709,8 @@ def unitNormalizeProportion(values: Sequence[int|float]) -> list[float]:
     return unit
 
 
-def unitBoundaryProportion(
-    series: Sequence[int|float]
-) -> list[tuple[int|float, float]]:
-    '''
+def unitBoundaryProportion(series: Sequence[int | float]) -> list[tuple[int | float, float]]:
+    """
     Take a series of parts with an implied sum, and create
     unit-interval boundaries proportional to the series components.
 
@@ -701,7 +718,7 @@ def unitBoundaryProportion(
     [(0.0, 0.25), (0.25, 0.5), (0.5, 1.0)]
     >>> common.unitBoundaryProportion([9, 1, 1])
     [(0.0, 0.8...), (0.8..., 0.9...), (0.9..., 1.0)]
-    '''
+    """
     unit = unitNormalizeProportion(series)
     bounds = []
     summation = 0.0
@@ -714,10 +731,8 @@ def unitBoundaryProportion(
     return bounds
 
 
-def weightedSelection(values: list[int],
-                      weights: list[int|float],
-                      randomGenerator=None) -> int:
-    '''
+def weightedSelection(values: list[int], weights: list[int | float], randomGenerator=None) -> int:
+    """
     Given a list of values and an equal-sized list of weights,
     return a randomly selected value using the weight.
 
@@ -726,7 +741,7 @@ def weightedSelection(values: list[int],
 
     >>> -50 < sum([common.weightedSelection([-1, 1], [1, 1]) for x in range(100)]) < 50
     True
-    '''
+    """
     # See http://www.wolframalpha.com/input/?i=Probability+of+76+or+more+heads+in+100+coin+tosses
     # for probability.  When it was -30 to 30, failed 1 in 500 times.
     if randomGenerator is not None:
@@ -743,8 +758,8 @@ def weightedSelection(values: list[int],
     return values[index]
 
 
-def approximateGCD(values: Collection[int|float|Fraction], grain: float = 1e-4) -> float:
-    '''
+def approximateGCD(values: Collection[int | float | Fraction], grain: float = 1e-4) -> float:
+    """
     Given a list of values, find the lowest common divisor of floating point values.
 
     >>> common.approximateGCD([2.5, 10, 0.25])
@@ -767,13 +782,12 @@ def approximateGCD(values: Collection[int|float|Fraction], grain: float = 1e-4) 
     '0.3333'
     >>> common.strTrimFloat(common.approximateGCD([5/3, 2/3, 5/6, 3/6]))
     '0.1667'
-    '''
+    """
     pass
 
 
-
 def contiguousList(inputListOrTuple) -> bool:
-    '''
+    """
     returns bool True or False if a list containing ints
     contains only contiguous (increasing) values
 
@@ -794,12 +808,12 @@ def contiguousList(inputListOrTuple) -> bool:
     False
     >>> common.contiguousList(sorted(l))
     True
-    '''
+    """
     pass
 
 
 def groupContiguousIntegers(src: list[int]) -> list[list[int]]:
-    '''
+    """
     Given a list of integers, group contiguous values into sub lists
 
     >>> common.groupContiguousIntegers([3, 5, 6])
@@ -816,13 +830,13 @@ def groupContiguousIntegers(src: list[int]) -> list[list[int]]:
     [[3]]
     >>> common.groupContiguousIntegers([3, 200])
     [[3], [200]]
-    '''
+    """
     pass
 
 
 # noinspection SpellCheckingInspection
 def fromRoman(num: str, *, strictModern=False) -> int:
-    '''
+    """
 
     Convert a Roman numeral (upper or lower) to an int
 
@@ -859,15 +873,15 @@ def fromRoman(num: str, *, strictModern=False) -> int:
     >>> common.fromRoman('vx')
     Traceback (most recent call last):
     ValueError: input contains an invalid subtraction element: vx
-    '''
+    """
     inputRoman = num.upper()
     subtractionValues = (1, 10, 100)
-    nums = ('M', 'D', 'C', 'L', 'X', 'V', 'I')
+    nums = ("M", "D", "C", "L", "X", "V", "I")
     ints = (1000, 500, 100, 50, 10, 5, 1)
     places = []
     for c in inputRoman:
         if c not in nums:
-            raise ValueError(f'value is not a valid roman numeral: {inputRoman}')
+            raise ValueError(f"value is not a valid roman numeral: {inputRoman}")
 
     for i in range(len(inputRoman)):
         c = inputRoman[i]
@@ -878,13 +892,13 @@ def fromRoman(num: str, *, strictModern=False) -> int:
             if nextValue > value and value in subtractionValues:
                 if strictModern and nextValue >= value * 10:
                     raise ValueError(
-                        'input contains an invalid subtraction element '
-                        + f'(modern interpretation): {num}')
+                        "input contains an invalid subtraction element "
+                        + f"(modern interpretation): {num}"
+                    )
 
                 value *= -1
             elif nextValue > value:
-                raise ValueError(
-                    f'input contains an invalid subtraction element: {num}')
+                raise ValueError(f"input contains an invalid subtraction element: {num}")
         except IndexError:
             # there is no next place.
             pass
@@ -897,7 +911,7 @@ def fromRoman(num: str, *, strictModern=False) -> int:
 
 # noinspection SpellCheckingInspection
 def toRoman(num: int) -> str:
-    '''
+    """
     Convert a number from 1 to 3999 to a roman numeral
 
     >>> common.toRoman(2)
@@ -914,12 +928,12 @@ def toRoman(num: int) -> str:
     >>> common.toRoman(0)
     Traceback (most recent call last):
     ValueError: Argument must be between 1 and 3999
-    '''
+    """
     pass
 
 
 def ordinalAbbreviation(value: int, plural=False) -> str:
-    '''
+    """
     Return the ordinal abbreviations for integers
 
     >>> common.ordinalAbbreviation(3)
@@ -928,8 +942,26 @@ def ordinalAbbreviation(value: int, plural=False) -> str:
     'th'
     >>> common.ordinalAbbreviation(255, plural=True)
     'ths'
-    '''
-    pass
+    """
+    valueHundredths = value % 100
+    if valueHundredths in (11, 12, 13):
+        post = "th"
+    else:
+        valueMod = value % 10
+        if valueMod == 1:
+            post = "st"
+        elif valueMod in (0, 4, 5, 6, 7, 8, 9):
+            post = "th"
+        elif valueMod == 2:
+            post = "nd"
+        elif valueMod == 3:
+            post = "rd"
+        else:
+            raise ValueError("Something really weird")
+
+    if post != "st" and plural:
+        post += "s"
+    return post
 
 
 ordinalsToNumbers = {}
@@ -954,9 +986,9 @@ del musicOrdinalNameLower
 
 
 class Test(unittest.TestCase):
-    '''
+    """
     Tests not requiring file output.
-    '''
+    """
 
     def setUp(self):
         pass
@@ -977,6 +1009,7 @@ class Test(unittest.TestCase):
 _DOC_ORDER = [fromRoman, toRoman]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import music21
+
     music21.mainTest(Test)

@@ -8,9 +8,10 @@
 # Copyright:    Copyright © 2009-2020 Michael Scott Asato Cuthbert
 # License:      BSD, see license.txt
 # ------------------------------------------------------------------------------
-'''
+"""
 If it doesn't fit anywhere else in the common directory, you'll find it here!
-'''
+"""
+
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
@@ -26,26 +27,26 @@ import typing as t
 import weakref
 
 __all__ = [
-    'cleanedFlatNotation',
-    'defaultDeepcopy',
-    'flattenList',
-    'getMissingImportStr',
-    'getPlatform',
-    'macOSVersion',
-    'pitchList',
-    'runningInNotebook',
-    'sortModules',
-    'unique',
+    "cleanedFlatNotation",
+    "defaultDeepcopy",
+    "flattenList",
+    "getMissingImportStr",
+    "getPlatform",
+    "macOSVersion",
+    "pitchList",
+    "runningInNotebook",
+    "sortModules",
+    "unique",
 ]
 
 if t.TYPE_CHECKING:
-    _T = t.TypeVar('_T')
+    _T = t.TypeVar("_T")
 
 # -----------------------------------------------------------------------------
 
 
 def flattenList(originalList: Iterable[Iterable[_T]]) -> list[_T]:
-    '''
+    """
     Flatten a list of lists into a flat list:
 
     >>> l = [[1, 2, 3], [4, 5], [6]]
@@ -57,12 +58,12 @@ def flattenList(originalList: Iterable[Iterable[_T]]) -> list[_T]:
     >>> l2 = [[1, 2, 3], [4, 5], [6, [7, 8]]]
     >>> common.flattenList(l2)
     [1, 2, 3, 4, 5, 6, [7, 8]]
-    '''
+    """
     return [item for sublist in originalList for item in sublist]
 
 
-def unique(originalList: Iterable, *, key: Callable|None = None) -> list:
-    '''
+def unique(originalList: Iterable, *, key: Callable | None = None) -> list:
+    """
     Return a List of unique items from an iterable, preserving order.
     (unlike casting to a set and back)
 
@@ -85,7 +86,7 @@ def unique(originalList: Iterable, *, key: Callable|None = None) -> list:
       <music21.note.Note D>,
       <music21.note.Note F#>,
       <music21.note.Note A>]
-    '''
+    """
     seen = set()
     out = []
     for el in originalList:
@@ -99,12 +100,13 @@ def unique(originalList: Iterable, *, key: Callable|None = None) -> list:
         out.append(el)
     return out
 
+
 # ------------------------------------------------------------------------------
 # provide warning strings to users for use in conditional imports
 
 
 def getMissingImportStr(modNameList):
-    '''
+    """
     Given a list of missing module names, returns a nicely-formatted message to the user
     that gives instructions on how to expand music21 with optional packages.
 
@@ -118,12 +120,25 @@ def getMissingImportStr(modNameList):
     Certain music21 functions might need these optional packages: matplotlib, numpy;
     if you run into errors, install them by following the instructions at
     https://www.music21.org/music21docs/installing/installAdditional.html
-    '''
-    pass
+    """
+    if not modNameList:
+        return None
+    elif len(modNameList) == 1:
+        m = modNameList[0]
+        return textwrap.dedent(f"""Certain music21 functions might need the optional package {m};
+                  if you run into errors, install it by following the instructions at
+                  https://www.music21.org/music21docs/installing/installAdditional.html""")
+    else:
+        m = ", ".join(modNameList)
+        return textwrap.dedent(
+            f"""Certain music21 functions might need these optional packages: {m};
+                   if you run into errors, install them by following the instructions at
+                   https://www.music21.org/music21docs/installing/installAdditional.html"""
+        )
 
 
 def getPlatform() -> str:
-    '''
+    """
     Return the name of the platform, where platforms are divided
     between 'win' (for Windows), 'darwin' (for MacOS X), and 'nix' for
     (GNU/Linux and other variants).
@@ -132,30 +147,31 @@ def getPlatform() -> str:
 
     Lowercase names are for backwards compatibility -- this existed before
     the platform module.
-    '''
+    """
     # possible os.name values: 'posix', 'nt', 'os2', 'ce', 'java'.
-    if platform.system() == 'Windows':
-        return 'win'
-    elif platform.system() == 'Darwin':
-        return 'darwin'
-    elif os.name == 'posix':  # catch all other nix platforms
-        return 'nix'  # this must be after the Mac Darwin check, b/c Darwin is also posix
+    if platform.system() == "Windows":
+        return "win"
+    elif platform.system() == "Darwin":
+        return "darwin"
+    elif os.name == "posix":  # catch all other nix platforms
+        return "nix"  # this must be after the Mac Darwin check, b/c Darwin is also posix
     else:
         return os.name
 
+
 def macOSVersion() -> tuple[int, int, int]:  # pragma: no cover
-    '''
+    """
     On a Mac returns the current version as a tuple of (currently 3) ints,
     such as: (10, 5, 6) for 10.5.6.
 
     On other systems, returns (0, 0, 0)
-    '''
-    if getPlatform() != 'darwin':
+    """
+    if getPlatform() != "darwin":
         return (0, 0, 0)
 
     # Catch minor and maintenance as they could be missing,
     # e.g., macOS Big Sur 11.0.1 (20B28) corresponds to "10.16".
-    major, *minor_and_maintenance = tuple(int(v) for v in platform.mac_ver()[0].split('.'))
+    major, *minor_and_maintenance = tuple(int(v) for v in platform.mac_ver()[0].split("."))
 
     minor = minor_and_maintenance[0] if minor_and_maintenance else 0
     maintenance = minor_and_maintenance[1] if len(minor_and_maintenance) > 1 else 0
@@ -164,12 +180,12 @@ def macOSVersion() -> tuple[int, int, int]:  # pragma: no cover
 
 
 def sortModules(moduleList: Iterable[t.Any]) -> list[object]:
-    '''
+    """
     Sort a list of imported module names such that most recently modified is
     first.  In ties, last access time is used then module name
 
     Will return a different order each time depending on the last mod time
-    '''
+    """
     sort = []
     modNameToMod = {}
     for mod in moduleList:
@@ -188,17 +204,17 @@ def sortModules(moduleList: Iterable[t.Any]) -> list[object]:
 
 # ----------------------------
 def pitchList(pitchL):
-    '''
+    """
     utility method that replicates the previous behavior of
     lists of pitches.
 
     May be moved in v8 or later to a common.testing or test.X module.
-    '''
+    """
     pass
 
 
 def runningInNotebook() -> bool:
-    '''
+    """
     return bool if we are running under Jupyter Notebook (not IPython terminal)
     or Google Colabatory (colab).
 
@@ -207,8 +223,8 @@ def runningInNotebook() -> bool:
     https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook
 
     (No tests provided here, since results will differ depending on environment)
-    '''
-    if sys.stderr.__class__.__name__ == 'OutStream':
+    """
+    if sys.stderr.__class__.__name__ == "OutStream":
         return True
     else:
         return False
@@ -223,15 +239,27 @@ def runningInNotebook() -> bool:
 # ------------------------------------------------------------------------------
 # From copy.py
 _IMMUTABLE_DEEPCOPY_TYPES = {
-    type(None), type(Ellipsis), type(NotImplemented),
-    int, float, bool, complex, bytes, str,
-    types.CodeType, type, range,
-    types.BuiltinFunctionType, types.FunctionType,
-    weakref.ref, property,
+    type(None),
+    type(Ellipsis),
+    type(NotImplemented),
+    int,
+    float,
+    bool,
+    complex,
+    bytes,
+    str,
+    types.CodeType,
+    type,
+    range,
+    types.BuiltinFunctionType,
+    types.FunctionType,
+    weakref.ref,
+    property,
 }
 
+
 def defaultDeepcopy(obj: t.Any, memo=None, *, ignoreAttributes: Iterable[str] = ()):
-    '''
+    """
     Unfortunately, it is not possible to do something like::
 
         def __deepcopy__(self, memo):
@@ -254,7 +282,7 @@ def defaultDeepcopy(obj: t.Any, memo=None, *, ignoreAttributes: Iterable[str] = 
 
     * Changed in v9: callInit is removed, replaced with ignoreAttributes.
       uses `__reduce_ex__` internally.
-    '''
+    """
     if memo is None:
         memo = {}
 
@@ -275,7 +303,7 @@ def defaultDeepcopy(obj: t.Any, memo=None, *, ignoreAttributes: Iterable[str] = 
 
 
 def cleanedFlatNotation(music_str: str) -> str:
-    '''
+    """
     Returns a copy of the given string where each occurrence of a flat note
     specified with a 'b' is replaced by a '-'.
 
@@ -285,10 +313,11 @@ def cleanedFlatNotation(music_str: str) -> str:
 
     >>> common.cleanedFlatNotation('Cb')
     'C-'
-    '''
-    return re.sub('([A-Ga-g])b', r'\1-', music_str)
+    """
+    return re.sub("([A-Ga-g])b", r"\1-", music_str)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import music21
+
     music21.mainTest()
